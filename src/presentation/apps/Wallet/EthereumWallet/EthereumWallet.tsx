@@ -10,22 +10,21 @@ import { NFT } from '@/src/domain/blockchain/models/NFT';
 
 const EthereumWallet: React.FC = () => {
   const { login, logout, ready, authenticated, user } = usePrivy();
-  const account = useAccount();
+  const { isConnected, address, isConnecting } = useAccount();
   const { data: balanceData } = useBalance({
-    address: account.address,
+    address: address,
   });
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [nfts, setNfts] = useState<NFT[]>([]);
-  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (account.address && authenticated) {
+      if (address && authenticated) {
         const ethService = EthereumService.getInstance();
         const [txs, nftList] = await Promise.all([
-          ethService.getTransactions(account.address),
-          ethService.getNFTs(account.address),
+          ethService.getTransactions(address),
+          ethService.getNFTs(address),
         ]);
         setTransactions(txs);
         setNfts(nftList);
@@ -33,26 +32,21 @@ const EthereumWallet: React.FC = () => {
     };
 
     fetchData();
-  }, [account.address, authenticated]);
+  }, [address, authenticated]);
 
   const handleConnect = async () => {
     try {
-      setIsConnecting(true);
       await login();
     } catch (error) {
-      console.error('Failed to connect:', error);
-    } finally {
-      setIsConnecting(false);
+      console.error('Failed to connect wallet:', error);
     }
   };
 
   const handleDisconnect = async () => {
     try {
       await logout();
-      setTransactions([]);
-      setNfts([]);
     } catch (error) {
-      console.error('Failed to disconnect:', error);
+      console.error('Failed to disconnect wallet:', error);
     }
   };
 
@@ -63,7 +57,7 @@ const EthereumWallet: React.FC = () => {
   return (
     <WalletInterface
       network="ethereum"
-      address={account.address || null}
+      address={address || null}
       balance={balanceData?.formatted || '0'}
       transactions={transactions}
       nfts={nfts}
