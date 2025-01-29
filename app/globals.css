@@ -1,10 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --win95-bg: #008080;
+  --win95-gray: #C0C0C0;
+  --win95-gray-dark: #808080;
+  --win95-gray-light: #FFFFFF;
+  --win95-text: #000000;
+  --win95-highlight: #000080;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,5 +19,47 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--win95-text);
+  font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* Windows 95 button style */
+.win95-btn {
+  padding: 4px 8px;
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  color: var(--win95-text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.win95-btn:active {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 5px 7px 3px 9px;
+}
+
+/* Windows 95 window style */
+.win95-window {
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }

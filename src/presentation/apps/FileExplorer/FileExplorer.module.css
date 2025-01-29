@@ -1,0 +1,425 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--win95-gray);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--win95-gray-dark);
+  box-shadow: 1px 1px 0 white inset;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.menuItem {
+  padding: 2px 6px;
+  cursor: default;
+}
+
+.menuItem:hover {
+  background: var(--win95-gray-dark);
+  color: white;
+}
+
+.buttonBar {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-bottom: 1px solid var(--win95-gray-dark);
+  gap: 2px;
+}
+
+.toolButton {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  border: 1px solid transparent;
+  background: var(--win95-gray);
+  cursor: pointer;
+  gap: 2px;
+  user-select: none;
+}
+
+.toolButton[data-disabled] {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.toolButton[data-disabled]:hover {
+  border-color: transparent;
+}
+
+.toolButton[data-disabled]:active {
+  padding: 2px 4px;
+  border-color: transparent;
+}
+
+.toolButton:not([data-disabled]):hover {
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+}
+
+.toolButton:not([data-disabled]):active {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 3px 3px 1px 5px;
+}
+
+.toolButton img {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--win95-gray-dark);
+  margin: 0 4px;
+  box-shadow: 1px 0 0 var(--win95-gray-light);
+}
+
+.splitView {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  min-height: 0;
+}
+
+.treeView {
+  width: 200px;
+  background: white;
+  border: 1px solid var(--win95-gray-dark);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.treeHeader {
+  padding: 2px 4px;
+  background: var(--win95-gray);
+  border-bottom: 1px solid var(--win95-gray-dark);
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.folderTree {
+  flex: 1;
+  padding: 4px;
+}
+
+.treeItem {
+  display: flex;
+  align-items: center;
+  padding: 1px 2px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.treeItem:hover {
+  background: var(--win95-highlight);
+  color: white;
+}
+
+.treeItem.selected {
+  background: var(--win95-highlight);
+  color: white;
+}
+
+.treeItem.selected:hover {
+  background: var(--win95-highlight);
+  color: white;
+}
+
+.expandButton {
+  width: 9px;
+  height: 9px;
+  margin-right: 3px;
+  flex-shrink: 0;
+  font-size: 9px;
+  line-height: 9px;
+  text-align: center;
+  border: 1px solid var(--win95-gray-dark);
+  background: white;
+  cursor: default;
+  color: black;
+}
+
+.treeItem:hover .expandButton {
+  border-color: white;
+  color: white;
+  background: var(--win95-highlight);
+}
+
+.treeItem.selected .expandButton {
+  border-color: white;
+  color: white;
+  background: var(--win95-highlight);
+}
+
+.treeIcon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  margin-right: 2px;
+  object-fit: contain;
+  background-color: transparent;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+.treeLabel {
+  font-size: 11px;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileView {
+  flex: 1;
+  background: white;
+  border: 1px solid var(--win95-gray-dark);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+.fileViewHeader {
+  padding: 2px 4px;
+  background: var(--win95-gray);
+  border-bottom: 1px solid var(--win95-gray-dark);
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.fileList {
+  flex: 1;
+  padding: 8px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 4px;
+  align-content: start;
+  background: white;
+}
+
+.fileItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px;
+  cursor: default;
+  text-align: center;
+  border: 1px solid transparent;
+  min-width: 0;
+  margin: 2px;
+}
+
+.fileItem:hover {
+  background: var(--win95-highlight);
+  color: white;
+}
+
+.fileItem.selected {
+  background: var(--win95-highlight);
+  color: white;
+}
+
+.fileIcon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  flex-shrink: 0;
+}
+
+.fileIcon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  max-width: 32px;
+  max-height: 32px;
+  flex-shrink: 0;
+  background-color: transparent;
+}
+
+/* Specific sizes for different icon types */
+.fileIcon.small {
+  width: 16px;
+  height: 16px;
+}
+
+.fileIcon.medium {
+  width: 32px;
+  height: 32px;
+}
+
+.fileIcon.large {
+  width: 48px;
+  height: 48px;
+}
+
+/* Larger preview for image files */
+.fileIcon.imagePreview {
+  width: 48px;
+  height: 48px;
+}
+
+.fileIcon.imagePreview img {
+  width: 48px;
+  height: 48px;
+  max-width: 48px;
+  max-height: 48px;
+  object-fit: contain;
+  background-color: transparent;
+}
+
+.fileName {
+  font-size: 11px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 4px;
+  border: 1px dotted transparent;
+}
+
+.fileItem.selected .fileName {
+  border-color: white;
+}
+
+.statusBar {
+  height: 20px;
+  border-top: 1px solid var(--win95-gray-dark);
+  background: var(--win95-gray);
+  padding: 2px 4px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  border: 1px solid;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  margin: 0 4px 4px 4px;
+}
+
+.treeIndent {
+  width: 16px;
+  height: 1px;
+  flex-shrink: 0;
+}
+
+.folderSelect {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 8px;
+  border: 1px solid var(--win95-gray-dark);
+  background: white;
+  padding: 2px 4px;
+  height: 21px;
+  min-width: 200px;
+}
+
+.folderSelectButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  cursor: default;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.folderSelectIcon {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  object-fit: contain;
+}
+
+.folderSelectText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folderSelectArrow {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--win95-gray-dark);
+  padding-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+}
+
+.loadingMessage,
+.errorMessage {
+  padding: 16px;
+  text-align: center;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  color: var(--win95-text);
+}
+
+.errorMessage {
+  color: #ff0000;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 2px;
+  margin-right: 8px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 21px;
+  border: 1px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  background: var(--win95-gray);
+  cursor: pointer;
+  padding: 2px;
+}
+
+.actionButton[data-disabled] {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.actionButton:not([data-disabled]):hover {
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+}
+
+.actionButton:not([data-disabled]):active {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 3px 1px 1px 3px;
+}
+
+.actionButton img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+} 

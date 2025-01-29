@@ -1,0 +1,61 @@
+.container {
+  position: relative;
+}
+
+.button {
+  padding: 2px 4px;
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  cursor: pointer;
+  height: 22px;
+}
+
+.startIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 200px;
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  padding: 8px;
+}
+
+.menuItem {
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+}
+
+.menuItem:hover {
+  background: var(--win95-highlight);
+  color: white;
+}
+
+.menuItemIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider {
+  border-top: 1px solid var(--win95-gray-dark);
+  margin: 4px 0;
+} 

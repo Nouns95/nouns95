@@ -1,0 +1,47 @@
+.wallet-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--win95-gray);
+}
+
+.wallet-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 4px 0;
+  background: var(--win95-gray);
+  border-bottom: 1px solid var(--win95-gray-dark);
+}
+
+.wallet-tab {
+  padding: 6px 12px;
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: none;
+}
+
+.wallet-tab.active {
+  background: var(--win95-gray-light);
+  border-bottom: none;
+  position: relative;
+}
+
+.wallet-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--win95-gray-light);
+}
+
+.wallet-content {
+  flex: 1;
+  padding: 16px;
+  background: var(--win95-gray-light);
+  overflow: auto;
+} 
