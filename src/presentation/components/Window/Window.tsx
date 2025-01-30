@@ -1,18 +1,46 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Window as WindowType } from '@/src/domain/window/models/Window';
 import { WindowService } from '@/src/domain/window/services/WindowService';
 import TitleBar from './TitleBar';
-import Icon from '../shared/Icon';
 import styles from './Window.module.css';
 
-interface WindowProps {
-  window: WindowType;
-  children: React.ReactNode;
+interface WindowState {
+  id: string;
+  title: string;
+  appId: string;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  isMinimized: boolean;
+  isMaximized: boolean;
+  isFocused: boolean;
+  canResize: boolean;
+  zIndex: number;
+  metadata?: {
+    network?: 'ethereum' | 'solana';
+    path?: string;
+  };
 }
 
-const Window: React.FC<WindowProps> = ({ window, children }) => {
+interface WindowProps {
+  id: string;
+  title: string;
+  defaultWidth?: number;
+  defaultHeight?: number;
+  minWidth?: number;
+  minHeight?: number;
+  window: WindowState;
+  children?: React.ReactNode;
+}
+
+const Window: React.FC<WindowProps> = ({
+  id,
+  title,
+  minWidth = 400,
+  minHeight = 300,
+  window,
+  children
+}) => {
   const windowRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -25,10 +53,12 @@ const Window: React.FC<WindowProps> = ({ window, children }) => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging && windowRef.current) {
+      if (isDragging && windowRef.current && !window.isMaximized) {
+        e.preventDefault();
         const newX = e.clientX - dragOffset.x;
         const newY = e.clientY - dragOffset.y;
-        windowService.moveWindow(window.id, { x: newX, y: newY });
+        windowRef.current.style.left = `${newX}px`;
+        windowRef.current.style.top = `${newY}px`;
       } else if (isResizing && windowRef.current && resizeEdge) {
         e.preventDefault();
         const deltaX = e.clientX - initialMousePosition.x;
@@ -37,10 +67,6 @@ const Window: React.FC<WindowProps> = ({ window, children }) => {
         let newHeight = initialSize.height;
         let newX = initialPosition.x;
         let newY = initialPosition.y;
-
-        // Minimum window size
-        const minWidth = 200;
-        const minHeight = 150;
 
         if (resizeEdge.includes('e')) {
           newWidth = Math.max(minWidth, initialSize.width + deltaX);
@@ -63,39 +89,67 @@ const Window: React.FC<WindowProps> = ({ window, children }) => {
           }
         }
 
-        windowService.resizeWindow(window.id, { width: newWidth, height: newHeight });
+        windowService.resizeWindow(id, { width: newWidth, height: newHeight });
         if (newX !== initialPosition.x || newY !== initialPosition.y) {
-          windowService.moveWindow(window.id, { x: newX, y: newY });
+          windowService.moveWindow(id, { x: newX, y: newY });
         }
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      if (isDragging && windowRef.current && !window.isMaximized) {
+        e.preventDefault();
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        windowService.moveWindow(id, { x: newX, y: newY });
+      }
       setIsDragging(false);
       setIsResizing(false);
       setResizeEdge(null);
+      document.body.style.cursor = '';
     };
 
     if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleMouseMove, true);
+      document.addEventListener('mouseup', handleMouseUp, true);
+      if (isDragging) {
+        document.body.style.cursor = 'move';
+      }
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleMouseMove, true);
+      document.removeEventListener('mouseup', handleMouseUp, true);
+      document.body.style.cursor = '';
     };
-  }, [isDragging, isResizing, dragOffset, window.id, windowService, resizeEdge, initialSize, initialPosition, initialMousePosition]);
+  }, [
+    isDragging,
+    isResizing,
+    dragOffset,
+    resizeEdge,
+    initialSize,
+    initialPosition,
+    initialMousePosition,
+    id,
+    window.isMaximized,
+    minWidth,
+    minHeight,
+    windowService
+  ]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (windowRef.current) {
+    if (e.button !== 0) return; // Only handle left click
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (windowRef.current && !window.isMaximized) {
       const rect = windowRef.current.getBoundingClientRect();
       setDragOffset({
         x: e.clientX - rect.left,
         y: e.clientY - rect.top
       });
       setIsDragging(true);
-      windowService.focusWindow(window.id);
+      windowService.focusWindow(id);
     }
   };
 
@@ -113,30 +167,38 @@ const Window: React.FC<WindowProps> = ({ window, children }) => {
     setInitialSize({ width: rect.width, height: rect.height });
     setInitialPosition({ x: rect.left, y: rect.top });
     setInitialMousePosition({ x: e.clientX, y: e.clientY });
-    windowService.focusWindow(window.id);
+    windowService.focusWindow(id);
   };
 
   const handleClose = () => {
-    windowService.closeWindow(window.id);
+    windowService.closeWindow(id);
   };
 
   const handleMinimize = () => {
-    windowService.minimizeWindow(window.id);
+    windowService.minimizeWindow(id);
   };
 
   const handleMaximize = () => {
-    if (window.isMaximized) {
-      windowService.restoreWindow(window.id);
-    } else {
-      windowService.maximizeWindow(window.id);
+    if (window && window.isMaximized) {
+      windowService.restoreWindow(id);
+    } else if (window) {
+      windowService.maximizeWindow(id);
     }
   };
 
-  const windowStyle = {
+  const handleWindowClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    windowService.focusWindow(id);
+  };
+
+  const windowStyle: React.CSSProperties = {
+    position: 'absolute',
     left: window.position.x,
     top: window.position.y,
-    width: window.size.width,
-    height: window.size.height,
+    width: window.isMaximized ? '100%' : window.size.width,
+    height: window.isMaximized ? '100%' : window.size.height,
+    minWidth,
+    minHeight,
     zIndex: window.zIndex,
     display: window.isMinimized ? 'none' : 'flex',
     cursor: isResizing ? 
@@ -146,16 +208,20 @@ const Window: React.FC<WindowProps> = ({ window, children }) => {
       'ew-resize' : undefined
   };
 
+  if (window.isMinimized) {
+    return null;
+  }
+
   return (
     <div
       ref={windowRef}
       className={`${styles.window} ${window.isFocused ? styles.focused : ''} ${window.isMaximized ? styles.maximized : ''}`}
       style={windowStyle}
-      onClick={() => windowService.focusWindow(window.id)}
+      onClick={handleWindowClick}
     >
       <TitleBar
-        title={window.title}
-        applicationId={window.applicationId}
+        title={title}
+        applicationId={window.appId}
         isMaximized={window.isMaximized}
         isFocused={window.isFocused}
         onMouseDown={handleMouseDown}

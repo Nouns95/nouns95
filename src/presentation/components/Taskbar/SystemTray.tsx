@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import styles from './Taskbar.module.css';
 
 const SystemTray: React.FC = () => {
   const [time, setTime] = useState<string>('');
@@ -22,7 +23,7 @@ const SystemTray: React.FC = () => {
   }, []);
 
   return (
-    <div className="system-tray">
+    <div className={styles.systemTray}>
       {time}
     </div>
   );

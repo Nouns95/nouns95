@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { FileSystemService } from '@/src/domain/fileSystem/services/FileSystemService';
-import { FileSystemNode, DirectoryNode, FileNode } from '@/src/domain/fileSystem/models/FileSystem';
-import { Menu, type MenuItem } from './Menu';
+import { FileSystemNode, DirectoryNode } from '@/src/domain/fileSystem/models/FileSystem';
+import { Menu, MenuAction } from './Menu';
 import styles from './FileExplorer.module.css';
 
 interface TreeItem {
@@ -18,14 +19,7 @@ interface TreeItem {
 interface MenuState {
   isOpen: boolean;
   position: { x: number; y: number };
-  items: MenuItem[];
-}
-
-interface FileDetails {
-  name: string;
-  size: string;
-  type: string;
-  modified: string;
+  items: MenuAction[];
 }
 
 interface FolderSelectState {
@@ -51,161 +45,230 @@ export function FileExplorer() {
     isOpen: false,
     position: { x: 0, y: 0 }
   });
+  const [folderHistory, setFolderHistory] = useState<DirectoryNode[]>([]);
+  const [backPressed, setBackPressed] = useState(false);
+  const [forwardPressed, setForwardPressed] = useState(false);
 
-  useEffect(() => {
-    const buildTreeItems = (node: FileSystemNode, level = 0): TreeItem => {
-      const children = node.type === 'directory' 
-        ? fileSystem.getChildren(node.id)
-          .filter(child => child.type === 'directory')
-          .map(child => buildTreeItems(child, level + 1))
-        : undefined;
+  const buildTreeItems = useCallback((node: FileSystemNode, level: number, isRoot = false): TreeItem => {
+    const children = fileSystem.getChildren(node.id)
+      .filter(child => child.type === 'directory')
+      .map(child => buildTreeItems(child, level + 1, false));
 
-      return {
-        id: node.id,
-        name: node.name,
-        icon: node.icon || '/assets/icons/apps/fileexplorer/folders/folder.png',
-        level,
-        isExpanded: false,
-        children: children?.length ? children : undefined
-      };
+    return {
+      id: node.id,
+      name: node.name,
+      icon: node.icon || '/assets/icons/apps/fileexplorer/folders/folder.png',
+      level,
+      isExpanded: level === 0 || isRoot,
+      children: children.length > 0 ? children : undefined
+    };
+  }, [fileSystem]);
+
+  const handleDirectoryChange = useCallback(({ directoryId }: { directoryId: string }) => {
+    const current = fileSystem.getNode(directoryId);
+    if (!current || current.type !== 'directory') return;
+    
+    setCurrentDirectory(current);
+    setSelectedTreeItem(directoryId);
+    setSelectedFile(null);
+    setFiles(fileSystem.getChildren(current.id));
+    
+    setFolderHistory(prev => {
+      if (prev.some(folder => folder.id === current.id)) {
+        return prev;
+      }
+      return [current as DirectoryNode, ...prev].slice(0, 5);
+    });
+    
+    setFolderSelect(prev => ({ ...prev, isOpen: false }));
+    setMenu(prev => ({ ...prev, isOpen: false }));
+    
+    const getPath = (node: FileSystemNode): string[] => {
+      const path = [node.id];
+      let currentNode = node;
+      while (currentNode.parentId) {
+        path.unshift(currentNode.parentId);
+        const parent = fileSystem.getNode(currentNode.parentId);
+        if (!parent) break;
+        currentNode = parent;
+      }
+      return path;
     };
 
-    const handleDirectoryChange = ({ directoryId }: { directoryId: string }) => {
-      const current = fileSystem.getNode(directoryId);
-      if (!current || current.type !== 'directory') return;
+    const path = getPath(current);
+    const rootId = path[0];
+    const rootNode = fileSystem.getNode(rootId);
+    if (rootNode && rootNode.type === 'directory') {
+      const newRootTreeItem = buildTreeItems(rootNode, 0, true);
       
-      // Update current directory and selection states
-      setCurrentDirectory(current);
-      setSelectedTreeItem(directoryId);
-      setSelectedFile(null); // Clear file selection when changing directories
-
-      // Update file list with ALL children (files and folders)
-      const allChildren = fileSystem.getChildren(current.id);
-      setFiles(allChildren);
-      
-      // Close any open menus
-      setFolderSelect(prev => ({ ...prev, isOpen: false }));
-      setMenu(prev => ({ ...prev, isOpen: false }));
-      
-      // Update tree expansion state
-      const updateTreeExpansion = (items: TreeItem[], path: string[]): TreeItem[] => {
-        return items.map(item => {
-          const isInPath = path.includes(item.id);
-          if (item.children) {
+      setTreeItems(() => {
+        const updateTreeExpansion = (items: TreeItem[], path: string[]): TreeItem[] => {
+          return items.map(item => {
+            const isInPath = path.includes(item.id);
+            const isRoot = item.level === 0;
+            
+            if ((isInPath || isRoot) && (!item.children || item.children.length === 0)) {
+              const node = fileSystem.getNode(item.id);
+              if (node && node.type === 'directory') {
+                const dirChildren = fileSystem.getChildren(node.id)
+                  .filter(child => child.type === 'directory')
+                  .map(child => buildTreeItems(child, (item.level || 0) + 1));
+                
+                return {
+                  ...item,
+                  isExpanded: isRoot || isInPath,
+                  children: dirChildren.length > 0 ? dirChildren : undefined
+                };
+              }
+            }
+            
             return {
               ...item,
-              isExpanded: isInPath || item.isExpanded,
-              children: updateTreeExpansion(item.children, path)
+              isExpanded: isRoot || isInPath,
+              children: item.children 
+                ? updateTreeExpansion(item.children, path)
+                : undefined
             };
-          }
-          return {
-            ...item,
-            isExpanded: isInPath || item.isExpanded
-          };
-        });
-      };
+          });
+        };
+        
+        return updateTreeExpansion([newRootTreeItem], path);
+      });
+    }
+  }, [buildTreeItems, fileSystem]);
 
-      // Get path from root to current directory
-      const getPath = (node: FileSystemNode): string[] => {
-        const path = [node.id];
-        let current = node;
-        while (current.parentId) {
-          path.unshift(current.parentId);
-          const parent = fileSystem.getNode(current.parentId);
-          if (!parent) break;
-          current = parent;
-        }
-        return path;
-      };
+  const handleFileSystemChange = useCallback(() => {
+    const root = fileSystem.getCurrentDirectory();
+    if (!root) return;
 
-      setTreeItems(prevItems => updateTreeExpansion(prevItems, getPath(current)));
-    };
+    const currentDir = fileSystem.getCurrentDirectory();
+    if (currentDir) {
+      setFiles(fileSystem.getChildren(currentDir.id));
+      const treeItem = buildTreeItems(root, 0, true);
+      setTreeItems([{ ...treeItem, isExpanded: true }]);
+    }
+  }, [buildTreeItems, fileSystem]);
+
+  useEffect(() => {
+    let mounted = true;
+    let initialized = false;
 
     const initializeFileSystem = async () => {
+      if (initialized) return;
       try {
         setIsLoading(true);
         setError(null);
         
         await fileSystem.initializeFileSystem();
         
-        // Initialize tree items from file system
-        const rootNode = fileSystem.getCurrentDirectory();
-        setTreeItems([buildTreeItems(rootNode)]);
+        if (!mounted) return;
 
-        // Get initial directory after initialization
-        handleDirectoryChange({ directoryId: rootNode.id });
+        const rootNode = fileSystem.getCurrentDirectory();
+        if (rootNode) {
+          const treeItem = buildTreeItems(rootNode, 0, true);
+          setTreeItems([{ ...treeItem, isExpanded: true }]);
+          handleDirectoryChange({ directoryId: rootNode.id });
+        }
+        initialized = true;
       } catch (error) {
+        if (!mounted) return;
         console.error('Error initializing file system:', error);
         setError('Failed to initialize file system');
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fileSystem.on('directoryChanged', handleDirectoryChange);
-    fileSystem.on('fileSystemChanged', () => {
-      if (currentDirectory) {
-        // Update with ALL children when file system changes
-        const allChildren = fileSystem.getChildren(currentDirectory.id);
-        setFiles(allChildren);
-        
-        // Rebuild tree items to reflect file system changes
-        const rootNode = fileSystem.getCurrentDirectory();
-        setTreeItems([buildTreeItems(rootNode)]);
-      }
-    });
+    fileSystem.on('fileSystemChanged', handleFileSystemChange);
 
-    initializeFileSystem().catch(console.error);
+    initializeFileSystem();
 
     return () => {
+      mounted = false;
       fileSystem.off('directoryChanged', handleDirectoryChange);
+      fileSystem.off('fileSystemChanged', handleFileSystemChange);
     };
-  }, []);
+  }, [buildTreeItems, fileSystem, handleDirectoryChange, handleFileSystemChange]);
 
-  const handleFileDoubleClick = (file: FileSystemNode) => {
+  const handleFileDoubleClick = useCallback((file: FileSystemNode) => {
     if (file.type === 'directory') {
       fileSystem.navigateTo(file.id);
     } else if (file.downloadUrl) {
       fileSystem.downloadFile(file.id);
     }
-  };
+  }, [fileSystem]);
 
-  const handleFileClick = (file: FileSystemNode) => {
+  const handleFileClick = useCallback((file: FileSystemNode) => {
     setSelectedFile(file.id);
-  };
+  }, []);
 
-  const handleTreeItemClick = (item: TreeItem) => {
+  const handleTreeItemClick = useCallback((item: TreeItem) => {
     setSelectedTreeItem(item.id);
     fileSystem.navigateTo(item.id);
-  };
+  }, [fileSystem]);
 
-  const handleTreeItemDoubleClick = (item: TreeItem) => {
-    // Navigate to the folder
+  const handleTreeItemDoubleClick = useCallback((item: TreeItem) => {
     fileSystem.navigateTo(item.id);
     
-    // Toggle expansion state
     setTreeItems(prevItems => {
       const updateItem = (items: TreeItem[]): TreeItem[] => {
         return items.map(treeItem => {
           if (treeItem.id === item.id) {
-            return { ...treeItem, isExpanded: !treeItem.isExpanded };
+            if (!treeItem.isExpanded) {
+              const node = fileSystem.getNode(treeItem.id);
+              if (node && node.type === 'directory') {
+                const dirChildren = fileSystem.getChildren(node.id)
+                  .filter(child => child.type === 'directory')
+                  .map(child => buildTreeItems(child, (treeItem.level || 0) + 1));
+                
+                return {
+                  ...treeItem,
+                  isExpanded: true,
+                  children: dirChildren.length > 0 ? dirChildren : undefined
+                };
+              }
+            }
+            return { 
+              ...treeItem, 
+              isExpanded: !treeItem.isExpanded 
+            };
           }
           if (treeItem.children) {
-            return { ...treeItem, children: updateItem(treeItem.children) };
+            return { 
+              ...treeItem, 
+              children: updateItem(treeItem.children) 
+            };
           }
           return treeItem;
         });
       };
       return updateItem(prevItems);
     });
-  };
+  }, [buildTreeItems, fileSystem]);
 
-  const handleExpandButtonClick = (e: React.MouseEvent, item: TreeItem) => {
+  const handleExpandButtonClick = useCallback((e: React.MouseEvent, item: TreeItem) => {
     e.stopPropagation();
     setTreeItems(prevItems => {
       const updateItem = (items: TreeItem[]): TreeItem[] => {
         return items.map(treeItem => {
           if (treeItem.id === item.id) {
+            if (!treeItem.isExpanded && (!treeItem.children || treeItem.children.length === 0)) {
+              const node = fileSystem.getNode(treeItem.id);
+              if (node && node.type === 'directory') {
+                const dirChildren = fileSystem.getChildren(node.id)
+                  .filter(child => child.type === 'directory')
+                  .map(child => buildTreeItems(child, (treeItem.level || 0) + 1));
+                
+                return {
+                  ...treeItem,
+                  isExpanded: true,
+                  children: dirChildren.length > 0 ? dirChildren : undefined
+                };
+              }
+            }
             return { ...treeItem, isExpanded: !treeItem.isExpanded };
           }
           if (treeItem.children) {
@@ -216,125 +279,121 @@ export function FileExplorer() {
       };
       return updateItem(prevItems);
     });
-  };
+  }, [buildTreeItems, fileSystem]);
 
-  const handleUpClick = () => {
-    if (currentDirectory?.parentId) {
-      fileSystem.navigateTo(currentDirectory.parentId);
-    }
-  };
+  const handleBackClick = useCallback(() => {
+    fileSystem.navigateBack();
+  }, [fileSystem]);
+
+  const handleForwardClick = useCallback(() => {
+    fileSystem.navigateForward();
+  }, [fileSystem]);
 
   const handleMenuClick = (menuName: string, event: React.MouseEvent) => {
-    event.preventDefault();
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     
-    let menuItems: MenuItem[] = [];
+    let menuItems: MenuAction[] = [];
     switch (menuName) {
       case 'File':
         menuItems = [
           {
-            label: 'Open',
-            action: () => {
-              const selectedNode = files.find(f => f.id === selectedFile);
-              if (selectedNode) {
-                handleFileDoubleClick(selectedNode);
-              }
-            },
-            disabled: !selectedFile,
-            shortcut: 'Enter'
+            id: 'file-new-folder',
+            label: 'New Folder',
+            icon: '/assets/icons/apps/fileexplorer/actions/new-folder.png',
+            action: handleCreateFolder
           },
-          { separator: true },
           {
-            label: 'Create New Folder',
+            id: 'file-upload',
+            label: 'Upload',
+            icon: '/assets/icons/apps/fileexplorer/actions/upload.png',
+            action: handleUpload
+          },
+          { id: 'file-separator-1', separator: true },
+          {
+            id: 'file-properties',
+            label: 'Properties',
             disabled: true
           },
-          { separator: true },
+          { id: 'file-separator-2', separator: true },
           {
-            label: 'Properties',
-            disabled: !selectedFile
-          },
-          { separator: true },
-          {
+            id: 'file-close',
             label: 'Close',
-            action: () => {
-              // Close window logic would go here
-            }
+            action: () => window.close()
           }
         ];
         break;
       case 'Edit':
         menuItems = [
           {
-            label: 'Cut',
-            disabled: true,
-            shortcut: 'Ctrl+X'
+            id: 'edit-rename',
+            label: 'Rename',
+            icon: '/assets/icons/apps/fileexplorer/actions/rename.png',
+            action: handleRename
           },
           {
-            label: 'Copy',
-            disabled: true,
-            shortcut: 'Ctrl+C'
-          },
-          {
-            label: 'Paste',
-            disabled: true,
-            shortcut: 'Ctrl+V'
-          },
-          { separator: true },
-          {
-            label: 'Select All',
-            shortcut: 'Ctrl+A',
-            disabled: files.length === 0
+            id: 'edit-delete',
+            label: 'Delete',
+            icon: '/assets/icons/apps/fileexplorer/actions/delete.png',
+            action: handleDelete
           }
         ];
         break;
       case 'View':
         menuItems = [
           {
+            id: 'view-large-icons',
             label: 'Large Icons',
             disabled: true
           },
           {
+            id: 'view-small-icons',
             label: 'Small Icons',
             disabled: true
           },
           {
+            id: 'view-list',
             label: 'List',
             disabled: true
           },
           {
+            id: 'view-details',
             label: 'Details',
             disabled: true
           },
-          { separator: true },
+          { id: 'view-separator-1', separator: true },
           {
+            id: 'view-arrange-icons',
             label: 'Arrange Icons',
             disabled: true
           },
-          { separator: true },
+          { id: 'view-separator-2', separator: true },
           {
+            id: 'view-refresh',
             label: 'Refresh',
             action: () => {
               if (currentDirectory) {
+                fileSystem.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
                 setFiles(fileSystem.getChildren(currentDirectory.id));
               }
-            },
-            shortcut: 'F5'
+            }
           }
         ];
         break;
       case 'Tools':
         menuItems = [
           {
+            id: 'tools-find-files',
             label: 'Find Files...',
-            disabled: true,
-            shortcut: 'Ctrl+F'
+            disabled: true
           },
-          { separator: true },
+          { id: 'tools-separator-1', separator: true },
           {
+            id: 'tools-map-network-drive',
             label: 'Map Network Drive...',
             disabled: true
           },
           {
+            id: 'tools-disconnect-network-drive',
             label: 'Disconnect Network Drive...',
             disabled: true
           }
@@ -343,20 +402,28 @@ export function FileExplorer() {
       case 'Help':
         menuItems = [
           {
+            id: 'help-help-topics',
             label: 'Help Topics',
             disabled: true
           },
-          { separator: true },
+          { id: 'help-separator-1', separator: true },
           {
+            id: 'help-about-windows-95-file-explorer',
             label: 'About Windows 95 File Explorer',
             disabled: true
           }
         ];
         break;
       default:
-        menuItems = [];
+        menuItems = [
+          {
+            id: `${menuName.toLowerCase()}-not-implemented`,
+            label: 'Not implemented',
+            disabled: true
+          }
+        ];
     }
-
+    
     setMenu({
       isOpen: true,
       position: { x: rect.left, y: rect.bottom },
@@ -368,40 +435,47 @@ export function FileExplorer() {
     setMenu(prev => ({ ...prev, isOpen: false }));
   };
 
-  const getFileDetails = (file: FileSystemNode): FileDetails => {
-    return {
+  const renderFileDetails = (file: FileSystemNode | null) => {
+    if (!file) return null;
+
+    const details = {
       name: file.name,
       size: file.stats?.size ? `${Math.round(file.stats.size / 1024)} KB` : '',
       type: file.type === 'directory' ? 'File Folder' : file.stats?.type || 'File',
       modified: file.stats?.modified ? new Date(file.stats.modified).toLocaleDateString() : ''
     };
+
+    return (
+      <div className={styles.fileDetails}>
+        <div>Name: {details.name}</div>
+        <div>Size: {details.size}</div>
+        <div>Type: {details.type}</div>
+        <div>Modified: {details.modified}</div>
+      </div>
+    );
   };
 
-  const getFileIcon = (file: FileSystemNode): string => {
-    if (file.type === 'directory') {
-      return file.icon || '/assets/icons/apps/fileexplorer/folders/folder.png';
-    }
-
-    // If it's an image file, use the file itself as the icon
-    if (file.name.match(/\.(png|jpg|jpeg|gif|svg)$/i) && file.downloadUrl) {
-      return file.downloadUrl;
-    }
-
-    // For PDFs use a PDF icon
-    if (file.name.endsWith('.pdf')) {
-      return '/assets/icons/apps/fileexplorer/file-types/documents.png';
-    }
-
-    // Default file icon
-    return '/assets/icons/apps/fileexplorer/file-types/default.png';
+  const renderFileIcon = (file: FileSystemNode) => {
+    return (
+      <Image
+        src={file.icon || (file.type === 'directory' 
+          ? '/assets/icons/apps/fileexplorer/folders/folder.png'
+          : '/assets/icons/apps/fileexplorer/file-types/default.png')}
+        alt=""
+        width={32}
+        height={32}
+        className={styles.fileIcon}
+        style={{ objectFit: 'contain' }}
+      />
+    );
   };
 
-  const renderTreeItem = (item: TreeItem) => {
+  const renderTreeItem = (item: TreeItem, index: number) => {
     const hasChildren = item.children && item.children.length > 0;
     const indent = (item.level || 0) * 16;
 
     return (
-      <React.Fragment key={item.id}>
+      <React.Fragment key={`${item.id}-${index}`}>
         <div
           className={`${styles.treeItem} ${selectedTreeItem === item.id ? styles.selected : ''}`}
           onClick={() => handleTreeItemClick(item)}
@@ -418,10 +492,19 @@ export function FileExplorer() {
           ) : (
             <div style={{ width: 12 }} />
           )}
-          <img src={item.icon} alt="" className={styles.treeIcon} />
+          <Image 
+            src={item.icon} 
+            alt="" 
+            width={16} 
+            height={16} 
+            className={styles.treeIcon}
+            style={{ objectFit: 'contain' }}
+          />
           <span className={styles.treeLabel}>{item.name}</span>
         </div>
-        {item.isExpanded && item.children?.map(child => renderTreeItem(child))}
+        {item.isExpanded && item.children?.map((child, childIndex) => 
+          renderTreeItem(child, childIndex)
+        )}
       </React.Fragment>
     );
   };
@@ -434,32 +517,34 @@ export function FileExplorer() {
     });
   };
 
-  const getFolderSelectItems = (): MenuItem[] => {
-    const buildMenuItems = (items: TreeItem[], level = 0): MenuItem[] => {
-      const menuItems: MenuItem[] = [];
-      
-      items.forEach(item => {
-        menuItems.push({
-          label: '  '.repeat(level) + item.name,
-          action: () => fileSystem.navigateTo(item.id),
-          icon: item.icon
-        });
-        
-        if (item.children && item.children.length > 0) {
-          menuItems.push(...buildMenuItems(item.children, level + 1));
-        }
-      });
-      
-      return menuItems;
-    };
+  const getFolderSelectItems = useCallback((): MenuAction[] => {
+    const items: MenuAction[] = [];
 
-    return buildMenuItems(treeItems);
-  };
+    // Recent Folders section
+    if (folderHistory.length > 0) {
+      items.push({
+        id: 'recent-header',
+        label: 'Recent Folders',
+        disabled: true
+      });
+
+      folderHistory.forEach((folder, index) => {
+        items.push({
+          id: `history-${folder.id}-${index}`,
+          label: folder.name,
+          icon: folder.icon || '/assets/icons/apps/fileexplorer/folders/folder.png',
+          action: () => {
+            fileSystem.navigateTo(folder.id);
+            setFolderSelect(prev => ({ ...prev, isOpen: false }));
+          }
+        });
+      });
+    }
+
+    return items;
+  }, [folderHistory, fileSystem]);
 
   const renderFileItem = (file: FileSystemNode) => {
-    const isImage = file.name.match(/\.(png|jpg|jpeg|gif|svg)$/i);
-    const iconClass = `${styles.fileIcon} ${isImage ? styles.imagePreview : styles.medium}`;
-
     return (
       <div
         key={file.id}
@@ -467,34 +552,127 @@ export function FileExplorer() {
         onClick={() => handleFileClick(file)}
         onDoubleClick={() => handleFileDoubleClick(file)}
       >
-        <div className={iconClass}>
-          <img src={file.icon} alt="" />
-        </div>
+        {renderFileIcon(file)}
         <span className={styles.fileName}>{file.name}</span>
       </div>
     );
   };
 
-  const handleCreateFolder = () => {
-    // TODO: Implement folder creation
-    console.log('Create folder clicked');
+  const handleCreateFolder = async () => {
+    if (!currentDirectory) return;
+    
+    const newFolderName = 'New Folder';
+    const newFolder = fileSystem.addFile({
+      name: newFolderName,
+      type: 'directory',
+      path: `${currentDirectory.path}/${newFolderName}`,
+      parentId: currentDirectory.id,
+      icon: '/assets/icons/apps/fileexplorer/folders/folder.png',
+      stats: {
+        size: 0,
+        created: new Date(),
+        modified: new Date(),
+        type: 'directory'
+      }
+    });
+
+    setSelectedFile(newFolder.id);
   };
 
-  const handleUpload = () => {
-    // TODO: Implement file upload
-    console.log('Upload clicked');
+  const handleUpload = async () => {
+    if (!currentDirectory) return;
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    
+    input.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (!files) return;
+
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', currentDirectory.path);
+
+        try {
+          const response = await fetch('/api/files/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (response.ok) {
+            await fileSystem.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
+            setFiles(fileSystem.getChildren(currentDirectory.id));
+          }
+        } catch (error) {
+          console.error('Error uploading file:', error);
+        }
+      }
+    };
+
+    input.click();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedFile) return;
-    // TODO: Implement file deletion
-    console.log('Delete clicked for:', selectedFile);
+    
+    const file = fileSystem.getNode(selectedFile);
+    if (!file) return;
+
+    try {
+      const response = await fetch(`/api/files?path=${encodeURIComponent(file.path)}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        if (file.parentId) {
+          const parent = fileSystem.getNode(file.parentId);
+          if (parent && parent.type === 'directory') {
+            parent.children = parent.children.filter(id => id !== file.id);
+            setFiles(fileSystem.getChildren(parent.id));
+          }
+        }
+        setSelectedFile(null);
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
   };
 
-  const handleRename = () => {
+  const handleRename = async () => {
     if (!selectedFile) return;
-    // TODO: Implement file renaming
-    console.log('Rename clicked for:', selectedFile);
+    
+    const file = fileSystem.getNode(selectedFile);
+    if (!file) return;
+
+    const newName = prompt('Enter new name:', file.name);
+    if (!newName || newName === file.name) return;
+
+    try {
+      const response = await fetch(`/api/files/rename`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          oldPath: file.path,
+          newName
+        })
+      });
+
+      if (response.ok) {
+        const newPath = file.path.replace(file.name, newName);
+        file.name = newName;
+        file.path = newPath;
+        if (file.type === 'file' && file.downloadUrl) {
+          file.downloadUrl = newPath;
+        }
+        setFiles([...files]);
+      }
+    } catch (error) {
+      console.error('Error renaming file:', error);
+    }
   };
 
   return (
@@ -513,10 +691,13 @@ export function FileExplorer() {
       <div className={styles.buttonBar}>
         <div className={styles.folderSelect} onClick={handleFolderSelectClick}>
           <div className={styles.folderSelectButton}>
-            <img 
+            <Image 
               src={currentDirectory?.icon || '/assets/icons/apps/fileexplorer/folders/folder.png'} 
-              alt="" 
-              className={styles.folderSelectIcon} 
+              alt=""
+              width={16}
+              height={16}
+              className={styles.folderSelectIcon}
+              style={{ objectFit: 'contain' }}
             />
             <span className={styles.folderSelectText}>
               {currentDirectory?.name || 'Root'}
@@ -524,67 +705,53 @@ export function FileExplorer() {
             <div className={styles.folderSelectArrow}>▼</div>
           </div>
         </div>
-        <div className={styles.actionButtons}>
-          <button 
-            className={styles.actionButton} 
-            onClick={() => handleCreateFolder()}
-            title="Create New Folder"
-          >
-            <img src="/assets/icons/apps/fileexplorer/actions/new-folder.png" alt="New Folder" />
-          </button>
-          <button 
-            className={styles.actionButton}
-            onClick={() => handleUpload()}
-            title="Upload File"
-          >
-            <img src="/assets/icons/apps/fileexplorer/actions/upload.png" alt="Upload" />
-          </button>
-          <button 
-            className={styles.actionButton}
-            onClick={() => handleDelete()}
-            title="Delete"
-            data-disabled={!selectedFile}
-          >
-            <img src="/assets/icons/apps/fileexplorer/actions/delete.png" alt="Delete" />
-          </button>
-          <button 
-            className={styles.actionButton}
-            onClick={() => handleRename()}
-            title="Rename"
-            data-disabled={!selectedFile}
-          >
-            <img src="/assets/icons/apps/fileexplorer/actions/rename.png" alt="Rename" />
-          </button>
-        </div>
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/back.png" alt="Back" />
-        </div>
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/forward.png" alt="Forward" />
-        </div>
-        <div
-          className={styles.toolButton}
-          onClick={currentDirectory?.parentId ? handleUpClick : undefined}
-          data-disabled={!currentDirectory?.parentId}
+        <div 
+          className={styles.toolButton} 
+          onClick={handleBackClick}
+          data-disabled={!fileSystem.canNavigateBack()}
+          onMouseDown={() => {
+            if (fileSystem.canNavigateBack()) {
+              setBackPressed(true);
+            }
+          }}
+          onMouseUp={() => setBackPressed(false)}
+          onMouseLeave={() => setBackPressed(false)}
         >
-          <img src="/assets/icons/apps/fileexplorer/actions/up.png" alt="Up" />
+          <Image 
+            src={!fileSystem.canNavigateBack() || backPressed
+              ? '/icons/apps/fileexplorer/navigation/back-pressed.png'
+              : '/icons/apps/fileexplorer/navigation/back.png'
+            }
+            alt="Back" 
+            width={8}
+            height={10}
+            style={{ imageRendering: 'pixelated' }}
+            priority
+          />
         </div>
-        <div className={styles.toolbarDivider} />
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/cut.png" alt="Cut" />
-        </div>
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/copy.png" alt="Copy" />
-        </div>
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/paste.png" alt="Paste" />
-        </div>
-        <div className={styles.toolbarDivider} />
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/properties.png" alt="Properties" />
-        </div>
-        <div className={styles.toolButton} data-disabled>
-          <img src="/assets/icons/apps/fileexplorer/actions/delete.png" alt="Delete" />
+        <div 
+          className={styles.toolButton} 
+          onClick={handleForwardClick}
+          data-disabled={!fileSystem.canNavigateForward()}
+          onMouseDown={() => {
+            if (fileSystem.canNavigateForward()) {
+              setForwardPressed(true);
+            }
+          }}
+          onMouseUp={() => setForwardPressed(false)}
+          onMouseLeave={() => setForwardPressed(false)}
+        >
+          <Image 
+            src={!fileSystem.canNavigateForward() || forwardPressed
+              ? '/icons/apps/fileexplorer/navigation/forward-pressed.png'
+              : '/icons/apps/fileexplorer/navigation/forward.png'
+            }
+            alt="Forward" 
+            width={8}
+            height={10}
+            style={{ imageRendering: 'pixelated' }}
+            priority
+          />
         </div>
       </div>
       <div className={styles.splitView}>
@@ -596,23 +763,26 @@ export function FileExplorer() {
             ) : error ? (
               <div className={styles.errorMessage}>{error}</div>
             ) : (
-              treeItems.map(item => renderTreeItem(item))
+              treeItems.map((item, index) => renderTreeItem(item, index))
             )}
           </div>
         </div>
         <div className={styles.fileView}>
           <div className={styles.fileViewHeader}>
-            Contents of '{currentDirectory?.name || 'My Computer'}'
+            Contents of &apos;{currentDirectory?.name || 'My Computer'}&apos;
           </div>
           <div className={styles.fileList}>
             {isLoading ? (
               <div className={styles.loadingMessage}>Loading...</div>
             ) : error ? (
               <div className={styles.errorMessage}>{error}</div>
+            ) : files.length === 0 ? (
+              <div className={styles.emptyMessage}>This folder is empty</div>
             ) : (
               files.map(file => renderFileItem(file))
             )}
           </div>
+          {selectedFile && renderFileDetails(files.find(f => f.id === selectedFile) || null)}
         </div>
       </div>
       <div className={styles.statusBar}>

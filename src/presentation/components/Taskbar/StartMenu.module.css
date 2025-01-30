@@ -13,24 +13,31 @@
   font-size: 11px;
   font-family: "MS Sans Serif", sans-serif;
   cursor: pointer;
-  height: 22px;
+  height: 26px;
+}
+
+.button.active {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 3px 3px 1px 5px;
 }
 
 .startIcon {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
+  margin-right: 2px;
 }
 
 .dropdown {
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% + 6px);
   left: 0;
   width: 200px;
   background: var(--win95-gray);
   border: 2px solid;
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
   padding: 8px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .menuItem {

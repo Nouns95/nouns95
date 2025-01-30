@@ -1,20 +1,67 @@
 .container {
-  height: 28px;
+  height: 32px;
   background: var(--win95-gray);
   border-top: 1px solid var(--win95-gray-light);
   display: flex;
   align-items: center;
   padding: 0 2px;
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
 }
 
 .systemTray {
   display: flex;
   align-items: center;
-  gap: 8px;
+  min-width: 70px;
+  height: 26px;
   padding: 0 8px;
-  font-size: 12px;
-  border: 2px solid;
+  margin-left: auto;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  border: 1px solid;
   border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  background: var(--win95-gray);
+}
+
+.taskbarButtons {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  margin: 0 4px;
+  height: 28px;
+  overflow: hidden;
+}
+
+.taskbarButton {
+  height: 100%;
+  min-width: 160px;
+  max-width: 200px;
+  padding: 2px 4px;
+  background: var(--win95-gray);
+  border: 1px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  color: var(--win95-text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskbarButton.focused {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 3px 3px 1px 5px;
+  background: var(--win95-gray);
+}
+
+.taskbarButton.minimized {
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  padding: 2px 4px;
 } 

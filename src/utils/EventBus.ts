@@ -1,32 +1,27 @@
-type EventCallback = (data: any) => void;
+type EventCallback<T = unknown> = (data: T) => void;
+type EventMap = Record<string, EventCallback[]>;
 
 export class EventBus {
-  private listeners: { [event: string]: EventCallback[] } = {};
+  private events: EventMap = {};
 
-  public on(event: string, callback: EventCallback): void {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
+  public on<T>(event: string, callback: EventCallback<T>): void {
+    if (!this.events[event]) {
+      this.events[event] = [];
     }
-    this.listeners[event].push(callback);
+    this.events[event].push(callback as EventCallback);
   }
 
-  public off(event: string, callback: EventCallback): void {
-    if (!this.listeners[event]) return;
-    this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+  public off<T>(event: string, callback: EventCallback<T>): void {
+    if (!this.events[event]) return;
+    this.events[event] = this.events[event].filter(cb => cb !== callback);
   }
 
-  public emit(event: string, data: any): void {
-    if (!this.listeners[event]) return;
-    this.listeners[event].forEach(callback => {
-      try {
-        callback(data);
-      } catch (error) {
-        console.error(`Error in event listener for ${event}:`, error);
-      }
-    });
+  public emit<T>(event: string, data: T): void {
+    if (!this.events[event]) return;
+    this.events[event].forEach(callback => callback(data));
   }
 
   public clear(): void {
-    this.listeners = {};
+    this.events = {};
   }
 }

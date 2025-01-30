@@ -15,37 +15,30 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Ensure the path is within the public/files directory
-    const safePath = path.join(process.cwd(), 'public', requestPath);
+    const relativePath = requestPath === '/files' 
+      ? '' 
+      : requestPath.replace('/files/', '');
+    
+    const safePath = path.join(process.cwd(), 'public', 'files', relativePath);
     const publicFilesPath = path.join(process.cwd(), 'public', 'files');
     
-    console.log('Reading directory:', {
-      requestPath,
-      safePath,
-      publicFilesPath
-    });
-
     if (!safePath.startsWith(publicFilesPath)) {
       console.error('Invalid path access attempt:', safePath);
       return NextResponse.json({ error: 'Invalid path' }, { status: 403 });
     }
 
     const files = await readdir(safePath);
-    console.log('Found files:', files);
-
     const contents = await Promise.all(
       files.map(async (name) => {
         const fullPath = path.join(safePath, name);
         const stats = await stat(fullPath);
         const isDirectory = stats.isDirectory();
 
-        // Get relative path for download URL
-        const relativePath = path.relative(
-          path.join(process.cwd(), 'public'),
-          fullPath
-        ).replace(/\\/g, '/');
+        const downloadPath = requestPath === '/files'
+          ? `/files/${name}`
+          : `${requestPath}/${name}`;
 
-        const item = {
+        return {
           name,
           type: isDirectory ? 'directory' : 'file',
           stats: {
@@ -54,29 +47,14 @@ export async function GET(request: Request) {
             modified: stats.mtime,
             type: isDirectory ? 'directory' : path.extname(name).slice(1) || 'file'
           },
-          downloadUrl: !isDirectory ? `/${relativePath}` : undefined
+          downloadUrl: !isDirectory ? downloadPath : undefined
         };
-
-        console.log('Processed item:', {
-          name,
-          type: item.type,
-          path: fullPath,
-          relativePath,
-          downloadUrl: item.downloadUrl,
-          stats: item.stats
-        });
-
-        return item;
       })
     );
 
     return NextResponse.json(contents);
   } catch (error) {
-    console.error('Error reading directory:', {
-      error,
-      requestPath,
-      safePath: path.join(process.cwd(), 'public', requestPath)
-    });
+    console.error('Error reading directory:', error);
     return NextResponse.json({ error: 'Failed to read directory' }, { status: 500 });
   }
 } 

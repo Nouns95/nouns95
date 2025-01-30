@@ -4,13 +4,19 @@
   padding: 3px 2px 3px 3px;
   background: var(--win95-gray-dark);
   color: var(--win95-gray);
-  cursor: default;
+  cursor: move;
   user-select: none;
-  height: 18px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  height: 24px;
   font-weight: bold;
   font-size: 11px;
   border: 2px solid var(--win95-gray);
   margin: 0;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .titleBar.focused {
@@ -25,6 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
 .icon img {
@@ -43,17 +50,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 .controls {
   display: flex;
   gap: 0;
   margin-left: 2px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
 }
 
 .button {
-  width: 16px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border: 1px solid;
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
   background: var(--win95-gray);
@@ -62,11 +73,13 @@
   justify-content: center;
   cursor: pointer;
   color: var(--win95-text);
-  font-size: 9px;
+  font-size: 10px;
   font-family: "Tahoma", sans-serif;
   padding: 0;
   margin: 2px 1px;
   position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .button:active {

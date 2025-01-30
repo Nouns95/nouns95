@@ -19,7 +19,7 @@ export type WindowEventMap = {
   'processResumed': { processId: string };
   'processResourcesUpdated': { processId: string; resources: Process['resources'] };
   'focusChanged': { windowId: string };
-  'focusCleared': {};
+  'focusCleared': { timestamp: number };
 };
 
 export type WindowEventName = keyof WindowEventMap;

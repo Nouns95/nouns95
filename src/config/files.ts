@@ -1,6 +1,8 @@
-import { FileNode } from '@/src/domain/fileSystem/models/FileSystem';
+import { DirectoryNode, FileNode } from '@/src/domain/fileSystem/models/FileSystem';
 
-export const SAMPLE_FILES: Omit<FileNode, 'id'>[] = [
+type SampleFileNode = Omit<FileNode, 'id'> | (Omit<DirectoryNode, 'id'> & { children: [] });
+
+export const SAMPLE_FILES: SampleFileNode[] = [
   // Folders in Downloads
   {
     name: 'traits-png',
@@ -8,6 +10,7 @@ export const SAMPLE_FILES: Omit<FileNode, 'id'>[] = [
     path: '/Downloads/traits-png',
     parentId: 'downloads',
     icon: '/icons/folder-16.png',
+    children: [],
     stats: {
       size: 0,
       created: new Date('2024-01-29'),
@@ -21,6 +24,7 @@ export const SAMPLE_FILES: Omit<FileNode, 'id'>[] = [
     path: '/Downloads/traits-svg',
     parentId: 'downloads',
     icon: '/icons/folder-16.png',
+    children: [],
     stats: {
       size: 0,
       created: new Date('2024-01-29'),
@@ -34,6 +38,7 @@ export const SAMPLE_FILES: Omit<FileNode, 'id'>[] = [
     path: '/Downloads/noggles',
     parentId: 'downloads',
     icon: '/icons/folder-16.png',
+    children: [],
     stats: {
       size: 0,
       created: new Date('2024-01-29'),

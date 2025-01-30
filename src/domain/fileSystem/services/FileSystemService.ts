@@ -2,10 +2,20 @@ import { FileSystemState, FileNode, DirectoryNode, FileSystemNode } from '../mod
 import { EventBus } from '@/src/utils/EventBus';
 import { v4 as uuidv4 } from 'uuid';
 
+interface FileSystemEventMap {
+  directoryChanged: { directoryId: string };
+  fileSystemChanged: { state: FileSystemState };
+}
+
 export class FileSystemService {
   private static instance: FileSystemService;
   private state: FileSystemState;
   private eventBus: EventBus;
+  private loadedDirectories: Set<string>;
+  private navigationHistory: string[] = [];
+  private currentHistoryIndex: number = -1;
+  private isNavigatingBack: boolean = false;
+  private isNavigatingForward: boolean = false;
 
   private constructor() {
     this.state = {
@@ -14,6 +24,7 @@ export class FileSystemService {
       currentDirectoryId: ''
     };
     this.eventBus = new EventBus();
+    this.loadedDirectories = new Set();
   }
 
   public static getInstance(): FileSystemService {
@@ -71,17 +82,24 @@ export class FileSystemService {
     return '/assets/icons/apps/fileexplorer/folders/folder.png';
   }
 
-  private async loadDirectoryContents(parentId: string, dirPath: string): Promise<string[]> {
-    console.log('Loading contents for:', dirPath);
+  public async loadDirectoryContents(parentId: string, dirPath: string): Promise<string[]> {
+    // If directory is already loaded, return its children
+    if (this.loadedDirectories.has(dirPath)) {
+      const node = this.state.nodes[parentId];
+      return node.type === 'directory' ? node.children : [];
+    }
+
     const contents = await this.readDirectoryContents(dirPath);
     const childIds: string[] = [];
 
     for (const item of contents) {
       const itemId = uuidv4();
-      const itemPath = dirPath === '/files' ? `/files/${item.name}` : `${dirPath}/${item.name}`;
+      const itemPath = dirPath === '/files' 
+        ? `/files/${item.name}` 
+        : `${dirPath}/${item.name}`;
       
       if (item.type === 'directory') {
-        // Create directory node
+        // Create directory node without loading its contents
         const dirNode: DirectoryNode = {
           id: itemId,
           name: item.name,
@@ -89,60 +107,35 @@ export class FileSystemService {
           path: itemPath,
           parentId,
           icon: this.getFolderIcon(),
-          children: [],
+          children: [], // Children will be loaded when directory is accessed
           stats: item.stats
         };
         
-        // Recursively load subdirectory contents
-        console.log('Loading subdirectory:', itemPath);
-        const subChildIds = await this.loadDirectoryContents(itemId, itemPath);
-        dirNode.children = subChildIds;
-        
         this.state.nodes[itemId] = dirNode;
+        childIds.push(itemId);
       } else {
-        // Create file node with downloadUrl
-        const downloadUrl = itemPath;
         const fileNode: FileNode = {
           id: itemId,
           name: item.name,
           type: 'file',
           path: itemPath,
           parentId,
-          icon: this.getFileIcon(item.name, downloadUrl),
-          downloadUrl,
+          icon: this.getFileIcon(item.name, itemPath),
+          downloadUrl: itemPath,
           stats: item.stats
         };
         
-        console.log('Created file node:', {
-          path: fileNode.path,
-          name: fileNode.name,
-          type: fileNode.type,
-          icon: fileNode.icon,
-          parentId: fileNode.parentId
-        });
         this.state.nodes[itemId] = fileNode;
+        childIds.push(itemId);
       }
-      
-      childIds.push(itemId);
     }
 
-    console.log('Directory contents loaded:', {
-      dirPath,
-      childCount: childIds.length,
-      children: childIds.map(id => ({
-        id,
-        name: this.state.nodes[id].name,
-        type: this.state.nodes[id].type
-      }))
-    });
-
+    this.loadedDirectories.add(dirPath);
     return childIds;
   }
 
   public async initializeFileSystem(): Promise<void> {
     const rootId = uuidv4();
-
-    // Create root directory
     const root: DirectoryNode = {
       id: rootId,
       name: 'Root',
@@ -159,7 +152,6 @@ export class FileSystemService {
       }
     };
 
-    // Initialize state with root
     this.state = {
       nodes: {
         [rootId]: root
@@ -169,12 +161,20 @@ export class FileSystemService {
     };
 
     try {
-      // Recursively load all contents starting from root
-      root.children = await this.loadDirectoryContents(rootId, '/files');
+      // Only load root directory contents initially
+      const children = await this.loadDirectoryContents(rootId, '/files');
+      root.children = children;
+      this.state.nodes[rootId] = root;
       
-      this.eventBus.emit('directoryChanged', { directoryId: this.state.currentDirectoryId });
+      // Initialize navigation history with root
+      this.navigationHistory = [rootId];
+      this.currentHistoryIndex = 0;
+      
+      this.eventBus.emit('fileSystemChanged', { state: this.state });
+      this.eventBus.emit('directoryChanged', { directoryId: rootId });
     } catch (error) {
       console.error('Error loading file system:', error);
+      throw error;
     }
   }
 
@@ -193,38 +193,89 @@ export class FileSystemService {
   public getChildren(id: string): FileSystemNode[] {
     const node = this.getNode(id);
     if (!node || node.type !== 'directory') {
-      console.log('No children found for node:', {
-        id,
-        nodeExists: !!node,
-        type: node?.type
-      });
       return [];
     }
-
-    const children = node.children.map(childId => this.state.nodes[childId]).filter(Boolean);
-    console.log('Retrieved children for node:', {
-      id,
-      childCount: children.length,
-      children: children.map(child => ({
-        id: child.id,
-        name: child.name,
-        type: child.type
-      }))
-    });
-    return children;
+    return node.children.map(childId => this.state.nodes[childId]).filter(Boolean);
   }
 
-  public navigateTo(id: string): void {
+  public async navigateTo(id: string): Promise<void> {
     const node = this.getNode(id);
     if (node && node.type === 'directory') {
+      // Load directory contents if not already loaded
+      if (!this.loadedDirectories.has(node.path)) {
+        const children = await this.loadDirectoryContents(id, node.path);
+        node.children = children;
+        this.state.nodes[id] = node;
+        this.eventBus.emit('fileSystemChanged', { state: this.state });
+      }
+
+      // Update navigation history for new navigation
+      if (!this.isNavigatingBack && !this.isNavigatingForward) {
+        // If we're navigating to a new location
+        if (this.navigationHistory[this.currentHistoryIndex] !== id) {
+          // Remove any forward history
+          this.navigationHistory = this.navigationHistory.slice(0, this.currentHistoryIndex + 1);
+          // Add new location
+          this.navigationHistory.push(id);
+          this.currentHistoryIndex++;
+        }
+      }
+
       this.state.currentDirectoryId = id;
       this.eventBus.emit('directoryChanged', { directoryId: id });
     }
   }
 
+  public async navigateBack(): Promise<void> {
+    if (this.canNavigateBack()) {
+      this.isNavigatingBack = true;
+      this.currentHistoryIndex--;
+      const previousId = this.navigationHistory[this.currentHistoryIndex];
+      await this.navigateTo(previousId);
+      this.isNavigatingBack = false;
+    }
+  }
+
+  public async navigateForward(): Promise<void> {
+    if (this.canNavigateForward()) {
+      this.isNavigatingForward = true;
+      this.currentHistoryIndex++;
+      const nextId = this.navigationHistory[this.currentHistoryIndex];
+      await this.navigateTo(nextId);
+      this.isNavigatingForward = false;
+    }
+  }
+
+  public canNavigateBack(): boolean {
+    return this.currentHistoryIndex > 0;
+  }
+
+  public canNavigateForward(): boolean {
+    return this.currentHistoryIndex < this.navigationHistory.length - 1;
+  }
+
+  public setNavigatingBack(value: boolean): void {
+    this.isNavigatingBack = value;
+  }
+
+  public setNavigatingForward(value: boolean): void {
+    this.isNavigatingForward = value;
+  }
+
+  public isNavigatingBackward(): boolean {
+    return this.isNavigatingBack;
+  }
+
+  public isNavigatingForwardState(): boolean {
+    return this.isNavigatingForward;
+  }
+
   public navigateUp(): void {
     const current = this.getCurrentDirectory();
     if (current.parentId) {
+      // Clear navigation flags to ensure history is updated
+      this.isNavigatingBack = false;
+      this.isNavigatingForward = false;
       this.navigateTo(current.parentId);
     }
   }
@@ -253,11 +304,17 @@ export class FileSystemService {
     }
   }
 
-  public on(event: string, callback: (data: any) => void): void {
+  public on<K extends keyof FileSystemEventMap>(
+    event: K,
+    callback: (data: FileSystemEventMap[K]) => void
+  ): void {
     this.eventBus.on(event, callback);
   }
 
-  public off(event: string, callback: (data: any) => void): void {
+  public off<K extends keyof FileSystemEventMap>(
+    event: K,
+    callback: (data: FileSystemEventMap[K]) => void
+  ): void {
     this.eventBus.off(event, callback);
   }
 }

@@ -36,45 +36,74 @@
 .toolButton {
   display: flex;
   align-items: center;
-  padding: 2px 4px;
-  font-size: 11px;
-  font-family: "MS Sans Serif", sans-serif;
+  justify-content: center;
+  width: 16px;
+  height: 20px;
   border: 1px solid transparent;
-  background: var(--win95-gray);
   cursor: pointer;
-  gap: 2px;
-  user-select: none;
+  position: relative;
+  padding: 0;
 }
 
-.toolButton[data-disabled] {
-  opacity: 0.5;
-  cursor: default;
-  pointer-events: none;
+/* Special styling for navigation buttons (back/forward) */
+.toolButton:has(img[alt="Back"]),
+.toolButton:has(img[alt="Forward"]) {
+  padding: 0;
 }
 
-.toolButton[data-disabled]:hover {
-  border-color: transparent;
+.toolButton:has(img[alt="Back"]) img,
+.toolButton:has(img[alt="Forward"]) img {
+  width: 16px !important;
+  height: 20px !important;
+  max-width: 16px !important;
+  max-height: 20px !important;
+  image-rendering: pixelated;
+  transform-origin: center;
+  transform: scale(1.2);
 }
 
-.toolButton[data-disabled]:active {
-  padding: 2px 4px;
-  border-color: transparent;
+/* Adjust pressed state for navigation buttons */
+.toolButton[data-pressed]:has(img[alt="Back"]) img,
+.toolButton[data-pressed]:has(img[alt="Forward"]) img,
+.toolButton:active:not([data-disabled]):has(img[alt="Back"]) img,
+.toolButton:active:not([data-disabled]):has(img[alt="Forward"]) img {
+  transform: scale(1.2) translate(0.5px, 0.5px);
 }
 
-.toolButton:not([data-disabled]):hover {
-  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
-}
-
-.toolButton:not([data-disabled]):active {
-  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
-  padding: 3px 3px 1px 5px;
-}
-
+/* Regular tool button icons */
 .toolButton img {
   width: 16px !important;
   height: 16px !important;
   max-width: 16px !important;
   max-height: 16px !important;
+}
+
+.toolButton:hover:not([data-disabled]) {
+  border: 1px solid var(--win95-gray-dark);
+  box-shadow: 1px 1px 0 var(--win95-gray-light) inset, -1px -1px 0 var(--win95-gray-dark) inset;
+}
+
+.toolButton:active:not([data-disabled]) {
+  border: 1px solid var(--win95-gray-dark);
+  box-shadow: -1px -1px 0 var(--win95-gray-light) inset, 1px 1px 0 var(--win95-gray-dark) inset;
+}
+
+.toolButton:active:not([data-disabled]) img {
+  transform: translate(1px, 1px);
+}
+
+.toolButton[data-disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.toolButton[data-pressed] {
+  border: 1px solid var(--win95-gray-dark);
+  box-shadow: -1px -1px 0 var(--win95-gray-light) inset, 1px 1px 0 var(--win95-gray-dark) inset;
+}
+
+.toolButton[data-pressed] img {
+  transform: translate(1px, 1px);
 }
 
 .toolbarDivider {

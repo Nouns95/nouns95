@@ -29,14 +29,39 @@
   gap: 4px;
 }
 
+/* Headers should have less padding */
+.disabled.menuItem:not(:has(.icon)) {
+  padding-left: 8px;
+  color: var(--win95-gray-dark);
+  text-shadow: 1px 1px 0 white;
+}
+
+/* Regular menu items with icons should have more padding for alignment */
+.menuItem:has(.icon) {
+  padding-left: 24px;
+}
+
 .menuItem:not(.disabled):hover {
   background: var(--win95-highlight);
   color: white;
 }
 
-.menuItem.disabled {
-  color: var(--win95-gray-dark);
-  text-shadow: 1px 1px 0 white;
+.disabled {
+  cursor: default;
+}
+
+/* Style for menu headers */
+.disabled.menuItem {
+  color: black;
+  font-weight: bold;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .separator {

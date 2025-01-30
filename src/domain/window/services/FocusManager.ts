@@ -6,6 +6,7 @@ export class FocusManager {
   private focusHistory: string[] = [];
   private eventBus: EventBus;
   private windowService: WindowService;
+  private focusedWindowId: string | null = null;
 
   private constructor() {
     this.eventBus = new EventBus();
@@ -67,7 +68,10 @@ export class FocusManager {
   }
 
   public clearFocus(): void {
-    this.focusHistory = [];
-    this.eventBus.emit('focusCleared', {});
+    if (this.focusedWindowId) {
+      this.eventBus.emit('windowBlurred', { windowId: this.focusedWindowId });
+      this.focusedWindowId = null;
+      this.eventBus.emit('focusCleared', { timestamp: Date.now() });
+    }
   }
 }

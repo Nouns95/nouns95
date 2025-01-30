@@ -4,7 +4,8 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
+  pointer-events: auto;
+  z-index: 0;
 }
 
 .window {
@@ -21,10 +22,15 @@
   overflow: visible;
   font-family: "MS Sans Serif", sans-serif;
   font-size: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .focused {
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  z-index: 1;
 }
 
 .maximized {
@@ -32,6 +38,7 @@
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+  border-width: 0 !important;
 }
 
 .toolbar {
@@ -63,6 +70,11 @@
   box-shadow: -1px -1px 0 white inset;
   margin: 4px;
   position: relative;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
 }
 
 .statusBar {
@@ -81,60 +93,60 @@
 .resizeHandle {
   position: absolute;
   background: transparent;
-  z-index: 1;
+  z-index: 2;
 }
 
 .n {
-  top: -3px;
-  left: 3px;
-  right: 3px;
-  height: 6px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   cursor: ns-resize;
 }
 
 .e {
-  top: 3px;
-  right: -3px;
-  bottom: 3px;
-  width: 6px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
   cursor: ew-resize;
 }
 
 .s {
-  bottom: -3px;
-  left: 3px;
-  right: 3px;
-  height: 6px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   cursor: ns-resize;
 }
 
 .w {
-  top: 3px;
-  left: -3px;
-  bottom: 3px;
-  width: 6px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
   cursor: ew-resize;
 }
 
 .nw {
-  top: -3px;
-  left: -3px;
-  width: 6px;
-  height: 6px;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 3px;
   cursor: nw-resize;
 }
 
 .ne {
-  top: -3px;
-  right: -3px;
-  width: 6px;
-  height: 6px;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 3px;
   cursor: ne-resize;
 }
 
 .se {
-  bottom: -3px;
-  right: -3px;
+  bottom: 0;
+  right: 0;
   width: 16px;
   height: 16px;
   cursor: se-resize;
@@ -145,9 +157,9 @@
 }
 
 .sw {
-  bottom: -3px;
-  left: -3px;
-  width: 6px;
-  height: 6px;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  height: 3px;
   cursor: sw-resize;
 } 

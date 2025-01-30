@@ -1,29 +1,38 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { getAppIcon } from '@/src/config/icons';
 
 interface IconProps {
   appId: string;
-  size?: 'small' | 'large';
   className?: string;
+  width?: number;
+  height?: number;
 }
 
-const Icon: React.FC<IconProps> = ({ appId, size = 'small', className = '' }) => {
+const Icon: React.FC<IconProps> = ({ 
+  appId, 
+  className = '',
+  width = 24,
+  height = 24
+}) => {
   const [imageError, setImageError] = useState(false);
   const icon = getAppIcon(appId);
-  const imagePath = size === 'small' ? icon.small : icon.large;
 
   if (imageError) {
     return <span className={`icon-fallback ${className}`}>{icon.alt}</span>;
   }
 
   return (
-    <img
-      src={imagePath}
+    <Image
+      src={icon.icon}
       alt={appId}
+      width={width}
+      height={height}
       className={`icon ${className}`}
       onError={() => setImageError(true)}
+      style={{ objectFit: 'contain' }}
     />
   );
 };

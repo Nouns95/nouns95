@@ -30,7 +30,7 @@ const TitleBar: React.FC<TitleBarProps> = ({
   return (
     <div className={`${styles.titleBar} ${isFocused ? styles.focused : ''}`} onMouseDown={onMouseDown}>
       <span className={styles.icon}>
-        <Icon appId={applicationId} size="small" />
+        <Icon appId={applicationId} width={16} height={16} />
       </span>
       <div className={styles.title}>{title}</div>
       <div className={styles.controls}>

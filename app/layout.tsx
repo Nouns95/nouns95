@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import BlockchainProvider from "@/src/presentation/components/providers/BlockchainProvider";
+import '@solana/wallet-adapter-react-ui/styles.css';
+import { Inter } from "next/font/google";
+import WalletProvider from "@/src/presentation/components/providers/WalletProvider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Nouns95",
-  description: "Windows 95-inspired desktop environment",
+  description: "A Windows 95-inspired interface for Nouns",
 };
 
 export default function RootLayout({
@@ -14,10 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <BlockchainProvider>
+      <body className={inter.className}>
+        <WalletProvider>
           {children}
-        </BlockchainProvider>
+        </WalletProvider>
       </body>
     </html>
   );

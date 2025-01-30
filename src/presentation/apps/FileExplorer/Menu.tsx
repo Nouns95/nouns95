@@ -1,72 +1,79 @@
 import React from 'react';
+import Image from 'next/image';
 import styles from './Menu.module.css';
 
-interface MenuItemBase {
-  separator?: boolean;
-}
-
-interface MenuAction extends MenuItemBase {
+export interface MenuItem {
+  id: string;
   label: string;
-  action?: () => void;
-  shortcut?: string;
-  disabled?: boolean;
-  separator?: false;
   icon?: string;
+  action?: () => void;
+  disabled?: boolean;
 }
 
-interface MenuSeparator extends MenuItemBase {
+export interface MenuSeparator {
+  id: string;
   separator: true;
 }
 
-type MenuItem = MenuAction | MenuSeparator;
+export type MenuAction = MenuItem | MenuSeparator;
 
 interface MenuProps {
-  items: MenuItem[];
   isOpen: boolean;
-  onClose: () => void;
   position: { x: number; y: number };
+  items: MenuAction[];
+  onClose: () => void;
 }
 
-export function Menu({ items, isOpen, onClose, position }: MenuProps) {
+export function Menu({ isOpen, position, items, onClose }: MenuProps) {
   if (!isOpen) return null;
+
+  const handleItemClick = (item: MenuItem) => {
+    if (!item.disabled && item.action) {
+      item.action();
+      onClose();
+    }
+  };
+
+  const renderMenuItem = (item: MenuAction) => {
+    if ('separator' in item && item.separator) {
+      return <div key={item.id} className={styles.separator} />;
+    }
+
+    const menuItem = item as MenuItem;
+    return (
+      <div
+        key={menuItem.id}
+        className={`${styles.menuItem} ${menuItem.disabled ? styles.disabled : ''}`}
+        onClick={() => handleItemClick(menuItem)}
+      >
+        {menuItem.icon && (
+          <div className={styles.icon}>
+            <Image
+              src={menuItem.icon}
+              alt=""
+              width={16}
+              height={16}
+              style={{ objectFit: 'contain' }}
+            />
+          </div>
+        )}
+        <span className={styles.label}>{menuItem.label}</span>
+      </div>
+    );
+  };
 
   return (
     <>
       <div className={styles.overlay} onClick={onClose} />
-      <div 
+      <div
         className={styles.menu}
-        style={{ 
+        style={{
           left: position.x,
-          top: position.y
+          top: position.y,
         }}
       >
-        {items.map((item, index) => (
-          item.separator ? (
-            <div key={index} className={styles.separator} />
-          ) : (
-            <div
-              key={index}
-              className={`${styles.menuItem} ${item.disabled ? styles.disabled : ''}`}
-              onClick={() => {
-                if (!item.disabled && item.action) {
-                  item.action();
-                  onClose();
-                }
-              }}
-            >
-              {item.icon && (
-                <img src={item.icon} alt="" className={styles.menuIcon} />
-              )}
-              <span className={styles.label}>{item.label}</span>
-              {item.shortcut && (
-                <span className={styles.shortcut}>{item.shortcut}</span>
-              )}
-            </div>
-          )
-        ))}
+        {items.map((item) => renderMenuItem(item))}
       </div>
     </>
   );
-}
-
-export type { MenuItem, MenuAction, MenuSeparator }; 
+} 
