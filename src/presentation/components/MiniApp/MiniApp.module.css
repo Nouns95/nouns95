@@ -1,0 +1,27 @@
+.manager {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.miniApp {
+  position: absolute;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  max-width: calc(100% - 40px);
+}
+
+.miniApp :global(.content) {
+  background: var(--win95-gray);
+  padding: 4px;
+  overflow: auto;
+} 

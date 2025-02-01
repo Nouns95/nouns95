@@ -30,7 +30,6 @@
 
 .focused {
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
-  z-index: 1;
 }
 
 .maximized {

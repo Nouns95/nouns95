@@ -3,45 +3,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { WindowService } from '@/src/domain/window/services/WindowService';
 import { ProcessManager } from '@/src/domain/window/services/ProcessManager';
+import { getAppConfig, AppId } from '@/src/domain/window/config/AppConfig';
 import Icon from '../shared/Icon';
-import { getAppIcon } from '@/src/config/icons';
 import styles from './StartMenu.module.css';
 import Image from 'next/image';
 
 interface MenuItem {
   id: string;
   label: string;
-  appId: string;
+  appId: AppId;
+  isMiniApp?: boolean;
   onClick?: () => void;
 }
 
 const MENU_ITEMS: MenuItem[] = [
   { id: 'programs', label: 'Programs', appId: 'programs' },
-  { id: 'documents', label: 'Documents', appId: 'documents' },
+  { id: 'fileexplorer', label: 'File Explorer', appId: 'fileexplorer' },
   { id: 'settings', label: 'Settings', appId: 'settings' },
-  { id: 'wallet', label: 'Wallet', appId: 'wallet' },
-  { id: 'fileexplorer', label: 'File Explorer', appId: 'fileexplorer' }
+  { id: 'wallet', label: 'Wallet', appId: 'wallet' }
 ];
-
-interface WindowConfig {
-  title: string;
-  size: { width: number; height: number };
-}
-
-const WINDOW_CONFIGS: { [key: string]: WindowConfig } = {
-  wallet: {
-    title: 'Wallet',
-    size: { width: 800, height: 600 }
-  },
-  documents: {
-    title: 'Documents',
-    size: { width: 600, height: 400 }
-  },
-  fileexplorer: {
-    title: 'File Explorer',
-    size: { width: 800, height: 600 }
-  }
-};
 
 const StartMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +48,6 @@ const StartMenu: React.FC = () => {
     // Click outside to close
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      // Don't close if clicking the start button (it has its own handler)
       if (!target.closest(`.${styles.button}`) && isOpen) {
         setIsOpen(false);
       }
@@ -81,31 +60,24 @@ const StartMenu: React.FC = () => {
     };
   }, [isOpen, toggleMenu]);
 
-  const createWindow = (appId: string) => {
-    const config = WINDOW_CONFIGS[appId];
+  const createWindow = (appId: AppId) => {
+    const config = getAppConfig(appId);
     if (!config) return;
 
-    // Create a unique window ID
-    const windowId = `window-${Date.now()}`;
-    
-    // Create the process with the window ID
+    // Create a unique process ID
     const process = processManager.createProcess({
       applicationId: appId,
-      windowId: windowId,
+      windowId: `${appId}-${Date.now()}`,
     });
 
-    const appIcon = getAppIcon(appId);
+    // Create window or miniapp based on type with default metadata
+    const metadata = appId === 'wallet' ? { network: 'ethereum' } : undefined;
+    const windowId = config.type === 'miniapp'
+      ? windowService.createMiniApp(appId, process.id, metadata)
+      : windowService.createWindow(appId, process.id, metadata);
 
-    // Create the window with the process ID
-    windowService.createWindow({
-      title: config.title,
-      applicationId: appId,
-      processId: process.id,
-      icon: appIcon.icon,
-      size: config.size,
-      metadata: appId === 'wallet' ? { network: 'ethereum' } : undefined,
-    });
-
+    // Focus the newly created window
+    windowService.focusWindow(windowId);
     setIsOpen(false);
   };
 
@@ -118,7 +90,7 @@ const StartMenu: React.FC = () => {
       <button
         className={`${styles.button} ${isOpen ? styles.active : ''}`}
         onClick={(e) => {
-          e.stopPropagation(); // Prevent the click from being caught by the window click handler
+          e.stopPropagation();
           toggleMenu();
         }}
       >
@@ -138,20 +110,26 @@ const StartMenu: React.FC = () => {
           className={styles.dropdown} 
           onClick={(e) => e.stopPropagation()}
         >
-          {MENU_ITEMS.map((item) => (
-            <div
-              key={item.id}
-              className={styles.menuItem}
-              onClick={() => handleMenuItemClick(item)}
-            >
-              <Icon appId={item.appId} width={32} height={32} className={styles.menuItemIcon} />
-              <span>{item.label}</span>
+          <div className={styles.verticalBar}>
+            <span className={styles.nouns}>NOUNS</span>
+            <span className={styles.number}>95</span>
+          </div>
+          <div className={styles.menuContent}>
+            {MENU_ITEMS.map((item) => (
+              <div
+                key={item.id}
+                className={styles.menuItem}
+                onClick={() => handleMenuItemClick(item)}
+              >
+                <Icon appId={item.appId} width={32} height={32} className={styles.menuItemIcon} />
+                <span>{item.label}</span>
+              </div>
+            ))}
+            <div className={styles.divider} />
+            <div className={styles.menuItem}>
+              <Icon appId="shutdown" width={32} height={32} className={styles.menuItemIcon} />
+              <span>Shut Down...</span>
             </div>
-          ))}
-          <div className={styles.divider} />
-          <div className={styles.menuItem}>
-            <Icon appId="shutdown" width={32} height={32} className={styles.menuItemIcon} />
-            <span>Shut Down...</span>
           </div>
         </div>
       )}

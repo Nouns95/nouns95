@@ -1,0 +1,17 @@
+.clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  height: 100%;
+  min-width: clamp(58px, 8vw, 64px);
+  font-size: clamp(11px, 1vw, 12px);
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .clock {
+    min-width: clamp(52px, 12vw, 58px);
+  }
+} 

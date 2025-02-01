@@ -16,16 +16,12 @@ export const APP_ICONS: AppIcons = {
     icon: '/icons/apps/settings/settings.png',
     alt: '⚙️'
   },
-  documents: {
-    icon: '/icons/apps/documents/documents.png',
-    alt: '📄'
-  },
   programs: {
     icon: '/icons/apps/programs/programs.png',
     alt: '📁'
   },
   fileexplorer: {
-    icon: '/icons/apps/fileexplorer/fileexplorer.png',
+    icon: '/icons/apps/fileexplorer/folders/folder.png',
     alt: '📂'
   }
 };

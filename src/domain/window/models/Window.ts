@@ -1,11 +1,21 @@
-export interface WindowPosition {
+import { AppWindowConfig } from '../config/AppConfig';
+
+// Basic position interface for window placement
+export interface WindowCoordinates {
   x: number;
   y: number;
 }
 
-export interface WindowSize {
-  width: number;
-  height: number;
+// Basic size value interface
+export interface WindowSizeValue {
+  value: number;
+  unit: 'px' | 'rem';
+}
+
+// Window size interface
+export interface WindowDimensions {
+  width: WindowSizeValue;
+  height: WindowSizeValue;
 }
 
 export interface WindowMetadata {
@@ -20,11 +30,19 @@ export interface WindowMetadata {
   customData?: Record<string, string | number | boolean>;
 }
 
+// Base window configuration from AppConfig
+export interface WindowConfigProps {
+  config: AppWindowConfig;
+  processId: string;
+  metadata?: WindowMetadata;
+}
+
+// Base window interface
 export interface Window {
   id: string;
   title: string;
-  position: WindowPosition;
-  size: WindowSize;
+  position: WindowCoordinates;
+  size: WindowDimensions;
   zIndex: number;
   isFocused: boolean;
   isMinimized: boolean;
@@ -34,4 +52,23 @@ export interface Window {
   icon?: string;
   canResize: boolean;
   metadata?: WindowMetadata;
+}
+
+// MiniApp specific window interface
+export interface MiniAppWindow extends Window {
+  miniAppId: string;
+  isPinned: boolean;
+}
+
+// Helper function to create a window from config
+export function createWindowFromConfig({ config, processId, metadata }: WindowConfigProps): Omit<Window, 'id' | 'position' | 'zIndex' | 'isFocused' | 'isMinimized' | 'isMaximized'> {
+  return {
+    title: config.title,
+    size: config.size.defaultSize,
+    processId,
+    applicationId: config.metadata?.icon || 'default',
+    icon: config.metadata?.icon,
+    canResize: config.behavior.canResize,
+    metadata
+  };
 }

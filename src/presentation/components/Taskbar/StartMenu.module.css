@@ -38,6 +38,44 @@
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
   padding: 8px;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+}
+
+.menuContent {
+  flex: 1;
+}
+
+.verticalBar {
+  width: 2rem;
+  background: #808080;
+  margin: -8px 8px -6px -8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-top: .5rem;
+  padding-right: .5rem;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-family: "MS Sans Serif", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  user-select: none;
+  border-right: 1px solid #fff;
+  gap: 0;
+}
+
+.nouns {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #c0c0c0;
+  line-height: 1.25;
+}
+
+.number {
+  font-weight: normal;
+  font-size: 1.5rem;
+  color: white;
+  line-height: 1;
 }
 
 .menuItem {

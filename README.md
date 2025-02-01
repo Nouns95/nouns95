@@ -1,36 +1,24 @@
-# Nouns95 - Windows 95-Inspired Blockchain Interface
+# Nouns95
 
-A modern web application that reimagines the classic Windows 95 interface with integrated blockchain capabilities. Built with Next.js, TypeScript, and modern web technologies, this project combines nostalgia with cutting-edge blockchain functionality.
-
-![Nouns95 Interface](public/icons/apps/wallet/wallet.png)
+A Windows 95-style interface for Nouns, supporting both Ethereum and Solana networks.
 
 ## Features
 
-### 🪟 Classic Windows 95 Interface
-- Authentic Windows 95 look and feel
-- Draggable and resizable windows
-- Start menu and taskbar functionality
-- Multi-window management with proper z-indexing
-- Context menus and system tray
+- Windows 95-style UI
+- Support for Ethereum and Solana wallets
+- File system simulation
+- Window management system
+- Taskbar with start menu
+- Desktop icons
+- Context menus
 
-### 💼 Integrated Blockchain Wallet
-- Support for Ethereum (via wagmi and privy)
-- Solana integration (@solana)
-- View balances and transaction history
-- NFT management and display
-- Secure wallet connection persistence
+## Tech Stack
 
-### 📁 File System
-- Virtual file system with familiar interface
-- File and directory management
-- Download manager with progress tracking
-- Local file caching for offline access
-
-### 🔄 Modern Architecture
-- Built with Next.js and TypeScript
-- GraphQL for efficient data fetching
-- Modular component architecture
-- Responsive and accessible design
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Viem for Ethereum
+- Solana Web3.js for Solana
 
 ## Getting Started
 
@@ -89,13 +77,33 @@ src/
 └── utils/                # Utility functions and helpers
 ```
 
+## Layout Structure:
+<body>
+  <Desktop> (.container - 100vw, 100vh)
+    <div> (.area - flex: 1, position: relative)
+      <DesktopGrid /> (position: absolute)
+      <WindowManager>
+        <div> (styles.manager)
+          <Windows />
+          <MiniAppManager>
+            <div> (styles.manager - position: fixed)
+              <MiniApp />
+            </div>
+          </MiniAppManager>
+        </div>
+      </WindowManager>
+    </div>
+    <Taskbar />
+  </Desktop>
+</body>
+
 ## Technology Stack
 
 - **Frontend Framework**: Next.js with TypeScript
 - **Styling**: CSS Modules with Windows 95 theme
 - **State Management**: Custom stores with React Context
 - **Blockchain Integration**: 
-  - Ethereum: wagmi and privy
+  - Ethereum: Viem
   - Solana: @solana/web3.js
 - **Data Fetching**: GraphQL
 - **Deployment**: Vercel

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { FileSystemService } from '@/src/domain/fileSystem/services/FileSystemService';
 import { FileSystemNode, DirectoryNode } from '@/src/domain/fileSystem/models/FileSystem';
@@ -28,7 +28,7 @@ interface FolderSelectState {
 }
 
 export function FileExplorer() {
-  const fileSystem = FileSystemService.getInstance();
+  const fsRef = useRef<FileSystemService | null>(null);
   const [currentDirectory, setCurrentDirectory] = useState<DirectoryNode | null>(null);
   const [files, setFiles] = useState<FileSystemNode[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -49,218 +49,201 @@ export function FileExplorer() {
   const [backPressed, setBackPressed] = useState(false);
   const [forwardPressed, setForwardPressed] = useState(false);
 
-  const buildTreeItems = useCallback((node: FileSystemNode, level: number, isRoot = false): TreeItem => {
-    const children = fileSystem.getChildren(node.id)
-      .filter(child => child.type === 'directory')
-      .map(child => buildTreeItems(child, level + 1, false));
+  const buildTreeItems = useCallback((fs: FileSystemService, node: FileSystemNode, level: number, isRoot = false): TreeItem => {
+    if (!node) return {
+      id: 'root',
+      name: 'Root',
+      icon: '/icons/apps/fileexplorer/folders/folder.png',
+      level: 0,
+      isExpanded: true
+    };
+
+    const children = fs.getChildren(node.id)
+      .filter(child => child && child.type === 'directory')
+      .map(child => buildTreeItems(fs, child, level + 1, false));
 
     return {
       id: node.id,
       name: node.name,
-      icon: node.icon || '/assets/icons/apps/fileexplorer/folders/folder.png',
+      icon: node.icon || '/icons/apps/fileexplorer/folders/folder.png',
       level,
       isExpanded: level === 0 || isRoot,
       children: children.length > 0 ? children : undefined
     };
-  }, [fileSystem]);
-
-  const handleDirectoryChange = useCallback(({ directoryId }: { directoryId: string }) => {
-    const current = fileSystem.getNode(directoryId);
-    if (!current || current.type !== 'directory') return;
-    
-    setCurrentDirectory(current);
-    setSelectedTreeItem(directoryId);
-    setSelectedFile(null);
-    setFiles(fileSystem.getChildren(current.id));
-    
-    setFolderHistory(prev => {
-      if (prev.some(folder => folder.id === current.id)) {
-        return prev;
-      }
-      return [current as DirectoryNode, ...prev].slice(0, 5);
-    });
-    
-    setFolderSelect(prev => ({ ...prev, isOpen: false }));
-    setMenu(prev => ({ ...prev, isOpen: false }));
-    
-    const getPath = (node: FileSystemNode): string[] => {
-      const path = [node.id];
-      let currentNode = node;
-      while (currentNode.parentId) {
-        path.unshift(currentNode.parentId);
-        const parent = fileSystem.getNode(currentNode.parentId);
-        if (!parent) break;
-        currentNode = parent;
-      }
-      return path;
-    };
-
-    const path = getPath(current);
-    const rootId = path[0];
-    const rootNode = fileSystem.getNode(rootId);
-    if (rootNode && rootNode.type === 'directory') {
-      const newRootTreeItem = buildTreeItems(rootNode, 0, true);
-      
-      setTreeItems(() => {
-        const updateTreeExpansion = (items: TreeItem[], path: string[]): TreeItem[] => {
-          return items.map(item => {
-            const isInPath = path.includes(item.id);
-            const isRoot = item.level === 0;
-            
-            if ((isInPath || isRoot) && (!item.children || item.children.length === 0)) {
-              const node = fileSystem.getNode(item.id);
-              if (node && node.type === 'directory') {
-                const dirChildren = fileSystem.getChildren(node.id)
-                  .filter(child => child.type === 'directory')
-                  .map(child => buildTreeItems(child, (item.level || 0) + 1));
-                
-                return {
-                  ...item,
-                  isExpanded: isRoot || isInPath,
-                  children: dirChildren.length > 0 ? dirChildren : undefined
-                };
-              }
-            }
-            
-            return {
-              ...item,
-              isExpanded: isRoot || isInPath,
-              children: item.children 
-                ? updateTreeExpansion(item.children, path)
-                : undefined
-            };
-          });
-        };
-        
-        return updateTreeExpansion([newRootTreeItem], path);
-      });
-    }
-  }, [buildTreeItems, fileSystem]);
-
-  const handleFileSystemChange = useCallback(() => {
-    const root = fileSystem.getCurrentDirectory();
-    if (!root) return;
-
-    const currentDir = fileSystem.getCurrentDirectory();
-    if (currentDir) {
-      setFiles(fileSystem.getChildren(currentDir.id));
-      const treeItem = buildTreeItems(root, 0, true);
-      setTreeItems([{ ...treeItem, isExpanded: true }]);
-    }
-  }, [buildTreeItems, fileSystem]);
+  }, []);
 
   useEffect(() => {
-    let mounted = true;
-    let initialized = false;
+    // Reset any existing instance first
+    FileSystemService.resetInstance();
+    
+    // Create new instance
+    fsRef.current = FileSystemService.getInstance();
+    const fs = fsRef.current;
 
-    const initializeFileSystem = async () => {
-      if (initialized) return;
+    const initFS = async () => {
       try {
         setIsLoading(true);
         setError(null);
+        await fs.initializeFileSystem();
         
-        await fileSystem.initializeFileSystem();
-        
-        if (!mounted) return;
-
-        const rootNode = fileSystem.getCurrentDirectory();
-        if (rootNode) {
-          const treeItem = buildTreeItems(rootNode, 0, true);
-          setTreeItems([{ ...treeItem, isExpanded: true }]);
-          handleDirectoryChange({ directoryId: rootNode.id });
+        const rootNode = fs.getCurrentDirectory();
+        if (!rootNode || rootNode.type !== 'directory') {
+          throw new Error('Invalid root directory');
         }
-        initialized = true;
+
+        setCurrentDirectory(rootNode);
+        setFiles(fs.getChildren(rootNode.id));
+        setSelectedTreeItem(rootNode.id);
+        
+        const treeItem = buildTreeItems(fs, rootNode, 0, true);
+        setTreeItems([{ ...treeItem, isExpanded: true }]);
       } catch (error) {
-        if (!mounted) return;
         console.error('Error initializing file system:', error);
         setError('Failed to initialize file system');
       } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
-    fileSystem.on('directoryChanged', handleDirectoryChange);
-    fileSystem.on('fileSystemChanged', handleFileSystemChange);
+    const handleDirChange = ({ directoryId }: { directoryId: string }) => {
+      const current = fs.getNode(directoryId);
+      if (!current || current.type !== 'directory') return;
+      
+      setCurrentDirectory(current);
+      setSelectedTreeItem(directoryId);
+      setSelectedFile(null);
+      setFiles(fs.getChildren(current.id));
 
-    initializeFileSystem();
-
-    return () => {
-      mounted = false;
-      fileSystem.off('directoryChanged', handleDirectoryChange);
-      fileSystem.off('fileSystemChanged', handleFileSystemChange);
+      if (current.type === 'directory') {
+        const treeItem = buildTreeItems(fs, current, 0, true);
+        setTreeItems([{ ...treeItem, isExpanded: true }]);
+      }
     };
-  }, [buildTreeItems, fileSystem, handleDirectoryChange, handleFileSystemChange]);
+
+    const handleFSChange = () => {
+      const currentDir = fs.getCurrentDirectory();
+      if (!currentDir || currentDir.type !== 'directory') return;
+      
+      setFiles(fs.getChildren(currentDir.id));
+      const treeItem = buildTreeItems(fs, currentDir, 0, true);
+      setTreeItems([{ ...treeItem, isExpanded: true }]);
+    };
+
+    fs.on('directoryChanged', handleDirChange);
+    fs.on('fileSystemChanged', handleFSChange);
+
+    // Initialize the file system
+    initFS();
+
+    // Cleanup function
+    return () => {
+      fs.off('directoryChanged', handleDirChange);
+      fs.off('fileSystemChanged', handleFSChange);
+      FileSystemService.resetInstance();
+      fsRef.current = null;
+      
+      // Reset component state
+      setCurrentDirectory(null);
+      setFiles([]);
+      setSelectedFile(null);
+      setSelectedTreeItem(null);
+      setTreeItems([]);
+      setFolderHistory([]);
+      setError(null);
+    };
+  }, [buildTreeItems]);
 
   const handleFileDoubleClick = useCallback((file: FileSystemNode) => {
+    const fs = fsRef.current;
+    if (!fs) return;
+    
     if (file.type === 'directory') {
-      fileSystem.navigateTo(file.id);
+      // First update the UI state
+      setCurrentDirectory(file as DirectoryNode);
+      setSelectedTreeItem(file.id);
+      setSelectedFile(null);
+      
+      // Then navigate to the directory
+      fs.navigateTo(file.id).then(() => {
+        // After navigation, update the files list
+        setFiles(fs.getChildren(file.id));
+        
+        // Update folder history
+        setFolderHistory(prev => {
+          if (prev.some(folder => folder.id === file.id)) {
+            return prev;
+          }
+          return [file as DirectoryNode, ...prev].slice(0, 5);
+        });
+      });
     } else if (file.downloadUrl) {
-      fileSystem.downloadFile(file.id);
+      fs.downloadFile(file.id);
     }
-  }, [fileSystem]);
+  }, [fsRef]);
 
   const handleFileClick = useCallback((file: FileSystemNode) => {
     setSelectedFile(file.id);
   }, []);
 
   const handleTreeItemClick = useCallback((item: TreeItem) => {
+    if (!fsRef.current) return;
     setSelectedTreeItem(item.id);
-    fileSystem.navigateTo(item.id);
-  }, [fileSystem]);
+    fsRef.current.navigateTo(item.id);
+  }, [fsRef]);
 
   const handleTreeItemDoubleClick = useCallback((item: TreeItem) => {
-    fileSystem.navigateTo(item.id);
+    const fs = fsRef.current;
+    if (!fs) return;
     
-    setTreeItems(prevItems => {
-      const updateItem = (items: TreeItem[]): TreeItem[] => {
-        return items.map(treeItem => {
-          if (treeItem.id === item.id) {
-            if (!treeItem.isExpanded) {
-              const node = fileSystem.getNode(treeItem.id);
-              if (node && node.type === 'directory') {
-                const dirChildren = fileSystem.getChildren(node.id)
-                  .filter(child => child.type === 'directory')
-                  .map(child => buildTreeItems(child, (treeItem.level || 0) + 1));
-                
-                return {
-                  ...treeItem,
-                  isExpanded: true,
-                  children: dirChildren.length > 0 ? dirChildren : undefined
-                };
+    // First navigate to the directory
+    fs.navigateTo(item.id).then(() => {
+      // After navigation, update the tree state
+      setTreeItems(prevItems => {
+        const updateItem = (items: TreeItem[]): TreeItem[] => {
+          return items.map(treeItem => {
+            if (treeItem.id === item.id) {
+              if (!treeItem.isExpanded && (!treeItem.children || treeItem.children.length === 0)) {
+                const node = fs.getNode(treeItem.id);
+                if (node && node.type === 'directory') {
+                  const dirChildren = fs.getChildren(node.id)
+                    .filter(child => child && child.type === 'directory')
+                    .map(child => buildTreeItems(fs, child, (treeItem.level || 0) + 1));
+                  
+                  return {
+                    ...treeItem,
+                    isExpanded: true,
+                    children: dirChildren.length > 0 ? dirChildren : undefined
+                  };
+                }
               }
+              return { ...treeItem, isExpanded: !treeItem.isExpanded };
             }
-            return { 
-              ...treeItem, 
-              isExpanded: !treeItem.isExpanded 
-            };
-          }
-          if (treeItem.children) {
-            return { 
-              ...treeItem, 
-              children: updateItem(treeItem.children) 
-            };
-          }
-          return treeItem;
-        });
-      };
-      return updateItem(prevItems);
+            if (treeItem.children) {
+              return { ...treeItem, children: updateItem(treeItem.children) };
+            }
+            return treeItem;
+          });
+        };
+        return updateItem(prevItems);
+      });
     });
-  }, [buildTreeItems, fileSystem]);
+  }, [fsRef, buildTreeItems]);
 
   const handleExpandButtonClick = useCallback((e: React.MouseEvent, item: TreeItem) => {
+    const fs = fsRef.current;
+    if (!fs) return;
+    
     e.stopPropagation();
     setTreeItems(prevItems => {
       const updateItem = (items: TreeItem[]): TreeItem[] => {
         return items.map(treeItem => {
           if (treeItem.id === item.id) {
             if (!treeItem.isExpanded && (!treeItem.children || treeItem.children.length === 0)) {
-              const node = fileSystem.getNode(treeItem.id);
+              const node = fs.getNode(treeItem.id);
               if (node && node.type === 'directory') {
-                const dirChildren = fileSystem.getChildren(node.id)
+                const dirChildren = fs.getChildren(node.id)
                   .filter(child => child.type === 'directory')
-                  .map(child => buildTreeItems(child, (treeItem.level || 0) + 1));
+                  .map(child => buildTreeItems(fs, child, (treeItem.level || 0) + 1));
                 
                 return {
                   ...treeItem,
@@ -279,15 +262,15 @@ export function FileExplorer() {
       };
       return updateItem(prevItems);
     });
-  }, [buildTreeItems, fileSystem]);
+  }, [fsRef, buildTreeItems]);
 
   const handleBackClick = useCallback(() => {
-    fileSystem.navigateBack();
-  }, [fileSystem]);
+    fsRef.current?.navigateBack();
+  }, [fsRef]);
 
   const handleForwardClick = useCallback(() => {
-    fileSystem.navigateForward();
-  }, [fileSystem]);
+    fsRef.current?.navigateForward();
+  }, [fsRef]);
 
   const handleMenuClick = (menuName: string, event: React.MouseEvent) => {
     const rect = (event.target as HTMLElement).getBoundingClientRect();
@@ -299,13 +282,13 @@ export function FileExplorer() {
           {
             id: 'file-new-folder',
             label: 'New Folder',
-            icon: '/assets/icons/apps/fileexplorer/actions/new-folder.png',
+            icon: '/icons/apps/fileexplorer/actions/new-folder.png',
             action: handleCreateFolder
           },
           {
             id: 'file-upload',
             label: 'Upload',
-            icon: '/assets/icons/apps/fileexplorer/actions/upload.png',
+            icon: '/icons/apps/fileexplorer/actions/upload.png',
             action: handleUpload
           },
           { id: 'file-separator-1', separator: true },
@@ -327,13 +310,13 @@ export function FileExplorer() {
           {
             id: 'edit-rename',
             label: 'Rename',
-            icon: '/assets/icons/apps/fileexplorer/actions/rename.png',
+            icon: '/icons/apps/fileexplorer/actions/rename.png',
             action: handleRename
           },
           {
             id: 'edit-delete',
             label: 'Delete',
-            icon: '/assets/icons/apps/fileexplorer/actions/delete.png',
+            icon: '/icons/apps/fileexplorer/actions/delete.png',
             action: handleDelete
           }
         ];
@@ -372,8 +355,8 @@ export function FileExplorer() {
             label: 'Refresh',
             action: () => {
               if (currentDirectory) {
-                fileSystem.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
-                setFiles(fileSystem.getChildren(currentDirectory.id));
+                fsRef.current?.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
+                setFiles(fsRef.current?.getChildren(currentDirectory.id) || []);
               }
             }
           }
@@ -437,30 +420,15 @@ export function FileExplorer() {
 
   const renderFileDetails = (file: FileSystemNode | null) => {
     if (!file) return null;
-
-    const details = {
-      name: file.name,
-      size: file.stats?.size ? `${Math.round(file.stats.size / 1024)} KB` : '',
-      type: file.type === 'directory' ? 'File Folder' : file.stats?.type || 'File',
-      modified: file.stats?.modified ? new Date(file.stats.modified).toLocaleDateString() : ''
-    };
-
-    return (
-      <div className={styles.fileDetails}>
-        <div>Name: {details.name}</div>
-        <div>Size: {details.size}</div>
-        <div>Type: {details.type}</div>
-        <div>Modified: {details.modified}</div>
-      </div>
-    );
+    return null; // Don't render the details panel but keep the function for state management
   };
 
   const renderFileIcon = (file: FileSystemNode) => {
     return (
       <Image
         src={file.icon || (file.type === 'directory' 
-          ? '/assets/icons/apps/fileexplorer/folders/folder.png'
-          : '/assets/icons/apps/fileexplorer/file-types/default.png')}
+          ? '/icons/apps/fileexplorer/folders/folder.png'
+          : '/icons/apps/fileexplorer/file-types/default.png')}
         alt=""
         width={32}
         height={32}
@@ -532,9 +500,9 @@ export function FileExplorer() {
         items.push({
           id: `history-${folder.id}-${index}`,
           label: folder.name,
-          icon: folder.icon || '/assets/icons/apps/fileexplorer/folders/folder.png',
+          icon: folder.icon || '/icons/apps/fileexplorer/folders/folder.png',
           action: () => {
-            fileSystem.navigateTo(folder.id);
+            fsRef.current?.navigateTo(folder.id);
             setFolderSelect(prev => ({ ...prev, isOpen: false }));
           }
         });
@@ -542,7 +510,7 @@ export function FileExplorer() {
     }
 
     return items;
-  }, [folderHistory, fileSystem]);
+  }, [folderHistory, fsRef]);
 
   const renderFileItem = (file: FileSystemNode) => {
     return (
@@ -559,15 +527,16 @@ export function FileExplorer() {
   };
 
   const handleCreateFolder = async () => {
-    if (!currentDirectory) return;
+    const fs = fsRef.current;
+    if (!fs || !currentDirectory) return;
     
     const newFolderName = 'New Folder';
-    const newFolder = fileSystem.addFile({
+    const newFolder = fs.addFile({
       name: newFolderName,
       type: 'directory',
       path: `${currentDirectory.path}/${newFolderName}`,
       parentId: currentDirectory.id,
-      icon: '/assets/icons/apps/fileexplorer/folders/folder.png',
+      icon: '/icons/apps/fileexplorer/folders/folder.png',
       stats: {
         size: 0,
         created: new Date(),
@@ -580,7 +549,8 @@ export function FileExplorer() {
   };
 
   const handleUpload = async () => {
-    if (!currentDirectory) return;
+    const fs = fsRef.current;
+    if (!fs || !currentDirectory) return;
     
     const input = document.createElement('input');
     input.type = 'file';
@@ -602,8 +572,8 @@ export function FileExplorer() {
           });
 
           if (response.ok) {
-            await fileSystem.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
-            setFiles(fileSystem.getChildren(currentDirectory.id));
+            await fs.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
+            setFiles(fs.getChildren(currentDirectory.id));
           }
         } catch (error) {
           console.error('Error uploading file:', error);
@@ -615,9 +585,10 @@ export function FileExplorer() {
   };
 
   const handleDelete = async () => {
-    if (!selectedFile) return;
+    const fs = fsRef.current;
+    if (!fs || !selectedFile) return;
     
-    const file = fileSystem.getNode(selectedFile);
+    const file = fs.getNode(selectedFile);
     if (!file) return;
 
     try {
@@ -627,10 +598,10 @@ export function FileExplorer() {
 
       if (response.ok) {
         if (file.parentId) {
-          const parent = fileSystem.getNode(file.parentId);
+          const parent = fs.getNode(file.parentId);
           if (parent && parent.type === 'directory') {
             parent.children = parent.children.filter(id => id !== file.id);
-            setFiles(fileSystem.getChildren(parent.id));
+            setFiles(fs.getChildren(parent.id));
           }
         }
         setSelectedFile(null);
@@ -641,9 +612,10 @@ export function FileExplorer() {
   };
 
   const handleRename = async () => {
-    if (!selectedFile) return;
+    const fs = fsRef.current;
+    if (!fs || !selectedFile) return;
     
-    const file = fileSystem.getNode(selectedFile);
+    const file = fs.getNode(selectedFile);
     if (!file) return;
 
     const newName = prompt('Enter new name:', file.name);
@@ -692,7 +664,7 @@ export function FileExplorer() {
         <div className={styles.folderSelect} onClick={handleFolderSelectClick}>
           <div className={styles.folderSelectButton}>
             <Image 
-              src={currentDirectory?.icon || '/assets/icons/apps/fileexplorer/folders/folder.png'} 
+              src={currentDirectory?.icon || '/icons/apps/fileexplorer/folders/folder.png'} 
               alt=""
               width={16}
               height={16}
@@ -708,9 +680,9 @@ export function FileExplorer() {
         <div 
           className={styles.toolButton} 
           onClick={handleBackClick}
-          data-disabled={!fileSystem.canNavigateBack()}
+          data-disabled={!fsRef.current?.canNavigateBack()}
           onMouseDown={() => {
-            if (fileSystem.canNavigateBack()) {
+            if (fsRef.current?.canNavigateBack()) {
               setBackPressed(true);
             }
           }}
@@ -718,7 +690,7 @@ export function FileExplorer() {
           onMouseLeave={() => setBackPressed(false)}
         >
           <Image 
-            src={!fileSystem.canNavigateBack() || backPressed
+            src={!fsRef.current?.canNavigateBack() || backPressed
               ? '/icons/apps/fileexplorer/navigation/back-pressed.png'
               : '/icons/apps/fileexplorer/navigation/back.png'
             }
@@ -732,9 +704,9 @@ export function FileExplorer() {
         <div 
           className={styles.toolButton} 
           onClick={handleForwardClick}
-          data-disabled={!fileSystem.canNavigateForward()}
+          data-disabled={!fsRef.current?.canNavigateForward()}
           onMouseDown={() => {
-            if (fileSystem.canNavigateForward()) {
+            if (fsRef.current?.canNavigateForward()) {
               setForwardPressed(true);
             }
           }}
@@ -742,7 +714,7 @@ export function FileExplorer() {
           onMouseLeave={() => setForwardPressed(false)}
         >
           <Image 
-            src={!fileSystem.canNavigateForward() || forwardPressed
+            src={!fsRef.current?.canNavigateForward() || forwardPressed
               ? '/icons/apps/fileexplorer/navigation/forward-pressed.png'
               : '/icons/apps/fileexplorer/navigation/forward.png'
             }

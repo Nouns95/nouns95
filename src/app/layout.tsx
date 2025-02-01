@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import RootProviders from '@/src/presentation/providers/RootProviders';
+import { headers } from 'next/headers'
+import AppkitContext from '../context/AppkitContext'
+import '@reown/appkit-wallet-button/react'
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -7,17 +9,20 @@ export const metadata: Metadata = {
   description: 'Windows 95-style Nouns interface',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersData = await headers();
+  const cookies = headersData.get('cookie');
+
   return (
     <html lang="en">
       <body>
-        <RootProviders>
+        <AppkitContext cookies={cookies}>
           {children}
-        </RootProviders>
+        </AppkitContext>
       </body>
     </html>
   );

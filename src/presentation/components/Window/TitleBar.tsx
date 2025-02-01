@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import Icon from '../shared/Icon';
+import Image from 'next/image';
+import { getAppIcon } from '@/src/config/icons';
 import styles from './TitleBar.module.css';
 
 interface TitleBarProps {
@@ -11,9 +12,9 @@ interface TitleBarProps {
   isFocused: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
   onClose: () => void;
-  onMinimize: () => void;
+  onMinimize?: () => void;
   onMaximize?: () => void;
-  onRestore: () => void;
+  onRestore?: () => void;
 }
 
 const TitleBar: React.FC<TitleBarProps> = ({
@@ -27,35 +28,42 @@ const TitleBar: React.FC<TitleBarProps> = ({
   onMaximize,
   onRestore
 }) => {
+  const appIcon = getAppIcon(applicationId);
+
   return (
-    <div className={`${styles.titleBar} ${isFocused ? styles.focused : ''}`} onMouseDown={onMouseDown}>
-      <span className={styles.icon}>
-        <Icon appId={applicationId} width={16} height={16} />
-      </span>
-      <div className={styles.title}>{title}</div>
+    <div 
+      className={`${styles.titleBar} ${isFocused ? styles.focused : ''}`}
+      onMouseDown={onMouseDown}
+    >
+      <div className={styles.titleContent}>
+        {appIcon && (
+          <div className={styles.iconWrapper}>
+            <Image 
+              src={appIcon.icon} 
+              alt={`${title} icon`}
+              width={16}
+              height={16}
+              className={styles.icon}
+              style={{ objectFit: 'contain' }}
+              priority
+            />
+          </div>
+        )}
+        <span className={styles.title}>{title}</span>
+      </div>
       <div className={styles.controls}>
-        <button
-          className={styles.button}
-          onClick={onMinimize}
-          title="Minimize"
-        >
-          ─
-        </button>
-        {onMaximize && (
-          <button
-            className={styles.button}
-            onClick={isMaximized ? onRestore : onMaximize}
-            title={isMaximized ? "Restore" : "Maximize"}
-          >
-            {isMaximized ? "❐" : "☐"}
+        {onMinimize && (
+          <button className={styles.control} onClick={onMinimize}>
+            <span className={styles.minimizeIcon}>_</span>
           </button>
         )}
-        <button
-          className={styles.button}
-          onClick={onClose}
-          title="Close"
-        >
-          ✕
+        {onMaximize && (
+          <button className={styles.control} onClick={isMaximized ? onRestore : onMaximize}>
+            <span className={isMaximized ? styles.restoreIcon : styles.maximizeIcon}>□</span>
+          </button>
+        )}
+        <button className={`${styles.control} ${styles.close}`} onClick={onClose}>
+          <span className={styles.closeIcon}>×</span>
         </button>
       </div>
     </div>

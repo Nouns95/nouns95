@@ -1,20 +1,22 @@
-import { Window } from './Window';
+import { Window, MiniAppWindow } from './Window';
 
 export interface WindowState {
-  windows: { [id: string]: Window };
-  focusOrder: string[];
-  activeWindowId: string | null;
-  lastPosition: { x: number; y: number };
-  lastSize: { width: number; height: number };
+  windows: Record<string, Window>;
+  miniApps: Record<string, MiniAppWindow>;
+  focusedWindowId: string | null;
+  zIndexCounter: number;
 }
 
 export type WindowAction = 
   | { type: 'CREATE_WINDOW'; window: Window }
-  | { type: 'CLOSE_WINDOW'; id: string }
-  | { type: 'FOCUS_WINDOW'; id: string }
-  | { type: 'MINIMIZE_WINDOW'; id: string }
-  | { type: 'MAXIMIZE_WINDOW'; id: string }
-  | { type: 'RESTORE_WINDOW'; id: string }
-  | { type: 'MOVE_WINDOW'; id: string; position: { x: number; y: number } }
-  | { type: 'RESIZE_WINDOW'; id: string; size: { width: number; height: number } }
-  | { type: 'UPDATE_Z_INDEX'; id: string; zIndex: number };
+  | { type: 'CLOSE_WINDOW'; windowId: string }
+  | { type: 'FOCUS_WINDOW'; windowId: string }
+  | { type: 'MINIMIZE_WINDOW'; windowId: string }
+  | { type: 'MAXIMIZE_WINDOW'; windowId: string }
+  | { type: 'RESTORE_WINDOW'; windowId: string }
+  | { type: 'MOVE_WINDOW'; windowId: string; position: Window['position'] }
+  | { type: 'RESIZE_WINDOW'; windowId: string; size: Window['size'] }
+  | { type: 'CREATE_MINIAPP'; miniApp: MiniAppWindow }
+  | { type: 'CLOSE_MINIAPP'; miniAppId: string }
+  | { type: 'PIN_MINIAPP'; miniAppId: string }
+  | { type: 'UNPIN_MINIAPP'; miniAppId: string };

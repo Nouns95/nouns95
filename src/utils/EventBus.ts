@@ -24,4 +24,8 @@ export class EventBus {
   public clear(): void {
     this.events = {};
   }
+
+  public removeAllListeners(): void {
+    this.events = {};
+  }
 }

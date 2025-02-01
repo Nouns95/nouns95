@@ -1,25 +1,23 @@
-import { Window, WindowPosition, WindowSize, WindowMetadata } from '../models/Window';
+import { Window, MiniAppWindow, WindowCoordinates, WindowDimensions } from '../models/Window';
 import { WindowState, WindowAction } from '../models/WindowState';
 import { EventBus } from '@/src/utils/EventBus';
-import { WindowEventMap, WindowEventName, WindowEventCallback } from '../events/WindowEvents';
+import { WindowEventName, WindowEventCallback } from '../events/WindowEvents';
+import { getAppConfig, calculateWindowPosition } from '../config/AppConfig';
 
 export class WindowService {
   private static instance: WindowService;
-  private state: WindowState;
-  private eventBus: EventBus;
-  private readonly events: WindowEventMap;
+  private state: WindowState = {
+    windows: {},
+    miniApps: {},
+    focusedWindowId: null,
+    zIndexCounter: 0
+  };
+  private focusHistory: string[] = [];
+  private eventBus = new EventBus();
+  private readonly BASE_ZINDEX = 100;
+  private readonly MINIAPP_ZINDEX_OFFSET = 1000;
 
-  private constructor() {
-    this.state = {
-      windows: {},
-      focusOrder: [],
-      activeWindowId: null,
-      lastPosition: { x: 20, y: 20 },
-      lastSize: { width: 800, height: 600 },
-    };
-    this.eventBus = new EventBus();
-    this.events = {} as WindowEventMap;
-  }
+  private constructor() {}
 
   public static getInstance(): WindowService {
     if (!WindowService.instance) {
@@ -36,197 +34,306 @@ export class WindowService {
     this.eventBus.off(event, callback);
   }
 
-  public createWindow(params: {
-    title: string;
-    applicationId: string;
-    processId: string;
-    position?: WindowPosition;
-    size?: WindowSize;
-    icon?: string;
-    canResize?: boolean;
-    metadata?: WindowMetadata;
-  }): Window {
-    const id = `window-${Date.now()}`;
+  public createWindow(appId: string, processId: string, metadata?: Record<string, unknown>): string {
+    const config = getAppConfig(appId);
+    const windowCount = Object.keys(this.state.windows).length;
+    
     const window: Window = {
-      id,
-      title: params.title,
-      position: params.position || this.getNextWindowPosition(),
-      size: params.size || this.state.lastSize,
-      zIndex: Object.keys(this.state.windows).length,
-      isFocused: true,
+      id: `window-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: config.title,
+      position: calculateWindowPosition(appId, windowCount),
+      size: config.size.defaultSize,
+      zIndex: this.BASE_ZINDEX + this.state.zIndexCounter++,
+      isFocused: false,
       isMinimized: false,
       isMaximized: false,
-      processId: params.processId,
-      applicationId: params.applicationId,
-      icon: params.icon,
-      canResize: params.canResize ?? true,
-      metadata: params.metadata || {},
+      processId,
+      applicationId: appId,
+      icon: config.metadata?.icon,
+      canResize: config.behavior.canResize,
+      metadata
     };
 
     this.dispatch({ type: 'CREATE_WINDOW', window });
-    this.focusWindow(id);
-    return window;
+    return window.id;
   }
 
-  public closeWindow(id: string): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'CLOSE_WINDOW', id });
-    this.eventBus.emit('windowClosed', { windowId: id });
+  public createMiniApp(appId: string, processId: string, metadata?: Record<string, unknown>): string {
+    const config = getAppConfig(appId);
+    const miniAppCount = Object.keys(this.state.miniApps).length;
+    
+    const miniApp: MiniAppWindow = {
+      id: `miniapp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: config.title,
+      position: calculateWindowPosition(appId, miniAppCount),
+      size: config.size.defaultSize,
+      zIndex: this.MINIAPP_ZINDEX_OFFSET + this.state.zIndexCounter++,
+      isFocused: false,
+      isMinimized: false,
+      isMaximized: false,
+      processId,
+      applicationId: appId,
+      icon: config.metadata?.icon,
+      canResize: config.behavior.canResize,
+      miniAppId: appId,
+      isPinned: false,
+      metadata
+    };
+
+    this.dispatch({ type: 'CREATE_MINIAPP', miniApp });
+    return miniApp.id;
   }
 
-  public focusWindow(id: string): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'FOCUS_WINDOW', id });
-    this.eventBus.emit('windowFocused', { windowId: id });
+  public closeWindow(windowId: string): void {
+    const window = this.state.windows[windowId];
+    if (!window) return;
+    
+    this.dispatch({ type: 'CLOSE_WINDOW', windowId });
+    this.eventBus.emit('windowClosed', { windowId });
   }
 
-  public minimizeWindow(id: string): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'MINIMIZE_WINDOW', id });
-    this.eventBus.emit('windowMinimized', { windowId: id });
+  public closeMiniApp(miniAppId: string): void {
+    const miniApp = Object.values(this.state.miniApps).find(app => app.miniAppId === miniAppId);
+    if (!miniApp) return;
+    
+    this.dispatch({ type: 'CLOSE_MINIAPP', miniAppId });
   }
 
-  public maximizeWindow(id: string): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'MAXIMIZE_WINDOW', id });
-    this.eventBus.emit('windowMaximized', { windowId: id });
+  public focusWindow(windowId: string): void {
+    const window = this.state.windows[windowId] || this.state.miniApps[windowId];
+    if (!window) return;
+    
+    this.dispatch({ type: 'FOCUS_WINDOW', windowId });
+    this.eventBus.emit('windowFocused', { windowId });
   }
 
-  public restoreWindow(id: string): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'RESTORE_WINDOW', id });
-    this.eventBus.emit('windowRestored', { windowId: id });
+  public minimizeWindow(windowId: string): void {
+    const window = this.state.windows[windowId] || this.state.miniApps[windowId];
+    if (!window) return;
+    
+    this.dispatch({ type: 'MINIMIZE_WINDOW', windowId });
+    this.eventBus.emit('windowMinimized', { windowId });
   }
 
-  public moveWindow(id: string, position: WindowPosition): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'MOVE_WINDOW', id, position });
-    this.state.lastPosition = position;
+  public maximizeWindow(windowId: string): void {
+    const window = this.state.windows[windowId];
+    if (!window) return;
+    
+    this.dispatch({ type: 'MAXIMIZE_WINDOW', windowId });
+    this.eventBus.emit('windowMaximized', { windowId });
   }
 
-  public resizeWindow(id: string, size: WindowSize): void {
-    if (!this.state.windows[id]) return;
-    this.dispatch({ type: 'RESIZE_WINDOW', id, size });
-    this.state.lastSize = size;
+  public restoreWindow(windowId: string): void {
+    const window = this.state.windows[windowId] || this.state.miniApps[windowId];
+    if (!window) return;
+    
+    this.dispatch({ type: 'RESTORE_WINDOW', windowId });
+    this.eventBus.emit('windowRestored', { windowId });
   }
 
-  public getWindow(id: string): Window | null {
-    return this.state.windows[id] || null;
+  public moveWindow(windowId: string, position: WindowCoordinates): void {
+    const window = this.state.windows[windowId] || this.state.miniApps[windowId];
+    if (!window) return;
+
+    // Enforce boundaries
+    const enforcedPosition = {
+      x: Math.max(0, position.x),
+      y: Math.max(0, position.y)
+    };
+
+    this.dispatch({ type: 'MOVE_WINDOW', windowId, position: enforcedPosition });
+  }
+
+  public resizeWindow(windowId: string, size: WindowDimensions): void {
+    const window = this.state.windows[windowId];
+    if (!window || !window.canResize) return;
+    
+    this.dispatch({ type: 'RESIZE_WINDOW', windowId, size });
+  }
+
+  public getWindow(windowId: string): Window | MiniAppWindow | null {
+    return this.state.windows[windowId] || this.state.miniApps[windowId] || null;
   }
 
   public getAllWindows(): Window[] {
     return Object.values(this.state.windows);
   }
 
-  public getActiveWindow(): Window | null {
-    return this.state.activeWindowId ? this.state.windows[this.state.activeWindowId] : null;
+  public getAllMiniApps(): MiniAppWindow[] {
+    return Object.values(this.state.miniApps);
   }
 
-  private getNextWindowPosition(): WindowPosition {
-    const offset = 20;
-    const position = {
-      x: this.state.lastPosition.x + offset,
-      y: this.state.lastPosition.y + offset,
-    };
+  public switchFocus(): void {
+    if (this.focusHistory.length < 2) return;
 
-    // Reset position if window would be too far right or bottom
-    if (position.x > window.innerWidth - 100) position.x = offset;
-    if (position.y > window.innerHeight - 100) position.y = offset;
+    const currentFocusId = this.focusHistory.pop();
+    if (currentFocusId) {
+      this.focusHistory.unshift(currentFocusId);
+    }
 
-    return position;
+    const nextFocusId = this.focusHistory[this.focusHistory.length - 1];
+    if (nextFocusId) {
+      this.focusWindow(nextFocusId);
+    }
+  }
+
+  public getFocusHistory(): string[] {
+    return [...this.focusHistory];
+  }
+
+  public clearFocus(): void {
+    // Unfocus all windows
+    Object.values(this.state.windows).forEach(window => {
+      window.isFocused = false;
+    });
+    Object.values(this.state.miniApps).forEach(miniApp => {
+      miniApp.isFocused = false;
+    });
+
+    // Clear focused window ID
+    if (this.state.focusedWindowId) {
+      this.eventBus.emit('windowBlurred', { windowId: this.state.focusedWindowId });
+      this.state.focusedWindowId = null;
+      this.eventBus.emit('focusCleared', { timestamp: Date.now() });
+    }
+
+    // Notify state change
+    this.eventBus.emit('windowStateChanged', { state: this.state });
   }
 
   private dispatch(action: WindowAction): void {
-    if (action.type !== 'CREATE_WINDOW' && !this.state.windows[action.id]) {
-      return;
-    }
-
     switch (action.type) {
       case 'CREATE_WINDOW':
-        // Set initial z-index higher than all existing windows
-        const maxZIndex = Object.values(this.state.windows).reduce((max, w) => Math.max(max, w.zIndex), 0);
-        action.window.zIndex = maxZIndex + 1;
         this.state.windows[action.window.id] = action.window;
-        this.state.focusOrder.push(action.window.id);
+        this.state.zIndexCounter++;
+        action.window.zIndex = this.state.zIndexCounter;
+        this.updateWindowFocus(action.window.id);
+        break;
+
+      case 'CREATE_MINIAPP':
+        this.state.miniApps[action.miniApp.id] = action.miniApp;
+        this.state.zIndexCounter++;
+        action.miniApp.zIndex = this.state.zIndexCounter;
+        this.updateWindowFocus(action.miniApp.id);
         break;
 
       case 'CLOSE_WINDOW':
-        this.state.focusOrder = this.state.focusOrder.filter(id => id !== action.id);
-        
-        if (this.state.activeWindowId === action.id) {
-          const nextWindowId = this.state.focusOrder[this.state.focusOrder.length - 1];
-          if (nextWindowId && this.state.windows[nextWindowId]) {
-            Object.values(this.state.windows).forEach(w => w.isFocused = false);
-            this.state.windows[nextWindowId].isFocused = true;
-            this.state.activeWindowId = nextWindowId;
-            // Bring the next window to front
-            const maxZ = Object.values(this.state.windows).reduce((max, w) => Math.max(max, w.zIndex), 0);
-            this.state.windows[nextWindowId].zIndex = maxZ + 1;
-          } else {
-            this.state.activeWindowId = null;
+        delete this.state.windows[action.windowId];
+        if (this.state.focusedWindowId === action.windowId) {
+          this.state.focusedWindowId = null;
+        }
+        break;
+
+      case 'CLOSE_MINIAPP':
+        const miniAppToClose = Object.values(this.state.miniApps).find(
+          app => app.miniAppId === action.miniAppId
+        );
+        if (miniAppToClose) {
+          delete this.state.miniApps[miniAppToClose.id];
+          if (this.state.focusedWindowId === miniAppToClose.id) {
+            this.state.focusedWindowId = null;
           }
         }
-
-        delete this.state.windows[action.id];
         break;
 
       case 'FOCUS_WINDOW':
-        // Unfocus all windows
-        Object.values(this.state.windows).forEach(w => w.isFocused = false);
-        
-        // Focus the target window and bring it to front
-        const targetWindow = this.state.windows[action.id];
-        targetWindow.isFocused = true;
-        targetWindow.isMinimized = false; // Restore if minimized
-        
-        // Set highest z-index
-        const highestZ = Object.values(this.state.windows).reduce((max, w) => Math.max(max, w.zIndex), 0);
-        targetWindow.zIndex = highestZ + 1;
-        
-        // Update active window and focus order
-        this.state.activeWindowId = action.id;
-        this.state.focusOrder = this.state.focusOrder.filter(id => id !== action.id);
-        this.state.focusOrder.push(action.id);
+        this.updateWindowFocus(action.windowId);
         break;
 
       case 'MINIMIZE_WINDOW':
-        this.state.windows[action.id].isMinimized = true;
-        this.state.windows[action.id].isFocused = false;
-        
-        // Focus the next window if this was the active one
-        if (this.state.activeWindowId === action.id) {
-          const nextWindowId = this.state.focusOrder[this.state.focusOrder.length - 2]; // Get previous window
-          if (nextWindowId && this.state.windows[nextWindowId]) {
-            this.dispatch({ type: 'FOCUS_WINDOW', id: nextWindowId });
-          } else {
-            this.state.activeWindowId = null;
+        const windowToMinimize = this.state.windows[action.windowId] || this.state.miniApps[action.windowId];
+        if (windowToMinimize) {
+          windowToMinimize.isMinimized = true;
+          windowToMinimize.isFocused = false;
+          if (this.state.focusedWindowId === action.windowId) {
+            this.state.focusedWindowId = null;
           }
         }
         break;
 
       case 'MAXIMIZE_WINDOW':
-        this.state.windows[action.id].isMaximized = true;
-        this.state.windows[action.id].isMinimized = false;
+        const windowToMaximize = this.state.windows[action.windowId];
+        if (windowToMaximize) {
+          windowToMaximize.isMaximized = true;
+          windowToMaximize.isMinimized = false;
+        }
         break;
 
       case 'RESTORE_WINDOW':
-        this.state.windows[action.id].isMaximized = false;
-        this.state.windows[action.id].isMinimized = false;
+        const windowToRestore = this.state.windows[action.windowId] || this.state.miniApps[action.windowId];
+        if (windowToRestore) {
+          windowToRestore.isMaximized = false;
+          windowToRestore.isMinimized = false;
+        }
         break;
 
       case 'MOVE_WINDOW':
-        this.state.windows[action.id].position = action.position;
+        const windowToMove = this.state.windows[action.windowId] || this.state.miniApps[action.windowId];
+        if (windowToMove) {
+          windowToMove.position = action.position;
+        }
         break;
 
       case 'RESIZE_WINDOW':
-        this.state.windows[action.id].size = action.size;
+        const windowToResize = this.state.windows[action.windowId];
+        if (windowToResize && windowToResize.canResize) {
+          windowToResize.size = action.size;
+        }
         break;
 
-      case 'UPDATE_Z_INDEX':
-        this.state.windows[action.id].zIndex = action.zIndex;
+      case 'PIN_MINIAPP':
+        const miniAppToPin = Object.values(this.state.miniApps).find(
+          app => app.miniAppId === action.miniAppId
+        );
+        if (miniAppToPin) {
+          miniAppToPin.isPinned = true;
+        }
+        break;
+
+      case 'UNPIN_MINIAPP':
+        const miniAppToUnpin = Object.values(this.state.miniApps).find(
+          app => app.miniAppId === action.miniAppId
+        );
+        if (miniAppToUnpin) {
+          miniAppToUnpin.isPinned = false;
+        }
         break;
     }
 
     this.eventBus.emit('windowStateChanged', { state: this.state });
+  }
+
+  private updateWindowFocus(focusedId: string): void {
+    // Get the target window
+    const targetWindow = this.state.windows[focusedId] || this.state.miniApps[focusedId];
+    if (!targetWindow) return;
+
+    // Increment counter for new top z-index
+    this.state.zIndexCounter++;
+    const topZIndex = this.state.zIndexCounter;
+
+    // Update focus state for all windows
+    Object.values(this.state.windows).forEach(window => {
+      window.isFocused = window.id === focusedId;
+      // Keep non-focused windows at their current z-index
+    });
+
+    Object.values(this.state.miniApps).forEach(miniApp => {
+      miniApp.isFocused = miniApp.id === focusedId;
+      // Keep non-focused mini-apps at their current z-index
+    });
+
+    // Update the focused window
+    targetWindow.isFocused = true;
+    this.state.focusedWindowId = focusedId;
+    
+    // Set the focused window to the highest z-index
+    targetWindow.zIndex = topZIndex;
+
+    // Update focus history
+    this.focusHistory = this.focusHistory.filter(id => id !== focusedId);
+    this.focusHistory.push(focusedId);
+
+    this.eventBus.emit('focusChanged', { windowId: focusedId });
   }
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { headers } from 'next/headers'
 import "./globals.css";
-import '@solana/wallet-adapter-react-ui/styles.css';
 import { Inter } from "next/font/google";
-import WalletProvider from "@/src/presentation/components/providers/WalletProvider";
+import AppkitContext from "../src/context/AppkitContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,17 +11,20 @@ export const metadata: Metadata = {
   description: "A Windows 95-inspired interface for Nouns",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
+  const headersData = await headers();
+  const cookies = headersData.get('cookie');
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <WalletProvider>
+        <AppkitContext cookies={cookies}>
           {children}
-        </WalletProvider>
+        </AppkitContext>
       </body>
     </html>
   );
