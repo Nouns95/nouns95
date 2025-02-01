@@ -38,7 +38,7 @@ interface WindowProps {
 const Window: React.FC<WindowProps> = ({
   id,
   title,
-  window,
+  window: windowState,
   children,
   className,
   onDragStart,
@@ -53,7 +53,7 @@ const Window: React.FC<WindowProps> = ({
   const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
   const [initialMousePosition, setInitialMousePosition] = useState({ x: 0, y: 0 });
   const windowService = WindowService.getInstance();
-  const appConfig = getAppConfig(window.applicationId);
+  const appConfig = getAppConfig(windowState.applicationId);
 
   const convertToPixels = (value: { value: number; unit: 'px' | 'rem' }): number => {
     if (value.unit === 'px') return value.value;
@@ -69,7 +69,7 @@ const Window: React.FC<WindowProps> = ({
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging && windowRef.current && !window.isMaximized) {
+      if (isDragging && windowRef.current && !windowState.isMaximized) {
         e.preventDefault();
         const newX = Math.max(0, e.clientX - dragOffset.x);
         const newY = Math.max(0, e.clientY - dragOffset.y);
@@ -85,6 +85,11 @@ const Window: React.FC<WindowProps> = ({
         let newX = initialPosition.x;
         let newY = initialPosition.y;
 
+        // Get viewport dimensions
+        const viewportHeight = globalThis.window.innerHeight;
+        const taskbarHeight = 28;
+        const maxY = viewportHeight - taskbarHeight;
+
         if (resizeEdge.includes('e')) {
           newWidth = Math.max(400, initialSize.width + deltaX);
         }
@@ -96,13 +101,25 @@ const Window: React.FC<WindowProps> = ({
           }
         }
         if (resizeEdge.includes('s')) {
-          newHeight = Math.max(300, initialSize.height + deltaY);
+          // Prevent resizing below taskbar
+          const proposedHeight = initialSize.height + deltaY;
+          const proposedBottom = initialPosition.y + proposedHeight;
+          if (proposedBottom <= maxY) {
+            newHeight = Math.max(300, proposedHeight);
+          } else {
+            newHeight = maxY - initialPosition.y;
+          }
         }
         if (resizeEdge.includes('n')) {
           const height = Math.max(300, initialSize.height - deltaY);
           if (height !== initialSize.height) {
             newHeight = height;
-            newY = Math.max(0, initialPosition.y + deltaY);
+            const proposedY = initialPosition.y + deltaY;
+            // Ensure the bottom of the window doesn't go below taskbar
+            const proposedBottom = proposedY + height;
+            if (proposedBottom <= maxY) {
+              newY = Math.max(0, proposedY);
+            }
           }
         }
 
@@ -117,7 +134,7 @@ const Window: React.FC<WindowProps> = ({
     };
 
     const handleMouseUp = (e: MouseEvent) => {
-      if (isDragging && windowRef.current && !window.isMaximized) {
+      if (isDragging && windowRef.current && !windowState.isMaximized) {
         e.preventDefault();
         const newX = Math.max(0, e.clientX - dragOffset.x);
         const newY = Math.max(0, e.clientY - dragOffset.y);
@@ -152,13 +169,13 @@ const Window: React.FC<WindowProps> = ({
     initialPosition,
     initialMousePosition,
     id,
-    window.isMaximized,
+    windowState.isMaximized,
     windowService,
     onDragEnd
   ]);
 
   const startDragging = (e: React.MouseEvent) => {
-    if (e.button !== 0 || window.isMaximized) return; // Only handle left click and non-maximized windows
+    if (e.button !== 0 || windowState.isMaximized) return; // Only handle left click and non-maximized windows
     e.preventDefault();
     e.stopPropagation();
     
@@ -175,7 +192,7 @@ const Window: React.FC<WindowProps> = ({
   };
 
   const handleResizeMouseDown = (e: React.MouseEvent, edge: string) => {
-    if (!window.canResize || window.isMaximized) return;
+    if (!windowState.canResize || windowState.isMaximized) return;
     
     e.preventDefault();
     e.stopPropagation();
@@ -191,35 +208,35 @@ const Window: React.FC<WindowProps> = ({
     windowService.focusWindow(id);
   };
 
-  if (window.isMinimized) {
+  if (windowState.isMinimized) {
     return null;
   }
 
   const style: React.CSSProperties = {
     position: 'absolute',
-    left: window.position.x,
-    top: window.position.y,
-    width: window.isMaximized ? '100%' : convertToPixels(window.size.width),
-    height: window.isMaximized ? '100%' : convertToPixels(window.size.height),
-    zIndex: window.zIndex,
+    left: windowState.position.x,
+    top: windowState.position.y,
+    width: windowState.isMaximized ? '100%' : convertToPixels(windowState.size.width),
+    height: windowState.isMaximized ? '100%' : convertToPixels(windowState.size.height),
+    zIndex: windowState.zIndex,
   };
 
   return (
     <div
       ref={windowRef}
-      className={`${styles.window} ${window.isFocused ? styles.focused : ''} ${className || ''}`}
+      className={`${styles.window} ${windowState.isFocused ? styles.focused : ''} ${className || ''}`}
       style={style}
       onMouseDown={() => windowService.focusWindow(id)}
     >
       <TitleBar
         title={title}
-        applicationId={window.applicationId}
-        isMaximized={window.isMaximized}
-        isFocused={window.isFocused}
+        applicationId={windowState.applicationId}
+        isMaximized={windowState.isMaximized}
+        isFocused={windowState.isFocused}
         onMouseDown={startDragging}
         onClose={() => {
-          if ('miniAppId' in window && window.miniAppId) {
-            windowService.closeMiniApp(window.miniAppId);
+          if ('miniAppId' in windowState && windowState.miniAppId) {
+            windowService.closeMiniApp(windowState.miniAppId);
           }
           windowService.closeWindow(id);
         }}
@@ -230,7 +247,7 @@ const Window: React.FC<WindowProps> = ({
       <div className={styles.content}>
         {children}
       </div>
-      {window.canResize && !window.isMaximized && (
+      {windowState.canResize && !windowState.isMaximized && (
         <>
           <div className={`${styles.resizeHandle} ${styles.n}`} onMouseDown={(e) => handleResizeMouseDown(e, 'n')} />
           <div className={`${styles.resizeHandle} ${styles.e}`} onMouseDown={(e) => handleResizeMouseDown(e, 'e')} />

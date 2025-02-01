@@ -74,7 +74,7 @@ const getViewportDimensions = () => {
   };
 };
 
-const TASKBAR_HEIGHT = 48; // Constant taskbar height in pixels
+const TASKBAR_HEIGHT = 28; // Updated to match actual taskbar height
 
 // Position calculation functions
 export const calculateWindowPosition = (
@@ -232,15 +232,15 @@ export const APP_CONFIGS: Record<AppId | 'default', AppWindowConfig> = {
     size: {
       defaultSize: {
         width: { value: 16, unit: 'rem' },
-        height: { value: 400, unit: 'px' },
+        height: { value: 25, unit: 'rem' },
       },
       minSize: {
         width: { value: 16, unit: 'rem' },
-        height: { value: 400, unit: 'px' },
+        height: { value: 25, unit: 'rem' },
       },
       maxSize: {
         width: { value: 16, unit: 'rem' },
-        height: { value: 400, unit: 'px' },
+        height: { value: 25, unit: 'rem' },
       },
     },
     position: {
@@ -248,7 +248,7 @@ export const APP_CONFIGS: Record<AppId | 'default', AppWindowConfig> = {
       margins: {
         top: { value: 0, unit: 'px' },
         right: { value: 1.5, unit: 'rem' },
-        bottom: { value: .5, unit: 'rem' },
+        bottom: { value: 0.5, unit: 'rem' },
         left: { value: 0, unit: 'px' },
       },
     },
