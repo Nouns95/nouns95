@@ -280,44 +280,15 @@ export function FileExplorer() {
       case 'File':
         menuItems = [
           {
-            id: 'file-new-folder',
-            label: 'New Folder',
-            icon: '/icons/apps/fileexplorer/actions/new-folder.png',
-            action: handleCreateFolder
-          },
-          {
-            id: 'file-upload',
-            label: 'Upload',
-            icon: '/icons/apps/fileexplorer/actions/upload.png',
-            action: handleUpload
-          },
-          { id: 'file-separator-1', separator: true },
-          {
             id: 'file-properties',
             label: 'Properties',
             disabled: true
           },
-          { id: 'file-separator-2', separator: true },
+          { id: 'file-separator-1', separator: true },
           {
             id: 'file-close',
             label: 'Close',
             action: () => window.close()
-          }
-        ];
-        break;
-      case 'Edit':
-        menuItems = [
-          {
-            id: 'edit-rename',
-            label: 'Rename',
-            icon: '/icons/apps/fileexplorer/actions/rename.png',
-            action: handleRename
-          },
-          {
-            id: 'edit-delete',
-            label: 'Delete',
-            icon: '/icons/apps/fileexplorer/actions/delete.png',
-            action: handleDelete
           }
         ];
         break;
@@ -359,26 +330,6 @@ export function FileExplorer() {
                 setFiles(fsRef.current?.getChildren(currentDirectory.id) || []);
               }
             }
-          }
-        ];
-        break;
-      case 'Tools':
-        menuItems = [
-          {
-            id: 'tools-find-files',
-            label: 'Find Files...',
-            disabled: true
-          },
-          { id: 'tools-separator-1', separator: true },
-          {
-            id: 'tools-map-network-drive',
-            label: 'Map Network Drive...',
-            disabled: true
-          },
-          {
-            id: 'tools-disconnect-network-drive',
-            label: 'Disconnect Network Drive...',
-            disabled: true
           }
         ];
         break;
@@ -526,131 +477,10 @@ export function FileExplorer() {
     );
   };
 
-  const handleCreateFolder = async () => {
-    const fs = fsRef.current;
-    if (!fs || !currentDirectory) return;
-    
-    const newFolderName = 'New Folder';
-    const newFolder = fs.addFile({
-      name: newFolderName,
-      type: 'directory',
-      path: `${currentDirectory.path}/${newFolderName}`,
-      parentId: currentDirectory.id,
-      icon: '/icons/apps/fileexplorer/folders/folder.png',
-      stats: {
-        size: 0,
-        created: new Date(),
-        modified: new Date(),
-        type: 'directory'
-      }
-    });
-
-    setSelectedFile(newFolder.id);
-  };
-
-  const handleUpload = async () => {
-    const fs = fsRef.current;
-    if (!fs || !currentDirectory) return;
-    
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
-    
-    input.onchange = async (e) => {
-      const files = (e.target as HTMLInputElement).files;
-      if (!files) return;
-
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', currentDirectory.path);
-
-        try {
-          const response = await fetch('/api/files/upload', {
-            method: 'POST',
-            body: formData
-          });
-
-          if (response.ok) {
-            await fs.loadDirectoryContents(currentDirectory.id, currentDirectory.path);
-            setFiles(fs.getChildren(currentDirectory.id));
-          }
-        } catch (error) {
-          console.error('Error uploading file:', error);
-        }
-      }
-    };
-
-    input.click();
-  };
-
-  const handleDelete = async () => {
-    const fs = fsRef.current;
-    if (!fs || !selectedFile) return;
-    
-    const file = fs.getNode(selectedFile);
-    if (!file) return;
-
-    try {
-      const response = await fetch(`/api/files?path=${encodeURIComponent(file.path)}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        if (file.parentId) {
-          const parent = fs.getNode(file.parentId);
-          if (parent && parent.type === 'directory') {
-            parent.children = parent.children.filter(id => id !== file.id);
-            setFiles(fs.getChildren(parent.id));
-          }
-        }
-        setSelectedFile(null);
-      }
-    } catch (error) {
-      console.error('Error deleting file:', error);
-    }
-  };
-
-  const handleRename = async () => {
-    const fs = fsRef.current;
-    if (!fs || !selectedFile) return;
-    
-    const file = fs.getNode(selectedFile);
-    if (!file) return;
-
-    const newName = prompt('Enter new name:', file.name);
-    if (!newName || newName === file.name) return;
-
-    try {
-      const response = await fetch(`/api/files/rename`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          oldPath: file.path,
-          newName
-        })
-      });
-
-      if (response.ok) {
-        const newPath = file.path.replace(file.name, newName);
-        file.name = newName;
-        file.path = newPath;
-        if (file.type === 'file' && file.downloadUrl) {
-          file.downloadUrl = newPath;
-        }
-        setFiles([...files]);
-      }
-    } catch (error) {
-      console.error('Error renaming file:', error);
-    }
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.toolbar}>
-        {['File', 'Edit', 'View', 'Tools', 'Help'].map(menuName => (
+        {['File', 'View', 'Help'].map(menuName => (
           <div
             key={menuName}
             className={styles.menuItem}

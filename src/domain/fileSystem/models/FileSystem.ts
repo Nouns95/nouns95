@@ -1,15 +1,7 @@
-export interface FileStats {
-  size: number;
-  created: Date;
-  modified: Date;
-  type: string;
-}
-
 export interface BaseFileNode {
   id: string;
   name: string;
   path: string;
-  stats: FileStats;
   parentId: string | null;
   icon?: string;
 }

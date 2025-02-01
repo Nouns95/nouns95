@@ -56,26 +56,29 @@ export class FileSystemService {
 
   private async readDirectoryContents(dirPath: string): Promise<FileSystemNode[]> {
     try {
-      // Ensure path starts with /files and normalize it
-      const apiPath = dirPath.startsWith('/files') 
+      // Normalize the path to always start with /files and handle subdirectories correctly
+      const normalizedPath = dirPath.startsWith('/files') 
         ? dirPath
-        : dirPath === '/' ? '/files' : `/files${dirPath}`;
-
-      // Remove any double slashes and trailing slashes
-      const normalizedPath = apiPath.replace(/\/+/g, '/').replace(/\/$/, '');
+        : `/files${dirPath === '/' ? '' : dirPath}`;
       
-      const response = await fetch(`/api/files?path=${encodeURIComponent(normalizedPath)}`, {
+      // Remove any double slashes and trailing slashes
+      const cleanPath = normalizedPath.replace(/\/+/g, '/').replace(/\/$/, '');
+      
+      console.log('Reading directory:', cleanPath); // Debug log
+      
+      const response = await fetch(`/api/files?path=${encodeURIComponent(cleanPath)}`, {
         headers: {
           'Accept': 'application/json'
         }
       });
       
       if (!response.ok) {
-        console.error('Failed to read directory:', normalizedPath, response.status, response.statusText);
+        console.error('Failed to read directory:', cleanPath, response.status, response.statusText);
         throw new Error(`Failed to read directory: ${response.statusText}`);
       }
       
       const contents = await response.json();
+      console.log('Directory contents:', contents); // Debug log
       return contents;
     } catch (error) {
       console.error('Error reading directory:', error);
@@ -119,11 +122,13 @@ export class FileSystemService {
 
   public async loadDirectoryContents(parentId: string, dirPath: string): Promise<string[]> {
     try {
-      // Always use /files prefix for API calls
+      // Normalize the path to always start with /files and handle subdirectories correctly
       const apiPath = dirPath.startsWith('/files')
         ? dirPath
-        : '/files';
+        : `/files${dirPath === '/' ? '' : dirPath}`;
 
+      console.log('Loading directory contents for:', apiPath); // Debug log
+      
       const contents = await this.readDirectoryContents(apiPath);
       if (!contents) {
         return [];
@@ -133,9 +138,7 @@ export class FileSystemService {
 
       for (const item of contents) {
         const itemId = uuidv4();
-        const itemPath = apiPath === '/files'
-          ? `/files/${item.name}`
-          : `${apiPath}/${item.name}`;
+        const itemPath = `${apiPath}/${item.name}`.replace(/\/+/g, '/');
         
         if (item.type === 'directory') {
           const dirNode: DirectoryNode = {
@@ -145,8 +148,7 @@ export class FileSystemService {
             path: itemPath,
             parentId,
             icon: this.getFolderIcon(),
-            children: [],
-            stats: item.stats
+            children: []
           };
           
           this.state.nodes[itemId] = dirNode;
@@ -159,8 +161,7 @@ export class FileSystemService {
             path: itemPath,
             parentId,
             icon: this.getFileIcon(item.name, itemPath),
-            downloadUrl: itemPath,
-            stats: item.stats
+            downloadUrl: itemPath
           };
           
           this.state.nodes[itemId] = fileNode;
@@ -168,6 +169,7 @@ export class FileSystemService {
         }
       }
 
+      console.log('Created nodes:', childIds.length); // Debug log
       return childIds;
     } catch (error) {
       console.error('Error loading directory contents:', error);
@@ -194,13 +196,7 @@ export class FileSystemService {
         path: '/files',
         parentId: null,
         children: [],
-        icon: this.getFolderIcon(),
-        stats: {
-          size: 0,
-          created: new Date(),
-          modified: new Date(),
-          type: 'directory'
-        }
+        icon: this.getFolderIcon()
       };
 
       this.state = {
@@ -345,23 +341,6 @@ export class FileSystemService {
       this.isNavigatingForward = false;
       this.navigateTo(current.parentId);
     }
-  }
-
-  public addFile(file: Omit<FileSystemNode, 'id'>): FileSystemNode {
-    const id = `file-${Date.now()}`;
-    const newFile = file.type === 'directory'
-      ? { ...file, id, children: [] } as DirectoryNode
-      : { ...file, id } as FileNode;
-    
-    this.state.nodes[id] = newFile;
-    
-    const parent = this.getNode(file.parentId!);
-    if (parent && parent.type === 'directory') {
-      parent.children.push(id);
-    }
-
-    this.eventBus.emit('fileSystemChanged', { state: this.state });
-    return newFile;
   }
 
   public downloadFile(id: string): void {
