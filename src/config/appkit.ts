@@ -17,9 +17,15 @@ export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, base, sol
 // Define metadata for wallet connections
 export const metadata = {
   name: 'Nouns95',
-  description: 'Nouns95',
-  url: 'https://nouns95v2.vercel.app',
-  icons: ['https://nouns95.xyz/public/icons/start.png']
+  description: 'Nouns95 - A Web3 Operating System',
+  url: 'https://nouns95.xyz',
+  icons: [
+    'https://nouns95.xyz/icons/favicon.ico',
+    'https://nouns95.xyz/icons/icon-192.png',
+    'https://nouns95.xyz/icons/icon-512.png'
+  ],
+  themeColor: '#000000',
+  background: '#ffffff'
 }
 
 export const bitcoinAdapter = new BitcoinAdapter({

@@ -7,8 +7,49 @@ import AppkitContext from "../src/context/AppkitContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nouns95",
-  description: "A Windows 95-inspired interface for Nouns",
+  title: "Nouns 95",
+  description: "Nouns 95",
+  applicationName: "Nouns 95",
+  authors: [{ name: "Macrohard" }],
+  keywords: ["Nouns", "DAO", "95"],
+  metadataBase: new URL("https://nouns95v2.vercel.app"),
+  openGraph: {
+    title: "Nouns 95",
+    description: "Nouns95 - A Web3 Operating System",
+    url: "https://nouns95v2.vercel.app",
+    siteName: "Nouns 95",
+    images: [
+      {
+        url: "https://nouns95v2.vercel.app/public/icons/clouds.png",
+        width: 640,
+        height: 480,
+        alt: "Nouns 95"
+      }
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nouns 95",
+    description: "Nouns 95",
+    images: ["https://nouns95v2.vercel.app/public/icons/clouds.png"],
+  },
+  icons: {
+    icon: [
+      { url: "/public/icons/clouds.png" },
+    ],
+    apple: [
+      { url: "/icons/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default async function RootLayout({
