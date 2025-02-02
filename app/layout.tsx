@@ -1,10 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from 'next/headers'
 import "./globals.css";
 import { Inter } from "next/font/google";
 import AppkitContext from "../src/context/AppkitContext";
+import { Analytics } from '@vercel/analytics/next';
+import { ApolloWrapper } from "../src/components/ApolloWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#000000",
+};
 
 export const metadata: Metadata = {
   title: "Nouns 95",
@@ -44,12 +53,6 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/manifest.json",
-  themeColor: "#000000",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
 };
 
 export default async function RootLayout({
@@ -64,8 +67,11 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppkitContext cookies={cookies}>
-          {children}
+          <ApolloWrapper>
+            {children}
+          </ApolloWrapper>
         </AppkitContext>
+        <Analytics />
       </body>
     </html>
   );

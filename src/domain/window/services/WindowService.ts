@@ -16,6 +16,7 @@ export class WindowService {
   private eventBus = new EventBus();
   private readonly BASE_ZINDEX = 100;
   private readonly MINIAPP_ZINDEX_OFFSET = 1000;
+  private windowCount = 0; // Add counter for regular windows only
 
   private constructor() {}
 
@@ -36,12 +37,11 @@ export class WindowService {
 
   public createWindow(appId: string, processId: string, metadata?: Record<string, unknown>): string {
     const config = getAppConfig(appId);
-    const windowCount = Object.keys(this.state.windows).length;
     
     const window: Window = {
       id: `window-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: config.title,
-      position: calculateWindowPosition(appId, windowCount),
+      position: calculateWindowPosition(appId, this.windowCount++), // Use windowCount instead of total windows
       size: config.size.defaultSize,
       zIndex: this.BASE_ZINDEX + this.state.zIndexCounter++,
       isFocused: false,
@@ -60,12 +60,11 @@ export class WindowService {
 
   public createMiniApp(appId: string, processId: string, metadata?: Record<string, unknown>): string {
     const config = getAppConfig(appId);
-    const miniAppCount = Object.keys(this.state.miniApps).length;
     
     const miniApp: MiniAppWindow = {
       id: `miniapp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: config.title,
-      position: calculateWindowPosition(appId, miniAppCount),
+      position: calculateWindowPosition(appId, 0), // Always use 0 for miniapps
       size: config.size.defaultSize,
       zIndex: this.MINIAPP_ZINDEX_OFFSET + this.state.zIndexCounter++,
       isFocused: false,
@@ -90,6 +89,7 @@ export class WindowService {
     
     this.dispatch({ type: 'CLOSE_WINDOW', windowId });
     this.eventBus.emit('windowClosed', { windowId });
+    this.windowCount = Math.max(0, this.windowCount - 1); // Decrement window count
   }
 
   public closeMiniApp(miniAppId: string): void {

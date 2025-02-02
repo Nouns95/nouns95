@@ -7,6 +7,7 @@ import Window from './Window';
 import MiniApp from '../MiniApp/MiniApp';
 import WalletApp from '@/src/presentation/apps/Wallet/WalletApp';
 import FileExplorer from '@/src/presentation/apps/FileExplorer/FileExplorer';
+import Auction from '@/src/presentation/apps/Nouns/Auction';
 import { useWindowStore, WindowStoreState } from '@/src/domain/window/stores/WindowStore';
 import { getAppConfig } from '@/src/domain/window/config/AppConfig';
 import styles from './WindowManager.module.css';
@@ -94,6 +95,8 @@ export default function WindowManager() {
         return <WalletApp />;
       case 'fileexplorer':
         return <FileExplorer />;
+      case 'nounsauction':
+        return <Auction />;
       default:
         console.warn(`No component found for app: ${window.applicationId}`);
         return null;

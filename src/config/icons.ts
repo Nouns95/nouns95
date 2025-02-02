@@ -1,6 +1,20 @@
+import { StaticImport } from 'next/dist/shared/lib/get-img-props';
+import { ComponentType } from 'react';
+import { NounImage } from '../presentation/apps/Nouns/AuctionNounImage';
+
+export interface IconComponentProps {
+  width?: number;
+  height?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export type IconType = string | StaticImport | ComponentType<IconComponentProps>;
+
 export interface AppIcon {
-  icon: string;  // Path to the icon in public directory
-  alt: string;   // Fallback emoji/text icon
+  icon: IconType;
+  alt: string;
+  isComponent?: boolean;
 }
 
 export interface AppIcons {
@@ -10,25 +24,35 @@ export interface AppIcons {
 export const APP_ICONS: AppIcons = {
   wallet: {
     icon: '/icons/apps/wallet/wallet.png',
-    alt: '💰'
+    alt: '💰',
+    isComponent: false
   },
   settings: {
     icon: '/icons/apps/settings/settings.png',
-    alt: '⚙️'
+    alt: '⚙️',
+    isComponent: false
   },
   programs: {
     icon: '/icons/apps/programs/programs.png',
-    alt: '📁'
+    alt: '📁',
+    isComponent: false
   },
   fileexplorer: {
     icon: '/icons/apps/fileexplorer/folders/folder.png',
-    alt: '📂'
+    alt: '📂',
+    isComponent: false
+  },
+  nounsauction: {
+    icon: NounImage,
+    alt: '🎨',
+    isComponent: true
   }
 };
 
 export const getAppIcon = (appId: string): AppIcon => {
   return APP_ICONS[appId] || {
     icon: '/icons/apps/default/default.png',
-    alt: '📄'
+    alt: '📄',
+    isComponent: false
   };
 }; 

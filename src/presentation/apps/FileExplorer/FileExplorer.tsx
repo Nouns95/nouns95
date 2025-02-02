@@ -58,16 +58,35 @@ export function FileExplorer() {
       isExpanded: true
     };
 
-    const children = fs.getChildren(node.id)
-      .filter(child => child && child.type === 'directory')
-      .map(child => buildTreeItems(fs, child, level + 1, false));
+    let children: TreeItem[] = [];
+    if (node.type === 'directory') {
+      // Get children for root, loaded directories, or expanded directories
+      if (isRoot || fs.isDirectoryLoaded(node.id)) {
+        children = fs.getChildren(node.id)
+          .filter(child => child && child.type === 'directory')
+          .map(child => buildTreeItems(fs, child, level + 1, false));
+      }
+    }
+
+    // A directory should be expanded if:
+    // 1. It's the root
+    // 2. It's loaded AND has children
+    // 3. It's in the path to the current directory
+    const isInCurrentPath = (() => {
+      let current = fs.getCurrentDirectory();
+      while (current && current.parentId) {
+        if (current.id === node.id) return true;
+        current = fs.getNode(current.parentId) as DirectoryNode | null;
+      }
+      return false;
+    })();
 
     return {
       id: node.id,
       name: node.name,
       icon: node.icon || '/icons/apps/fileexplorer/folders/folder.png',
       level,
-      isExpanded: level === 0 || isRoot,
+      isExpanded: isRoot || isInCurrentPath || (fs.isDirectoryLoaded(node.id) && children.length > 0),
       children: children.length > 0 ? children : undefined
     };
   }, []);
@@ -106,6 +125,9 @@ export function FileExplorer() {
     };
 
     const handleDirChange = ({ directoryId }: { directoryId: string }) => {
+      const fs = fsRef.current;
+      if (!fs) return;
+
       const current = fs.getNode(directoryId);
       if (!current || current.type !== 'directory') return;
       
@@ -114,19 +136,42 @@ export function FileExplorer() {
       setSelectedFile(null);
       setFiles(fs.getChildren(current.id));
 
-      if (current.type === 'directory') {
-        const treeItem = buildTreeItems(fs, current, 0, true);
-        setTreeItems([{ ...treeItem, isExpanded: true }]);
-      }
+      // Load all parent directories to maintain the tree structure
+      const loadParentDirectories = async (node: FileSystemNode) => {
+        if (node.parentId) {
+          const parent = fs.getNode(node.parentId);
+          if (parent && parent.type === 'directory' && !fs.isDirectoryLoaded(parent.id)) {
+            await fs.loadDirectoryContents(parent.id, parent.path);
+            await loadParentDirectories(parent);
+          }
+        }
+      };
+
+      // Load parent directories and then rebuild the tree
+      loadParentDirectories(current).then(() => {
+        const rootNode = fs.getNode(fs.getRootId());
+        if (rootNode && rootNode.type === 'directory') {
+          const treeItem = buildTreeItems(fs, rootNode, 0, true);
+          setTreeItems([{ ...treeItem, isExpanded: true }]);
+        }
+      });
     };
 
     const handleFSChange = () => {
+      const fs = fsRef.current;
+      if (!fs) return;
+
       const currentDir = fs.getCurrentDirectory();
       if (!currentDir || currentDir.type !== 'directory') return;
       
       setFiles(fs.getChildren(currentDir.id));
-      const treeItem = buildTreeItems(fs, currentDir, 0, true);
-      setTreeItems([{ ...treeItem, isExpanded: true }]);
+
+      // Get the root node and rebuild the entire tree
+      const rootNode = fs.getNode(fs.getRootId());
+      if (rootNode && rootNode.type === 'directory') {
+        const treeItem = buildTreeItems(fs, rootNode, 0, true);
+        setTreeItems([{ ...treeItem, isExpanded: true }]);
+      }
     };
 
     fs.on('directoryChanged', handleDirChange);
@@ -191,32 +236,31 @@ export function FileExplorer() {
     fsRef.current.navigateTo(item.id);
   }, [fsRef]);
 
-  const handleTreeItemDoubleClick = useCallback((item: TreeItem) => {
+  const handleTreeItemDoubleClick = useCallback(async (item: TreeItem) => {
     const fs = fsRef.current;
     if (!fs) return;
     
-    // First navigate to the directory
-    fs.navigateTo(item.id).then(() => {
+    try {
+      // First navigate to the directory
+      await fs.navigateTo(item.id);
+      
       // After navigation, update the tree state
       setTreeItems(prevItems => {
         const updateItem = (items: TreeItem[]): TreeItem[] => {
           return items.map(treeItem => {
             if (treeItem.id === item.id) {
-              if (!treeItem.isExpanded && (!treeItem.children || treeItem.children.length === 0)) {
-                const node = fs.getNode(treeItem.id);
-                if (node && node.type === 'directory') {
-                  const dirChildren = fs.getChildren(node.id)
-                    .filter(child => child && child.type === 'directory')
-                    .map(child => buildTreeItems(fs, child, (treeItem.level || 0) + 1));
-                  
-                  return {
-                    ...treeItem,
-                    isExpanded: true,
-                    children: dirChildren.length > 0 ? dirChildren : undefined
-                  };
-                }
+              const node = fs.getNode(treeItem.id);
+              if (node && node.type === 'directory') {
+                const dirChildren = fs.getChildren(node.id)
+                  .filter(child => child && child.type === 'directory')
+                  .map(child => buildTreeItems(fs, child, (treeItem.level || 0) + 1));
+                
+                return {
+                  ...treeItem,
+                  isExpanded: !treeItem.isExpanded,
+                  children: dirChildren.length > 0 ? dirChildren : undefined
+                };
               }
-              return { ...treeItem, isExpanded: !treeItem.isExpanded };
             }
             if (treeItem.children) {
               return { ...treeItem, children: updateItem(treeItem.children) };
@@ -226,42 +270,52 @@ export function FileExplorer() {
         };
         return updateItem(prevItems);
       });
-    });
+    } catch (error) {
+      console.error('Error handling tree item double click:', error);
+    }
   }, [fsRef, buildTreeItems]);
 
-  const handleExpandButtonClick = useCallback((e: React.MouseEvent, item: TreeItem) => {
+  const handleExpandButtonClick = useCallback(async (e: React.MouseEvent, item: TreeItem) => {
     const fs = fsRef.current;
     if (!fs) return;
     
     e.stopPropagation();
-    setTreeItems(prevItems => {
-      const updateItem = (items: TreeItem[]): TreeItem[] => {
-        return items.map(treeItem => {
-          if (treeItem.id === item.id) {
-            if (!treeItem.isExpanded && (!treeItem.children || treeItem.children.length === 0)) {
-              const node = fs.getNode(treeItem.id);
-              if (node && node.type === 'directory') {
-                const dirChildren = fs.getChildren(node.id)
-                  .filter(child => child.type === 'directory')
-                  .map(child => buildTreeItems(fs, child, (treeItem.level || 0) + 1));
-                
-                return {
-                  ...treeItem,
-                  isExpanded: true,
-                  children: dirChildren.length > 0 ? dirChildren : undefined
-                };
-              }
+    
+    try {
+      const node = fs.getNode(item.id);
+      if (!node || node.type !== 'directory') return;
+
+      // Load directory contents if not already loaded
+      if (!fs.isDirectoryLoaded(item.id)) {
+        await fs.loadDirectoryContents(item.id, node.path);
+      }
+
+      // Update the tree state
+      setTreeItems(prevItems => {
+        const updateItem = (items: TreeItem[]): TreeItem[] => {
+          return items.map(treeItem => {
+            if (treeItem.id === item.id) {
+              const dirChildren = fs.getChildren(node.id)
+                .filter(child => child.type === 'directory')
+                .map(child => buildTreeItems(fs, child, (treeItem.level || 0) + 1));
+              
+              return {
+                ...treeItem,
+                isExpanded: !treeItem.isExpanded,
+                children: dirChildren.length > 0 ? dirChildren : undefined
+              };
             }
-            return { ...treeItem, isExpanded: !treeItem.isExpanded };
-          }
-          if (treeItem.children) {
-            return { ...treeItem, children: updateItem(treeItem.children) };
-          }
-          return treeItem;
-        });
-      };
-      return updateItem(prevItems);
-    });
+            if (treeItem.children) {
+              return { ...treeItem, children: updateItem(treeItem.children) };
+            }
+            return treeItem;
+          });
+        };
+        return updateItem(prevItems);
+      });
+    } catch (error) {
+      console.error('Error handling expand button click:', error);
+    }
   }, [fsRef, buildTreeItems]);
 
   const handleBackClick = useCallback(() => {

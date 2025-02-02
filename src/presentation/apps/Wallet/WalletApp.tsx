@@ -11,7 +11,7 @@ import './WalletApp.styles.css'
 import { AddressDisplay } from './AddressDisplay';
 import { NetworkDisplay } from './NetworkDisplay';
 
-type TabType = 'Account' | 'Network' | 'Swap/Buy'
+type TabType = 'Account' | 'Network' | 'Swap'
 
 const getNetworkType = (networkId?: string): 'ethereum' | 'base' | 'solana' | 'bitcoin' => {
   if (!networkId) return 'ethereum';
@@ -38,7 +38,7 @@ export default function WalletApp() {
     switch (activeTab) {
       case 'Account':
         return (
-          <div className="tab-content">
+          <div className="tab-content wallet-tab-bg">
             <div className="wallet-profile">
               <AddressDisplay 
                 address={address} 
@@ -49,7 +49,7 @@ export default function WalletApp() {
         )
       case 'Network':
         return (
-          <div className="tab-content">
+          <div className="tab-content wallet-tab-bg">
             <div className="wallet-profile">
               <NetworkDisplay 
                 chainId={chainId} 
@@ -63,15 +63,15 @@ export default function WalletApp() {
             </div>
           </div>
         )
-      case 'Swap/Buy':
+      case 'Swap':
         return (
-          <div className="tab-content">
+          <div className="tab-content wallet-tab-bg">
             <div className="wallet-profile">
               <div className="wallet-actions no-border">
-                <button onClick={() => open({ view: 'Swap' })} className="win95-btn">
+                <button onClick={() => open({ view: 'Swap' })} className="win95-btn swap-btn">
                   Swap Tokens
                 </button>
-                <button onClick={() => open({ view: 'OnRampProviders' })} className="win95-btn">
+                <button onClick={() => open({ view: 'OnRampProviders' })} className="win95-btn buy-btn">
                   Buy with Fiat
                 </button>
               </div>
@@ -99,10 +99,10 @@ export default function WalletApp() {
               Network
             </button>
             <button 
-              className={`tab-button ${activeTab === 'Swap/Buy' ? 'active' : ''}`}
-              onClick={() => setActiveTab('Swap/Buy')}
+              className={`tab-button ${activeTab === 'Swap' ? 'active' : ''}`}
+              onClick={() => setActiveTab('Swap')}
             >
-              Swap/Buy
+              Swap
             </button>
           </div>
           <div className="tab-panel">

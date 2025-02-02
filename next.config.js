@@ -42,7 +42,19 @@ const nextConfig = {
         destination: '/api/serve/:path*'
       }
     ];
-  }
+  },
+  webpack: (config, { isServer }) => {
+    // Exclude specific modules from the client bundle
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        stream: false,
+      };
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig; 

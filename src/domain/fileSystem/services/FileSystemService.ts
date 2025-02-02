@@ -137,6 +137,13 @@ export class FileSystemService {
       const childIds: string[] = [];
 
       for (const item of contents) {
+        // Check if we already have this node by path to prevent duplicates
+        const existingNode = Object.values(this.state.nodes).find(n => n.path === `${apiPath}/${item.name}`.replace(/\/+/g, '/'));
+        if (existingNode) {
+          childIds.push(existingNode.id);
+          continue;
+        }
+
         const itemId = uuidv4();
         const itemPath = `${apiPath}/${item.name}`.replace(/\/+/g, '/');
         
@@ -153,6 +160,9 @@ export class FileSystemService {
           
           this.state.nodes[itemId] = dirNode;
           childIds.push(itemId);
+          
+          // Mark this directory as not loaded yet
+          this.loadedDirectories.delete(itemId);
         } else {
           const fileNode: FileNode = {
             id: itemId,
@@ -169,12 +179,26 @@ export class FileSystemService {
         }
       }
 
+      // Mark this directory as loaded
+      this.loadedDirectories.add(parentId);
+      
+      // Update the parent's children list
+      const parentNode = this.state.nodes[parentId];
+      if (parentNode && parentNode.type === 'directory') {
+        parentNode.children = childIds;
+        this.state.nodes[parentId] = parentNode;
+      }
+
       console.log('Created nodes:', childIds.length); // Debug log
       return childIds;
     } catch (error) {
       console.error('Error loading directory contents:', error);
       return [];
     }
+  }
+
+  public isDirectoryLoaded(id: string): boolean {
+    return this.loadedDirectories.has(id);
   }
 
   public async initializeFileSystem(): Promise<void> {
@@ -362,5 +386,9 @@ export class FileSystemService {
     callback: (data: FileSystemEventMap[K]) => void
   ): void {
     this.eventBus.off(event, callback);
+  }
+
+  public getRootId(): string {
+    return this.state.rootId;
   }
 }

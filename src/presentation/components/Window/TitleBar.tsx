@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { getAppIcon } from '@/src/config/icons';
+import type { IconComponentProps } from '@/src/config/icons';
 import styles from './TitleBar.module.css';
 
 interface TitleBarProps {
@@ -30,25 +31,40 @@ const TitleBar: React.FC<TitleBarProps> = ({
 }) => {
   const appIcon = getAppIcon(applicationId);
 
+  const renderIcon = () => {
+    if (!appIcon) return null;
+
+    if (appIcon.isComponent) {
+      const IconComponent = appIcon.icon as React.ComponentType<IconComponentProps>;
+      return (
+        <div className={styles.iconWrapper}>
+          <IconComponent width={16} height={16} />
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.iconWrapper}>
+        <Image 
+          src={appIcon.icon as string} 
+          alt={`${title} icon`}
+          width={16}
+          height={16}
+          className={styles.icon}
+          style={{ objectFit: 'contain' }}
+          priority
+        />
+      </div>
+    );
+  };
+
   return (
     <div 
       className={`${styles.titleBar} ${isFocused ? styles.focused : ''}`}
       onMouseDown={onMouseDown}
     >
       <div className={styles.titleContent}>
-        {appIcon && (
-          <div className={styles.iconWrapper}>
-            <Image 
-              src={appIcon.icon} 
-              alt={`${title} icon`}
-              width={16}
-              height={16}
-              className={styles.icon}
-              style={{ objectFit: 'contain' }}
-              priority
-            />
-          </div>
-        )}
+        {renderIcon()}
         <span className={styles.title}>{title}</span>
       </div>
       <div className={styles.controls}>

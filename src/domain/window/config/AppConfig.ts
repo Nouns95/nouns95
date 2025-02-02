@@ -2,7 +2,7 @@ import { WindowCoordinates, WindowDimensions, WindowSizeValue } from '../models/
 
 // App types
 export type AppType = 'window' | 'miniapp';
-export type AppId = 'wallet' | 'fileexplorer' | 'settings' | 'programs';
+export type AppId = 'wallet' | 'fileexplorer' | 'settings' | 'programs' | 'nounsauction';
 
 // Position types
 export type PreferredPosition = 'center' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' | WindowCoordinates;
@@ -226,44 +226,6 @@ export const APP_CONFIGS: Record<AppId | 'default', AppWindowConfig> = {
     }
   },
 
-  wallet: {
-    type: 'miniapp',
-    title: 'Wallet',
-    size: {
-      defaultSize: {
-        width: { value: 16, unit: 'rem' },
-        height: { value: 25, unit: 'rem' },
-      },
-      minSize: {
-        width: { value: 16, unit: 'rem' },
-        height: { value: 25, unit: 'rem' },
-      },
-      maxSize: {
-        width: { value: 16, unit: 'rem' },
-        height: { value: 25, unit: 'rem' },
-      },
-    },
-    position: {
-      preferred: 'bottomRight',
-      margins: {
-        top: { value: 0, unit: 'px' },
-        right: { value: 1.5, unit: 'rem' },
-        bottom: { value: 0.5, unit: 'rem' },
-        left: { value: 0, unit: 'px' },
-      },
-    },
-    behavior: {
-      canResize: false,
-      canMinimize: false,
-      canMaximize: false,
-    },
-    metadata: {
-      icon: 'wallet',
-      description: 'Manage your crypto wallet',
-      category: 'finance'
-    }
-  },
-
   fileexplorer: {
     type: 'window',
     title: 'File Explorer',
@@ -325,6 +287,83 @@ export const APP_CONFIGS: Record<AppId | 'default', AppWindowConfig> = {
       icon: 'settings',
       description: 'System settings and configuration',
       category: 'system'
+    }
+  },
+
+  wallet: {
+    type: 'miniapp',
+    title: 'Wallet',
+    size: {
+      defaultSize: {
+        width: { value: 16, unit: 'rem' },
+        height: { value: 25, unit: 'rem' },
+      },
+      minSize: {
+        width: { value: 16, unit: 'rem' },
+        height: { value: 25, unit: 'rem' },
+      },
+      maxSize: {
+        width: { value: 16, unit: 'rem' },
+        height: { value: 25, unit: 'rem' },
+      },
+    },
+    position: {
+      preferred: 'bottomRight',
+      margins: {
+        top: { value: 0, unit: 'px' },
+        right: { value: 1.5, unit: 'rem' },
+        bottom: { value: 1, unit: 'rem' },
+        left: { value: 0, unit: 'px' },
+      },
+    },
+    behavior: {
+      canResize: false,
+      canMinimize: false,
+      canMaximize: false,
+    },
+    metadata: {
+      icon: 'wallet',
+      description: 'Manage your crypto wallet',
+      category: 'finance'
+    }
+  },
+
+  nounsauction: {
+    type: 'miniapp',
+    title: 'Nouns Auction',
+    size: {
+      defaultSize: {
+        width: { value: 800, unit: 'px' },
+        height: { value: 600, unit: 'px' },
+      },
+      minSize: {
+        width: { value: 600, unit: 'px' },
+        height: { value: 400, unit: 'px' },
+      },
+      maxSize: {
+        width: { value: 1200, unit: 'px' },
+        height: { value: 800, unit: 'px' },
+      },
+    },
+    position: {
+      preferred: 'bottomRight',
+      margins: {
+        top: { value: 0, unit: 'px' },
+        right: { value: 2.5, unit: 'rem' },
+        bottom: { value: 3, unit: 'rem' },
+        left: { value: 0, unit: 'px' },
+      },
+    },
+    behavior: {
+      canResize: false,
+      canMinimize: false,
+      canMaximize: false,
+      stackingOffset: { x: 20, y: 20 },
+    },
+    metadata: {
+      icon: 'nounsauction',
+      description: 'Nouns DAO Auction House',
+      category: 'dao'
     }
   }
 };
