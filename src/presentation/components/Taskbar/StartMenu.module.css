@@ -100,6 +100,14 @@
   justify-content: center;
 }
 
+.menuItemIcon > * {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .divider {
   border-top: 1px solid var(--win95-gray-dark);
   margin: 4px 0;

@@ -28,7 +28,7 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   settings: {
-    icon: '/icons/apps/settings/settings.png',
+    icon: '/icons/settings/settings.png',
     alt: '⚙️',
     isComponent: false
   },
@@ -42,7 +42,7 @@ export const APP_ICONS: AppIcons = {
     alt: '📂',
     isComponent: false
   },
-  nounsauction: {
+  auction: {
     icon: NounImage,
     alt: '🎨',
     isComponent: true

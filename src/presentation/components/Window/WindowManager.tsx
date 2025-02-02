@@ -95,7 +95,7 @@ export default function WindowManager() {
         return <WalletApp />;
       case 'fileexplorer':
         return <FileExplorer />;
-      case 'nounsauction':
+      case 'auction':
         return <Auction />;
       default:
         console.warn(`No component found for app: ${window.applicationId}`);

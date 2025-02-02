@@ -2,7 +2,7 @@ import { WindowCoordinates, WindowDimensions, WindowSizeValue } from '../models/
 
 // App types
 export type AppType = 'window' | 'miniapp';
-export type AppId = 'wallet' | 'fileexplorer' | 'settings' | 'programs' | 'nounsauction';
+export type AppId = 'wallet' | 'fileexplorer' | 'settings' | 'programs' | 'auction';
 
 // Position types
 export type PreferredPosition = 'center' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' | WindowCoordinates;
@@ -328,9 +328,9 @@ export const APP_CONFIGS: Record<AppId | 'default', AppWindowConfig> = {
     }
   },
 
-  nounsauction: {
+  auction: {
     type: 'miniapp',
-    title: 'Nouns Auction',
+    title: 'Auction',
     size: {
       defaultSize: {
         width: { value: 800, unit: 'px' },
@@ -361,7 +361,7 @@ export const APP_CONFIGS: Record<AppId | 'default', AppWindowConfig> = {
       stackingOffset: { x: 20, y: 20 },
     },
     metadata: {
-      icon: 'nounsauction',
+      icon: 'auction',
       description: 'Nouns DAO Auction House',
       category: 'dao'
     }

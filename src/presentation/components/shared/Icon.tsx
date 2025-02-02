@@ -22,10 +22,6 @@ const Icon: React.FC<IconProps> = ({
   const [imageError, setImageError] = useState(false);
   const icon = getAppIcon(appId);
 
-  if (imageError) {
-    return <span className={`icon-fallback ${className}`}>{icon.alt}</span>;
-  }
-
   if (icon.isComponent) {
     const IconComponent = icon.icon as React.ComponentType<IconComponentProps>;
     return (
@@ -35,6 +31,10 @@ const Icon: React.FC<IconProps> = ({
         className={`icon ${className}`}
       />
     );
+  }
+
+  if (imageError) {
+    return <span className={`icon-fallback ${className}`}>{icon.alt}</span>;
   }
 
   return (

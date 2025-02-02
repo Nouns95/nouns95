@@ -19,8 +19,9 @@ interface MenuItem {
 const MENU_ITEMS: MenuItem[] = [
   { id: 'programs', label: 'Programs', appId: 'programs' },
   { id: 'fileexplorer', label: 'File Explorer', appId: 'fileexplorer' },
-  { id: 'settings', label: 'Settings', appId: 'settings' },
-  { id: 'wallet', label: 'Wallet', appId: 'wallet' }
+  { id: 'auction', label: 'Auction', appId: 'auction' },
+  { id: 'wallet', label: 'Wallet', appId: 'wallet' },
+  { id: 'settings', label: 'Settings', appId: 'settings' }
 ];
 
 const StartMenu: React.FC = () => {

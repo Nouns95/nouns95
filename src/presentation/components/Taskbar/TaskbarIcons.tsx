@@ -14,7 +14,7 @@ const TaskbarIcons: React.FC = () => {
   const windowService = WindowService.getInstance();
   const processManager = ProcessManager.getInstance();
   const walletConfig = getAppConfig('wallet');
-  const auctionConfig = getAppConfig('nounsauction');
+  const auctionConfig = getAppConfig('auction');
 
   useEffect(() => {
     // Subscribe to window state changes
@@ -24,8 +24,8 @@ const TaskbarIcons: React.FC = () => {
         if (closedWindow.miniAppId === 'wallet') {
           windowService.closeMiniApp('wallet');
           processManager.terminateProcess(closedWindow.processId);
-        } else if (closedWindow.miniAppId === 'nounsauction') {
-          windowService.closeMiniApp('nounsauction');
+        } else if (closedWindow.miniAppId === 'auction') {
+          windowService.closeMiniApp('auction');
           processManager.terminateProcess(closedWindow.processId);
         }
       }
@@ -70,7 +70,7 @@ const TaskbarIcons: React.FC = () => {
     <div className={styles.taskbarIcons}>
       <button
         className={styles.iconButton}
-        onClick={() => toggleApp('nounsauction')}
+        onClick={() => toggleApp('auction')}
         title={auctionConfig.title}
       >
         <div className={styles.icon}>
