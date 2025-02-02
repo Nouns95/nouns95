@@ -20,7 +20,7 @@ export const NOUN_BY_ID_QUERY = gql`
 
 export const NOUNDERS_NOUNS_QUERY = gql`
   query NoundersNouns {
-    nouns(where: { id_ends_with: "0" }) {
+    nouns(first: 1000, orderBy: id) {
       id
       seed {
         background

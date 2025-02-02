@@ -68,13 +68,13 @@ export default function Auction() {
         nounId: viewingNounId || ''
       },
       skip: !viewingNounId || !currentAuctionData || Number(viewingNounId) % 10 === 0, // Skip if viewing current auction, no data, or Nounder Noun
-      fetchPolicy: 'cache-and-network'
+      fetchPolicy: 'network-only' // Change to network-only to match Nounder Nouns speed
     }
   );
 
   // Query for Nounders Nouns
   const { data: noundersData, loading: noundersLoading } = useQuery(NOUNDERS_NOUNS_QUERY, {
-    fetchPolicy: 'cache-and-network'
+    fetchPolicy: 'cache-first' // Use cache-first to make it fast
   });
 
   // Update countdown in real-time
@@ -106,11 +106,27 @@ export default function Auction() {
   // Get the auction data we should display
   const historicalAuction = historicalData?.auctions?.[0];
   const isNounderNoun = viewingNounId && Number(viewingNounId) % 10 === 0;
-  const nounderNoun = isNounderNoun ? noundersData?.nouns?.find((noun: Noun) => noun.id === viewingNounId) : null;
+  const nounderNoun = isNounderNoun && noundersData?.nouns ? 
+    noundersData.nouns.find((noun: Noun) => Number(noun.id) === Number(viewingNounId)) : 
+    null;
   
-  // Only show current auction if we're not viewing a historical one or if historical is still loading
-  const isLoading = (viewingNounId && historicalLoading) || (isNounderNoun && noundersLoading);
-  const auction = isLoading ? null : (viewingNounId && !isNounderNoun && historicalAuction) ? historicalAuction : currentAuction;
+  // Debug logging
+  console.log('Nounder Noun Debug:', {
+    viewingNounId,
+    isNounderNoun,
+    nounderNounFound: !!nounderNoun,
+    nounderNounId: nounderNoun?.id,
+    nounderNounSeed: nounderNoun?.seed,
+    noundersDataLoaded: !!noundersData?.nouns,
+    noundersLoading,
+    totalNounderNouns: noundersData?.nouns?.length
+  });
+  
+  // Only show loading state when we're actually loading data
+  const isLoading = viewingNounId ? 
+    (isNounderNoun ? noundersLoading : historicalLoading) : 
+    false;
+  const auction = isLoading ? null : (!isNounderNoun && viewingNounId && historicalAuction) ? historicalAuction : currentAuction;
   const bids = (auction?.bids as Bid[]) || [];
   const currentBid = auction?.amount ? formatEther(BigInt(auction.amount)) : '0';
 
@@ -169,6 +185,29 @@ export default function Auction() {
                       <span className={styles['trait-value']}>Loading...</span>
                     </div>
                   ))
+                ) : isNounderNoun && nounderNoun?.seed ? (
+                  <>
+                    <div className={styles['trait-item']}>
+                      <span className={styles['trait-label']}>Head</span>
+                      <span className={styles['trait-value']}>{getTraitName('head', Number(nounderNoun.seed.head))}</span>
+                    </div>
+                    <div className={styles['trait-item']}>
+                      <span className={styles['trait-label']}>Glasses</span>
+                      <span className={styles['trait-value']}>{getTraitName('glasses', Number(nounderNoun.seed.glasses))}</span>
+                    </div>
+                    <div className={styles['trait-item']}>
+                      <span className={styles['trait-label']}>Accessory</span>
+                      <span className={styles['trait-value']}>{getTraitName('accessory', Number(nounderNoun.seed.accessory))}</span>
+                    </div>
+                    <div className={styles['trait-item']}>
+                      <span className={styles['trait-label']}>Body</span>
+                      <span className={styles['trait-value']}>{getTraitName('body', Number(nounderNoun.seed.body))}</span>
+                    </div>
+                    <div className={styles['trait-item']}>
+                      <span className={styles['trait-label']}>Background</span>
+                      <span className={styles['trait-value']}>{getTraitName('background', Number(nounderNoun.seed.background))}</span>
+                    </div>
+                  </>
                 ) : auction?.noun?.seed ? (
                   <>
                     <div className={styles['trait-item']}>
