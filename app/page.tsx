@@ -1,5 +1,5 @@
-import Desktop from '@/src/presentation/components/Desktop/Desktop';
+import { Shell } from '@/src/presentation/shell/Shell';
 
 export default function Home() {
-  return <Desktop />;
+  return <Shell />;
 }

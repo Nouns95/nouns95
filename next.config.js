@@ -23,17 +23,34 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'cloudflare-ipfs.com',
+        hostname: 'ipfs.io',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'ipfs.io',
+        hostname: 'i.seadn.io',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cloudflare-ipfs.com',
         port: '',
         pathname: '/**',
       }
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
   },
   async rewrites() {
     return [
@@ -42,18 +59,6 @@ const nextConfig = {
         destination: '/api/serve/:path*'
       }
     ];
-  },
-  webpack: (config, { isServer }) => {
-    // Exclude specific modules from the client bundle
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-        stream: false,
-      };
-    }
-    return config;
   },
 };
 

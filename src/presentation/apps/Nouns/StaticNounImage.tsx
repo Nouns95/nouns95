@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import Image from 'next/image';
-import { NOUN_BY_ID_QUERY } from '../../../domain/nouns/graphql/queries/noun';
+import { NOUN_BY_ID_QUERY } from '../../../domain/apps/nouns/graphql/queries/noun';
 import { buildSVG } from './utils/svg-builder';
 import { ImageData } from './utils/image-data';
 

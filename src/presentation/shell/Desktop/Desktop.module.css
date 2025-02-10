@@ -1,0 +1,12 @@
+.desktop {
+  position: relative;  /* This is key - creates positioning context for windows */
+  flex: 1;            /* Fill available space in shell */
+  min-height: 0;      /* Allow flex container to shrink */
+  background: var(--win95-bg);
+  overflow: hidden;
+  /* Establish stacking context and containment for windows */
+  isolation: isolate;
+  contain: strict;
+  display: flex;
+  flex-direction: column;
+}

@@ -2,10 +2,10 @@
 
 import { useQuery } from '@apollo/client';
 import { useState, useEffect } from 'react';
-import { CURRENT_AUCTION_QUERY, AUCTION_HISTORY_QUERY } from '../../../domain/nouns/graphql/queries/auction';
-import { NOUNDERS_NOUNS_QUERY } from '../../../domain/nouns/graphql/queries/noun';
-import type { AuctionsQueryResponse, Bid, Noun } from '../../../domain/nouns/types/graphql';
-import { NounImage } from './AuctionNounImage';
+import { CURRENT_AUCTION_QUERY, AUCTION_HISTORY_QUERY } from '../../../domain/apps/nouns/graphql/queries/auction';
+import { NOUNDERS_NOUNS_QUERY } from '../../../domain/apps/nouns/graphql/queries/noun';
+import type { AuctionsQueryResponse, Bid, Noun } from '../../../domain/apps/nouns/types/graphql';
+import { AuctionNounImage } from './';
 import { StaticNounImage } from './StaticNounImage';
 import { formatEther } from 'viem';
 import styles from './Auction.module.css';
@@ -175,7 +175,7 @@ export default function Auction() {
               ) : viewingNounId ? (
                 <StaticNounImage nounId={viewingNounId} width={320} height={320} />
               ) : (
-                <NounImage width={320} height={320} />
+                <AuctionNounImage width={320} height={320} />
               )}
               <div className={styles['noun-traits']}>
                 {isLoading ? (

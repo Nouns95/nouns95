@@ -4,7 +4,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import AppkitContext from "../src/context/AppkitContext";
 import { Analytics } from '@vercel/analytics/next';
-import { ApolloWrapper } from "../src/components/ApolloWrapper";
+import { ApolloWrapper } from "../src/wrappers/ApolloWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 

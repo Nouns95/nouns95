@@ -1,6 +1,6 @@
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import { ComponentType } from 'react';
-import { NounImage } from '../presentation/apps/Nouns/AuctionNounImage';
+import { AuctionNounImage } from '../presentation/apps/Nouns/';
 
 export interface IconComponentProps {
   width?: number;
@@ -33,7 +33,7 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   programs: {
-    icon: '/icons/apps/programs/programs.png',
+    icon: '/icons/programs.png',
     alt: '📁',
     isComponent: false
   },
@@ -43,10 +43,75 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   auction: {
-    icon: NounImage,
+    icon: AuctionNounImage,
     alt: '🎨',
     isComponent: true
-  }
+  },
+  chat: {
+    icon: '/icons/apps/chat/chat.png',
+    alt: '💬',
+    isComponent: false
+  },
+  studio: {
+    icon: '/icons/apps/studio/studio.png',
+    alt: '🎨',
+    isComponent: false
+  },
+  'studio-pencil': {
+    icon: '/icons/apps/studio/tools/pencil.png',
+    alt: '✏️',
+    isComponent: false
+  },
+  'studio-eraser': {
+    icon: '/icons/apps/studio/tools/eraser.png',
+    alt: '🧹',
+    isComponent: false
+  },
+  'studio-bucket': {
+    icon: '/icons/apps/studio/tools/bucket.png',
+    alt: '🪣',
+    isComponent: false
+  },
+  'studio-eyedropper': {
+    icon: '/icons/apps/studio/tools/eyedropper.png',
+    alt: '👁️',
+    isComponent: false
+  },
+  'studio-undo': {
+    icon: '/icons/apps/studio/tools/undo.png',
+    alt: '↩️',
+    isComponent: false
+  },
+  'studio-redo': {
+    icon: '/icons/apps/studio/tools/redo.png',
+    alt: '↪️',
+    isComponent: false
+  },
+  'studio-noggles': {
+    icon: '/icons/apps/studio/layers/noggles.svg',
+    alt: '👓',
+    isComponent: false
+  },
+  'studio-head': {
+    icon: '/icons/apps/studio/layers/head.svg',
+    alt: '👤',
+    isComponent: false
+  },
+  'studio-accessory': {
+    icon: '/icons/apps/studio/layers/accessory.svg',
+    alt: '🎨',
+    isComponent: false
+  },
+  'studio-body': {
+    icon: '/icons/apps/studio/layers/body.svg',
+    alt: '👕',
+    isComponent: false
+  },
+  'studio-background': {
+    icon: '/icons/apps/studio/layers/background.svg',
+    alt: '🖼️',
+    isComponent: false
+  },
 };
 
 export const getAppIcon = (appId: string): AppIcon => {

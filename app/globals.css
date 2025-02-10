@@ -7,6 +7,11 @@
   --win95-gray-light: #FFFFFF;
   --win95-text: #000000;
   --win95-highlight: #000080;
+
+  /* Common measurements */
+  --win95-border-width: 2px;
+  --win95-scrollbar-width: 16px;
+  --win95-button-padding: 4px 8px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,16 +45,18 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--win95-gray) var(--win95-gray-light);
 }
 
-/* Windows 95 button style */
+/* Windows 95 Common Styles */
 .win95-btn {
-  padding: 4px 8px;
+  padding: var(--win95-button-padding);
   background: var(--win95-gray);
-  border: 2px solid;
+  border: var(--win95-border-width) solid;
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
   color: var(--win95-text);
-  font-size: 14px;
+  font-size: 0.875rem;
   cursor: pointer;
   font-family: "MS Sans Serif", sans-serif;
 }
@@ -59,10 +66,128 @@ body {
   padding: 5px 7px 3px 9px;
 }
 
+.win95-btn:disabled {
+  color: var(--win95-gray-dark);
+  cursor: not-allowed;
+}
+
 /* Windows 95 window style */
 .win95-window {
   background: var(--win95-gray);
-  border: 2px solid;
+  border: var(--win95-border-width) solid;
   border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Windows 95 Panel Style */
+.win95-panel {
+  background: var(--win95-gray);
+  border: var(--win95-border-width) solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  padding: 8px;
+}
+
+.win95-panel-inset {
+  background: var(--win95-gray);
+  border: var(--win95-border-width) solid;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Windows 95 Title Bar */
+.win95-title {
+  background: var(--win95-highlight);
+  color: var(--win95-gray-light);
+  font-weight: bold;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Windows 95 Select Style */
+.win95-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: var(--win95-gray-light);
+  border: var(--win95-border-width) solid;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  color: var(--win95-text);
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.75rem;
+  padding: 4px 24px 4px 8px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 16px;
+}
+
+.win95-select:focus {
+  outline: 1px dotted var(--win95-text);
+  outline-offset: -0.25rem;
+}
+
+/* Windows 95 Scrollbar Styles */
+::-webkit-scrollbar {
+  width: var(--win95-scrollbar-width);
+  height: var(--win95-scrollbar-width);
+  background: var(--win95-gray);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--win95-gray);
+  border: var(--win95-border-width) solid;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--win95-gray);
+  border: var(--win95-border-width) solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  min-height: 2rem;
+}
+
+/* Only show vertical scrollbar buttons */
+::-webkit-scrollbar-button:vertical {
+  display: block;
+  width: var(--win95-scrollbar-width);
+  height: var(--win95-scrollbar-width);
+  background: var(--win95-gray);
+  border: var(--win95-border-width) solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+}
+
+/* Hide horizontal scrollbar buttons */
+::-webkit-scrollbar-button:horizontal {
+  display: none;
+}
+
+::-webkit-scrollbar-button:vertical:start {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3e%3cpath d='M4 6h8L8 2z' fill='black'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:vertical:end {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3e%3cpath d='M4 10h8l-4 4z' fill='black'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:active {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 1px 0 0 1px;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--win95-gray);
+}
+
+/* Firefox scrollbar styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--win95-gray) var(--win95-gray-light);
 }

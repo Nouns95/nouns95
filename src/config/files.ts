@@ -1,4 +1,4 @@
-import { DirectoryNode, FileNode } from '@/src/domain/fileSystem/models/FileSystem';
+import { DirectoryNode, FileNode } from '@/src/domain/apps/fileSystem/models/FileSystem';
 
 type SampleFileNode = Omit<FileNode, 'id'> | (Omit<DirectoryNode, 'id'> & { children: [] });
 

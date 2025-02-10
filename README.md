@@ -63,11 +63,35 @@ Visit `http://localhost:3000` to see the application.
 src/
 ├── presentation/           # UI components and layouts
 │   ├── apps/              # Individual applications
+│   │   ├── Auction/       # Nouns auction app
+│   │   ├── Chat/          # Chat application
+│   │   ├── FileExplorer/  # File explorer app
+│   │   └── Wallet/        # Wallet application
 │   ├── components/        # Reusable UI components
-│   ├── providers/         # React context providers
+│   │   ├── Desktop/       # Desktop-related components
+│   │   │   ├── Desktop.tsx
+│   │   │   ├── DesktopGrid.tsx
+│   │   │   └── DesktopIcons/
+│   │   ├── Taskbar/       # Taskbar and related components
+│   │   │   ├── Clock/
+│   │   │   ├── StartMenu/
+│   │   │   ├── TaskbarButtons/
+│   │   │   └── SystemTray/
+│   │   ├── Window/        # Window system components
+│   │   │   ├── TitleBar/
+│   │   │   ├── WindowContent/
+│   │   │   ├── WindowManager/
+│   │   │   └── WindowResizer/
+│   │   ├── Context/       # Context menus
+│   │   └── shared/        # Shared UI components
 │   └── styles/            # Global styles and themes
 ├── domain/                # Business logic and services
 │   ├── window/           # Window management
+│   │   ├── config/       # Window configurations
+│   │   ├── events/       # Window events
+│   │   ├── models/       # Window models and types
+│   │   ├── services/     # Window services
+│   │   └── stores/       # Window state management
 │   ├── fileSystem/       # File system operations
 │   └── blockchain/       # Blockchain services
 ├── data/                 # Data management

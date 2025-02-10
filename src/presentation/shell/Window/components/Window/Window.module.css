@@ -1,0 +1,128 @@
+.window {
+  position: absolute;
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  box-shadow: 1px 1px 0 white inset, -1px -1px 0 #707070 inset;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  min-height: 150px;
+  pointer-events: auto;
+  overflow: visible;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.focused {
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+}
+
+.maximized {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  max-width: 100rem !important;
+  max-height: 100rem !important;
+  overflow: hidden !important;
+}
+
+.content {
+  flex: 1;
+  overflow: auto;
+  background: white;
+  border: 1px solid;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  box-shadow: -1px -1px 0 white inset;
+  margin: 4px;
+  position: relative;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.resizeHandle {
+  position: absolute;
+  background: transparent;
+  z-index: 2;
+}
+
+.n {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  cursor: ns-resize;
+}
+
+.e {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  cursor: ew-resize;
+}
+
+.s {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  cursor: ns-resize;
+}
+
+.w {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  cursor: ew-resize;
+}
+
+.nw {
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  cursor: nw-resize;
+}
+
+.ne {
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 3px;
+  cursor: ne-resize;
+}
+
+.se {
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: se-resize;
+  background: var(--win95-gray);
+  border: 1px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  box-shadow: 1px 1px 0 white inset;
+}
+
+.sw {
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  height: 3px;
+  cursor: sw-resize;
+}

@@ -1,0 +1,35 @@
+.taskbar {
+  flex: none;
+  height: 2rem; /* 32px at default font size */
+  background: var(--win95-gray);
+  border-top: 1px solid var(--win95-gray-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 9999;
+  padding: 0 2px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin-left: auto;
+}
+
+.systemTray {
+  display: flex;
+  align-items: center;
+  height: calc(100% - 4px);
+  padding: 0 2px;
+  margin: 2px 2px;
+  border: 1px solid;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  background: var(--win95-gray);
+} 

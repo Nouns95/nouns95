@@ -1,0 +1,42 @@
+use the /src/presentation/apps/chat/ directory to create the appropriate files for push protocol to be used in our chat app.
+
+we want full functionality. we want our 
+
+hooks
+services
+store
+constants
+types
+utils
+
+to be ready and composable to implement as the logic in visual UI compoenents
+
+use //comments to label the specific functionality code you write
+
+i will be giving you one document page at a time.
+
+focus only on what this documents page gives you for now. 
+we don't need to create EVERYTHING in one go, we're going to be very thorough here. 
+create operability with every API on the page
+focus on what the API docs tell you.
+you have old training data on Push that is not accurate. YOU NEED THE DOCS
+
+userService.ts - For user initialization and profile management
+chatService.ts - For direct messaging and chat requests
+groupService.ts - For group chat functionality
+notificationService.ts - For notification handling
+channelService.ts - For channel management
+spaceService.ts - For space functionality
+streamService.ts - For stream handling
+
+./constants/push.ts
+./types/push.ts
+./services/pushService.ts
+./utils/pushUtils.ts
+./hooks/usePushUser.ts
+./store/pushStore.ts
+
+be thorough! update all the files needed!
+actually look at what is in the pushservice and directly translate it. it is good code.
+
+actually apply the code changes as needed please!

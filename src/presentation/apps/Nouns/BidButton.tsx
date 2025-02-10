@@ -9,7 +9,7 @@ import {
   TransactionExecutionError,
   UserRejectedRequestError
 } from 'viem';
-import { NounsAuctionHouseABI } from '../../../domain/nouns/abis/AuctionHouse';
+import { NounsAuctionHouseABI } from '../../../domain/apps/nouns/abis/AuctionHouse';
 import styles from './Auction.module.css';
 
 const AUCTION_HOUSE_ADDRESS = '0x830BD73E4184ceF73443C15111a1DF14e495C706';

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import Image from 'next/image';
-import { CURRENT_AUCTION_QUERY } from '../../../domain/nouns/graphql/queries/auction';
-import type { AuctionsQueryResponse } from '../../../domain/nouns/types/graphql';
+import { CURRENT_AUCTION_QUERY } from '../../../domain/apps/nouns/graphql/queries/auction';
+import type { AuctionsQueryResponse } from '../../../domain/apps/nouns/types/graphql';
 import { buildSVG } from './utils/svg-builder';
 import { ImageData } from './utils/image-data';
 
@@ -13,7 +13,7 @@ interface NounImageProps {
   height?: number;
 }
 
-export function NounImage({ width = 320, height = 320 }: NounImageProps) {
+export default function AuctionNounImage({ width = 320, height = 320 }: NounImageProps) {
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { data, loading, error: queryError } = useQuery<AuctionsQueryResponse>(CURRENT_AUCTION_QUERY);

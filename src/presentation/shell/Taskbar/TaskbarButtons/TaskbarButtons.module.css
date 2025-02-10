@@ -1,0 +1,44 @@
+.taskbarButtons {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  margin: 0 4px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.taskbarButton {
+  height: calc(100% - 4px);
+  min-width: clamp(160px, 15vw, 200px);
+  padding: 2px 4px;
+  background: var(--win95-gray);
+  border: 1px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: clamp(11px, 1vw, 12px);
+  font-family: "MS Sans Serif", sans-serif;
+  color: var(--win95-text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskbarButton.focused {
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  padding: 3px 3px 1px 5px;
+  background: var(--win95-gray);
+}
+
+.taskbarButton.minimized {
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  padding: 2px 4px;
+}
+
+@media (max-width: 640px) {
+  .taskbarButton {
+    min-width: clamp(120px, 25vw, 160px);
+  }
+}

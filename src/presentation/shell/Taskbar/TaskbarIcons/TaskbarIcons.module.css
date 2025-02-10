@@ -1,0 +1,76 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.taskbarIcons {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 2px;
+  gap: 2px;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+  margin: 0;
+}
+
+.iconButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.iconButton:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.iconButton img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Special case for chat icon at 32x32 */
+.chatIcon {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.chatIcon > * {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* Special case for auction icon which should remain 16x16 */
+.auctionIcon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.auctionIcon > * {
+  width: 16px !important;
+  height: 16px !important;
+} 

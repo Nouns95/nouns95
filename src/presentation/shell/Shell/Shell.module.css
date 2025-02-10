@@ -1,0 +1,9 @@
+.shell {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--win95-bg);
+    height: 100vh;
+  }

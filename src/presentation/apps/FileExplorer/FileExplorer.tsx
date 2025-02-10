@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import { FileSystemService } from '@/src/domain/fileSystem/services/FileSystemService';
-import { FileSystemNode, DirectoryNode } from '@/src/domain/fileSystem/models/FileSystem';
+import { FileSystemService } from '@/src/domain/apps/fileSystem/services/FileSystemService';
+import { FileSystemNode, DirectoryNode } from '@/src/domain/apps/fileSystem/models/FileSystem';
 import { Menu, MenuAction } from './Menu';
 import styles from './FileExplorer.module.css';
 
