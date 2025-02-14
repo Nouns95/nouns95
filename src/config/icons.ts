@@ -1,6 +1,6 @@
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 import { ComponentType } from 'react';
-import { AuctionNounImage } from '../presentation/apps/Nouns/';
+import { AuctionNounImage } from '../presentation/apps/Auction/';
 
 export interface IconComponentProps {
   width?: number;

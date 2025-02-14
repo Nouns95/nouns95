@@ -23,7 +23,8 @@ const MENU_ITEMS: MenuItem[] = [
     label: 'Programs', 
     appId: 'programs',
     submenu: [
-      { id: 'studio', label: 'Studio', appId: 'studio' }
+      { id: 'studio', label: 'Studio', appId: 'studio' },
+      { id: 'chat', label: 'Chat', appId: 'chat' }
     ]
   },
   { id: 'fileexplorer', label: 'File Explorer', appId: 'fileexplorer' },

@@ -6,7 +6,7 @@ import { ProcessManager } from '@/src/domain/shell/window/services/ProcessManage
 import { getAppConfig } from '@/src/domain/shell/window/config/AppConfig';
 import { useWindowStore } from '@/src/domain/shell/window/stores/WindowStore';
 import { Icon } from '@/src/presentation/shell/Shell';
-import { AuctionNounImage } from '@/src/presentation/apps/Nouns';
+import { AuctionNounImage } from '@/src/presentation/apps/Auction';
 import styles from './TaskbarIcons.module.css';
 
 const TaskbarIcons: React.FC = () => {
@@ -15,6 +15,7 @@ const TaskbarIcons: React.FC = () => {
   const processManager = ProcessManager.getInstance();
   const walletConfig = getAppConfig('wallet');
   const auctionConfig = getAppConfig('auction');
+  const chatConfig = getAppConfig('chat');
 
   useEffect(() => {
     // Subscribe to window state changes
@@ -26,6 +27,9 @@ const TaskbarIcons: React.FC = () => {
           processManager.terminateProcess(closedWindow.processId);
         } else if (closedWindow.miniAppId === 'auction') {
           windowService.closeMiniApp('auction');
+          processManager.terminateProcess(closedWindow.processId);
+        } else if (closedWindow.miniAppId === 'chat') {
+          windowService.closeMiniApp('chat');
           processManager.terminateProcess(closedWindow.processId);
         }
       }
@@ -68,6 +72,18 @@ const TaskbarIcons: React.FC = () => {
 
   return (
     <div className={styles.taskbarIcons}>
+      <button
+        className={styles.iconButton}
+        onClick={() => toggleApp('chat')}
+        title={chatConfig.title}
+      >
+        <Icon 
+          appId="chat"
+          width={24}
+          height={24}
+          className={styles.icon}
+        />
+      </button>
 
       <button
         className={styles.iconButton}

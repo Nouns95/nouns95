@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import Image from 'next/image';
 import { NOUN_BY_ID_QUERY } from '../../../domain/apps/nouns/graphql/queries/noun';
-import { buildSVG } from './utils/svg-builder';
-import { ImageData } from './utils/image-data';
+import { buildSVG } from '../Auction/utils/svg-builder';
+import { ImageData } from '../Auction/utils/image-data';
 
 interface StaticNounImageProps {
   nounId: string;

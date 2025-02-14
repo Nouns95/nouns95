@@ -1,19 +1,22 @@
 import { WindowCoordinates, WindowDimensions, WindowSizeValue } from '../models/Window';
 import { WalletApp } from '@/src/presentation/apps/Wallet';
 import { FileExplorer } from '@/src/presentation/apps/FileExplorer';
-import { Auction } from '@/src/presentation/apps/Nouns';
+import { Auction } from '@/src/presentation/apps/Auction';
 import { Studio } from '@/src/presentation/apps/Studio';
+import { Chat } from '@/src/presentation/apps/Chat';
 
 // App types
 export type AppType = 'window' | 'miniapp';
 export type AppId = 
-  | 'programs'
-  | 'fileexplorer'
   | 'auction'
-  | 'wallet'
+  | 'chat'
+  | 'fileexplorer'
+  | 'programs'
   | 'settings'
+  | 'shutdown'
   | 'studio'
-  | 'shutdown';
+  | 'wallet';
+
 
 // Position types
 export type PreferredPosition = 'center' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' | WindowCoordinates;
@@ -208,7 +211,7 @@ export const DEFAULT_WINDOW_CONFIG: AppWindowConfig = {
   component: () => null
 };
 
-// App-specific configurations
+// Window Apps
 export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
   programs: {
     type: 'window',
@@ -338,6 +341,8 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
     component: () => null // Placeholder for Settings component
   },
 
+// MiniApps
+
   wallet: {
     type: 'miniapp',
     title: 'Wallet',
@@ -407,7 +412,6 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
       canResize: false,
       canMinimize: false,
       canMaximize: false,
-      stackingOffset: { x: 20, y: 20 },
     },
     metadata: {
       icon: 'auction',
@@ -415,6 +419,36 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
       category: 'dao'
     },
     component: Auction
+  },
+
+  chat: {
+    type: 'miniapp',
+    title: 'Chat',
+    size: {
+      defaultSize: {
+        width: { value: 800, unit: 'px' },
+        height: { value: 600, unit: 'px' },
+      },
+      minSize: {
+        width: { value: 400, unit: 'px' },
+        height: { value: 300, unit: 'px' },
+      },
+    },
+    position: {
+      preferred: 'center',
+      margins: DEFAULT_MARGINS,
+    },
+    behavior: {
+      canResize: true,
+      canMinimize: true,
+      canMaximize: false,
+    },
+    metadata: {
+      icon: 'chat',
+      description: 'Push Protocol Chat',
+      category: 'communication'
+    },
+    component: Chat
   },
 
   shutdown: {

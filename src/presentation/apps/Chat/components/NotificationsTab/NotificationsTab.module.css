@@ -1,0 +1,13 @@
+.channelIconWrapper {
+  width: 32px;
+  height: 32px;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+}
+
+.channelIcon {
+  object-fit: cover;
+} 

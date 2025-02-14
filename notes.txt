@@ -1,42 +1,31 @@
-use the /src/presentation/apps/chat/ directory to create the appropriate files for push protocol to be used in our chat app.
+use the /src/presentation/apps/chat/ directory
 
-we want full functionality. we want our 
+we are creating a new chat app inside of our Windows 95 in the browser Next.js app.
 
-hooks
-services
-store
-constants
-types
-utils
+we are working on the visual components.
+we use moudules.css for the styles.
 
-to be ready and composable to implement as the logic in visual UI compoenents
+the parent app is Chat.tsx.
+the tab components live in the /src/presentation/apps/Chat/components/ directory.
+our hooks live in the /src/presentation/apps/Chat/hooks/ directory.
 
-use //comments to label the specific functionality code you write
+we are using Push Protocol for the functionality.
 
-i will be giving you one document page at a time.
+Push enables:
+- direct instant messages
+- group chats
+- video calls
+- social audio spaces
+- channels
+- notifications
 
-focus only on what this documents page gives you for now. 
-we don't need to create EVERYTHING in one go, we're going to be very thorough here. 
-create operability with every API on the page
-focus on what the API docs tell you.
-you have old training data on Push that is not accurate. YOU NEED THE DOCS
+the parent app initializes the user and connects the stream to the Push Protocol
+the features use the features hooks to implement the functionality.
 
-userService.ts - For user initialization and profile management
-chatService.ts - For direct messaging and chat requests
-groupService.ts - For group chat functionality
-notificationService.ts - For notification handling
-channelService.ts - For channel management
-spaceService.ts - For space functionality
-streamService.ts - For stream handling
+think less about styling right now. we need to actually implement the functionality.
 
-./constants/push.ts
-./types/push.ts
-./services/pushService.ts
-./utils/pushUtils.ts
-./hooks/usePushUser.ts
-./store/pushStore.ts
+do not create unneeded complexity.
 
-be thorough! update all the files needed!
-actually look at what is in the pushservice and directly translate it. it is good code.
+use brief //comments to label the specific functionality code you write with section headers.
 
 actually apply the code changes as needed please!

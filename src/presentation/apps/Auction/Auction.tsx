@@ -5,11 +5,11 @@ import { useState, useEffect } from 'react';
 import { CURRENT_AUCTION_QUERY, AUCTION_HISTORY_QUERY } from '../../../domain/apps/nouns/graphql/queries/auction';
 import { NOUNDERS_NOUNS_QUERY } from '../../../domain/apps/nouns/graphql/queries/noun';
 import type { AuctionsQueryResponse, Bid, Noun } from '../../../domain/apps/nouns/types/graphql';
-import { AuctionNounImage } from './';
+import { AuctionNounImage } from '.';
 import { StaticNounImage } from './StaticNounImage';
 import { formatEther } from 'viem';
 import styles from './Auction.module.css';
-import { getTraitName } from './utils/trait-name-utils';
+import { getTraitName } from '../Auction/utils/trait-name-utils';
 import { BidderInfo } from './BidderInfo';
 import BidButton from './BidButton';
 

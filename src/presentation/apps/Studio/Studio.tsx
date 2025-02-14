@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styles from './Studio.module.css';
-import { ImageData } from '../../apps/Nouns/utils/image-data';
-import { buildSVG } from '../../apps/Nouns/utils/svg-builder';
-import { getTraitName } from '../../apps/Nouns/utils/trait-name-utils';
+import { ImageData } from '../Auction/utils/image-data';
+import { buildSVG } from '../Auction/utils/svg-builder';
+import { getTraitName } from '../Auction/utils/trait-name-utils';
 import { Icon } from '@/src/presentation/shell/Shell';
 
 // Get the official Nouns palette and sort into color groups

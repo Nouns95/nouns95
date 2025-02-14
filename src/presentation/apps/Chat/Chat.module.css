@@ -1,0 +1,291 @@
+/* Windows 95 Theme Variables */
+.chatContainer {
+  --win95-gray: #c0c0c0;
+  --win95-gray-light: #ffffff;
+  --win95-gray-dark: #808080;
+  --win95-blue: #000080;
+  --win95-text: #000000;
+  --win95-font: "MS Sans Serif", Arial, sans-serif;
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--win95-gray);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scoped input styles */
+.chatContainer input,
+.chatContainer textarea,
+.chatContainer select {
+  outline: none !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.chatContainer input:-webkit-autofill,
+.chatContainer input:-webkit-autofill:hover,
+.chatContainer input:-webkit-autofill:focus,
+.chatContainer input:-webkit-autofill:active,
+.chatContainer textarea:-webkit-autofill,
+.chatContainer textarea:-webkit-autofill:hover,
+.chatContainer textarea:-webkit-autofill:focus,
+.chatContainer textarea:-webkit-autofill:active,
+.chatContainer select:-webkit-autofill,
+.chatContainer select:-webkit-autofill:hover,
+.chatContainer select:-webkit-autofill:focus,
+.chatContainer select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--win95-gray-light) inset !important;
+  -webkit-text-fill-color: var(--win95-text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.chatContainer input::-webkit-contacts-auto-fill-button,
+.chatContainer input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  margin: 0;
+}
+
+.chatContainer input:focus,
+.chatContainer textarea:focus,
+.chatContainer select:focus {
+  outline: none !important;
+}
+
+.chat-window {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #c0c0c0;
+  overflow: hidden;
+}
+
+.chat-tabs {
+  width: 100%;
+  height: 100%;
+}
+
+.chat-tab-buttons {
+  display: inline-flex;
+  position: relative;
+  background: #c0c0c0;
+  padding: 3px 0 0 2px;
+  border-bottom: 1px solid #808080;
+  gap: 0;
+}
+
+.chat-tab-button {
+  padding: 4px 16px;
+  font-size: 14px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  text-align: center;
+  white-space: nowrap;
+  margin-right: -2px;
+  min-width: 90px;
+}
+
+.chat-tab-button:first-child {
+  border-top-left-radius: 4px;
+}
+
+.chat-tab-button:last-child {
+  border-top-right-radius: 4px;
+}
+
+.chat-tab-button.active {
+  padding-top: 6px;
+  padding-bottom: 4px;
+  margin-top: -2px;
+  border-color: #ffffff #808080 #c0c0c0 #ffffff;
+  z-index: 2;
+}
+
+.chat-tab-button:not(.active) {
+  border-bottom-color: #808080;
+}
+
+.chat-tab-panel {
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  background: #c0c0c0;
+  padding: 8px;
+  margin-top: -2px;
+  height: calc(100% - 32px);
+  position: relative;
+  z-index: 1;
+}
+
+.chat-tab-content {
+  height: 100%;
+  background: #c0c0c0;
+  overflow: hidden;
+}
+
+/* Loading Screen */
+.loading-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c0c0c0;
+}
+
+.loading-box {
+  width: 400px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.loading-title {
+  background: #000080;
+  color: #ffffff;
+  font-weight: bold;
+  padding: 4px 6px;
+  font-size: 14px;
+}
+
+.loading-message {
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  min-height: 2em;
+  background: #c0c0c0;
+  border-bottom: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.loading-progress {
+  padding: 16px;
+  background: #c0c0c0;
+}
+
+.progress-bar {
+  height: 20px;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20%;
+  height: 100%;
+  background: #000080;
+  animation: progress 2s infinite;
+}
+
+.progress-steps {
+  font-size: 12px;
+  color: #000000;
+  padding: 4px 0;
+}
+
+.progress-step {
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.progress-step.info {
+  color: #000080;
+}
+
+.progress-step.success {
+  color: #008000;
+}
+
+.progress-step.warn {
+  color: #808000;
+}
+
+.progress-step.error {
+  color: #800000;
+}
+
+@keyframes progress {
+  0% {
+    left: -20%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Error Screen */
+.error-screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c0c0c0;
+}
+
+.error-box {
+  width: 300px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 1rem;
+}
+
+.error-title {
+  background: #000080;
+  color: #ffffff;
+  padding: 0.25rem 0.5rem;
+  margin: -1rem -1rem 1rem -1rem;
+  font-weight: bold;
+}
+
+.error-message {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  min-height: 3rem;
+  font-size: 14px;
+}
+
+.error-button {
+  padding: 0.5rem 2rem;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  margin: 0 auto;
+  display: block;
+  min-width: 6rem;
+  cursor: pointer;
+}
+
+.error-button:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: calc(0.5rem + 1px) calc(2rem - 1px) calc(0.5rem - 1px) calc(2rem + 1px);
+}
