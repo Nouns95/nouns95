@@ -6,11 +6,10 @@ import {
     SignerType,
     SpaceDTO,
     EnvOptionsType,
-    GroupAccess,
+    GroupAccess
 } from '@pushprotocol/restapi/src/lib/types';
 import { ChatCreateSpaceType } from '@pushprotocol/restapi/src/lib/space/create';
 import { ChatUpdateSpaceType } from '@pushprotocol/restapi/src/lib/space/update';
-import { ChatsOptionsType } from '@pushprotocol/restapi/src/lib/space/spaces';
 import { TrendingOptionsType } from '@pushprotocol/restapi/src/lib/space/trending';
 import { SearchSpacesType } from '@pushprotocol/restapi/src/lib/space/search';
 import { isErrorWithResponse, isErrorWithResponseV2, ValidationError } from '@pushprotocol/restapi/src/lib/errors/validationError';
@@ -380,33 +379,6 @@ export class SpaceService {
   //---------------------------------------------------
 
   /**
-   * List all spaces
-   */
-  public async listSpaces(
-    options?: Omit<ChatsOptionsType, 'account' | 'pgpPrivateKey' | 'env'>
-  ): Promise<{ success: boolean; data?: SpaceIFeeds[]; error?: Error }> {
-    try {
-      const envOptions: EnvOptionsType = {
-        env: CONSTANTS.ENV.PROD
-      };
-
-      // @ts-expect-error - SDK type definition has incorrect parameter types for space.list
-      const spaces = await this.pushUser.space.list({
-        ...envOptions,
-        account: this.pushUser.account,
-        ...options
-      });
-      return { success: true, data: spaces };
-    } catch (error) {
-      console.error('Failed to list spaces:', error);
-      return {
-        success: false,
-        error: this.handlePushError(error, 'Failed to list spaces')
-      };
-    }
-  }
-
-  /**
    * Get trending spaces
    */
   public async getTrendingSpaces(
@@ -416,20 +388,17 @@ export class SpaceService {
       const envOptions: EnvOptionsType = {
         env: CONSTANTS.ENV.PROD
       };
-
-      const trendingOptions: TrendingOptionsType = {
+      const spaces = await this.pushUser.space.trending({
+        ...envOptions,
         page: options?.page || 1,
-        limit: options?.limit || 10,
-        ...envOptions
-      };
-      // @ts-expect-error - SDK type definition expects SpaceQueryOptions but accepts TrendingOptionsType
-      const spaces = await this.pushUser.space.trending(trendingOptions);
+        limit: options?.limit || 10
+      });
       return { success: true, data: spaces };
     } catch (error) {
       console.error('Failed to get trending spaces:', error);
       return {
         success: false,
-        error: this.handlePushError(error, 'Failed to get trending spaces')
+        error: error instanceof Error ? error : new Error('Failed to get trending spaces')
       };
     }
   }

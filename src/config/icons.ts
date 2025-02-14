@@ -28,7 +28,7 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   settings: {
-    icon: '/icons/settings/settings.png',
+    icon: '/icons/shell/settings/settings.png',
     alt: '⚙️',
     isComponent: false
   },
@@ -58,7 +58,7 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   studio: {
-    icon: '/icons/apps/studio/studio.png',
+    icon: '/icons/apps/studio/Studio.png',
     alt: '🎨',
     isComponent: false
   },

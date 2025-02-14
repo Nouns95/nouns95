@@ -1,0 +1,161 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px;
+  gap: 8px;
+  background-color: #c0c0c0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  background-color: #c0c0c0;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.createButton {
+  min-width: 80px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  background-color: #c0c0c0;
+}
+
+.createButton:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.spacesList {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 8px;
+}
+
+.spaceItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  background-color: #c0c0c0;
+  cursor: pointer;
+}
+
+.spaceItem:hover {
+  background-color: #d4d4d4;
+}
+
+.spaceItem:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.spaceImage {
+  width: 48px;
+  height: 48px;
+  border: 1px solid #000000;
+}
+
+.spaceInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spaceName {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.spaceDescription {
+  font-size: 12px;
+  color: #404040;
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #ff0000;
+}
+
+.liveIndicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ff0000;
+}
+
+.error {
+  color: #ff0000;
+  font-size: 12px;
+  padding: 8px;
+  text-align: center;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.createForm {
+  padding: 16px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  background: #ffffff;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.checkboxGroup input[type="checkbox"] {
+  margin: 0;
+  margin-right: 4px;
+}
+
+.formButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+} 

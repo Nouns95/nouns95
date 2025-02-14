@@ -10,12 +10,14 @@ import { ChatService } from './services/chatService';
 import { NotificationService } from './services/notificationService';
 import { RequestsService } from './services/requestsService';
 import { ProfileService } from './services/profileService';
+import { SpaceService } from './services/spaceService';
 import { useChat } from './hooks/feature/useChat';
 import { useNotifications } from './hooks/feature/useNotifications';
 import { useRequests } from './hooks/feature/useRequests';
 import styles from './Chat.module.css';
+import { SpacesTab } from './components/SpacesTab';
 
-type TabType = 'Direct Messages' | 'Group Chats' | 'Video Calls' | 'Audio Spaces' | 'Channels' | 'Notifications' | 'Requests' | 'Profile';
+type TabType = 'Direct Messages' | 'Group Chats' | 'Video Calls' | 'Spaces' | 'Channels' | 'Notifications' | 'Requests' | 'Profile';
 
 // Error screen component
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
@@ -56,11 +58,13 @@ const ChatContent = () => {
     const notificationService = new NotificationService(pushUser);
     const requestsService = new RequestsService(pushUser);
     const profileService = new ProfileService(pushUser);
+    const spaceService = new SpaceService(pushUser);
     return {
       chatService,
       notificationService,
       requestsService,
-      profileService
+      profileService,
+      spaceService
     };
   }, [pushUser]);
 
@@ -117,8 +121,14 @@ const ChatContent = () => {
         return <div>Group Chats Content</div>;
       case 'Video Calls':
         return <div>Video Calls Content</div>;
-      case 'Audio Spaces':
-        return <div>Audio Spaces Content</div>;
+      case 'Spaces':
+        return services ? (
+          <SpacesTab 
+            spaceService={services.spaceService}
+            streamService={stream}
+            isStreamConnected={isStreamConnected}
+          />
+        ) : null;
       case 'Channels':
         return <div>Channels Content</div>;
       case 'Notifications':
@@ -154,7 +164,7 @@ const ChatContent = () => {
           'Direct Messages',
           'Group Chats',
           'Video Calls',
-          'Audio Spaces',
+          'Spaces',
           'Channels',
           'Notifications',
           'Requests',

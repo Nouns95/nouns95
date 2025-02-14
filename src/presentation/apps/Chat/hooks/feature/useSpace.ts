@@ -147,35 +147,6 @@ export function useSpace(
   //---------------------------------------------------
 
   /**
-   * Load all spaces
-   */
-  const loadSpaces = useCallback(async (options?: {
-    page?: number;
-    limit?: number;
-  }) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const result = await spaceService.listSpaces(options);
-      if (!result.success) {
-        throw result.error || new Error('Failed to load spaces');
-      }
-
-      setState(prev => ({
-        ...prev,
-        spaces: result.data || [],
-        isLoading: false
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error : new Error('Failed to load spaces'),
-        isLoading: false
-      }));
-    }
-  }, [spaceService]);
-
-  /**
    * Get trending spaces
    */
   const getTrendingSpaces = useCallback(async (options?: {
@@ -246,7 +217,7 @@ export function useSpace(
       }));
 
       // Load updated spaces list
-      await loadSpaces();
+      await getTrendingSpaces();
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -254,7 +225,7 @@ export function useSpace(
         isLoading: false
       }));
     }
-  }, [spaceService, loadSpaces]);
+  }, [spaceService, getTrendingSpaces]);
 
   /**
    * Load space information
@@ -334,7 +305,7 @@ export function useSpace(
       }
 
       // Reload spaces list
-      await loadSpaces();
+      await getTrendingSpaces();
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -342,7 +313,7 @@ export function useSpace(
         isLoading: false
       }));
     }
-  }, [spaceService, loadSpaces, state.currentSpace?.spaceId]);
+  }, [spaceService, getTrendingSpaces, state.currentSpace?.spaceId]);
 
   //---------------------------------------------------
   // SPACE CONTROLS
@@ -607,45 +578,48 @@ export function useSpace(
     };
   }, [stream, isStreamConnected, handleSpaceStatus, handleMemberPresence, handleRaisedHand, handleAudioStream]);
 
-  // Load spaces on mount
+  // Load initial spaces
   useEffect(() => {
-    loadSpaces();
-  }, [loadSpaces]);
+    getTrendingSpaces();
+  }, [getTrendingSpaces]);
+
+  const { spaces, currentSpace, members, spaceAccess } = state;
+  const { spaceStatus, memberPresence, raisedHands, audioStreams } = realTimeState;
+  const { isLoading, error } = state;
 
   return {
-    // Regular state
-    spaces: state.spaces,
-    currentSpace: state.currentSpace,
-    members: state.members,
-    spaceAccess: state.spaceAccess,
-    isLoading: state.isLoading,
-    error: state.error,
-
-    // Real-time state
-    spaceStatus: realTimeState.spaceStatus,
-    memberPresence: realTimeState.memberPresence,
-    raisedHands: realTimeState.raisedHands,
-    audioStreams: realTimeState.audioStreams,
-
-    // Space actions
-    loadSpaces,
+    spaces,
+    currentSpace,
+    members,
+    spaceAccess,
+    spaceStatus,
+    memberPresence,
+    raisedHands,
+    audioStreams,
+    isLoading,
+    error,
     getTrendingSpaces,
     createSpace,
-    loadSpaceInfo,
     joinSpace,
     leaveSpace,
     startSpace,
     stopSpace,
-
-    // Member actions
     requestMicAccess,
     acceptMicRequest,
-
-    // Audio actions
+    rejectMicRequest: (spaceId: string, address: string) => 
+      spaceService.rejectMicRequest(spaceId, address),
+    inviteToPromote: (spaceId: string, address: string) => 
+      spaceService.inviteToPromote(spaceId, address),
+    acceptPromotionInvite: (spaceId: string, signal: RTCSessionDescriptionInit) => 
+      spaceService.acceptPromotionInvite(spaceId, signal),
+    rejectPromotionInvite: (spaceId: string) => 
+      spaceService.rejectPromotionInvite(spaceId),
     configureAudio: (spaceId: string, options: AudioConfig) => 
       spaceService.configureAudio(spaceId, options),
-
-    // Real-time actions
+    addSpeakers: (spaceId: string, addresses: string[]) => spaceService.addSpeakers(spaceId, addresses),
+    removeSpeakers: (spaceId: string, addresses: string[]) => spaceService.removeSpeakers(spaceId, addresses),
+    addListeners: (spaceId: string, addresses: string[]) => spaceService.addListeners(spaceId, addresses),
+    removeListeners: (spaceId: string, addresses: string[]) => spaceService.removeListeners(spaceId, addresses),
     clearRaisedHand: (address: string) => setRealTimeState(prev => ({
       ...prev,
       raisedHands: Object.fromEntries(
