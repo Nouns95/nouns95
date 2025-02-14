@@ -283,7 +283,7 @@ export const useChat = (
           newMessageCount: messages.length
         });
         return {
-          ...prev,
+        ...prev,
           messages,
           chatHistoryLoading: false
         };
@@ -454,10 +454,52 @@ export const useChat = (
         encryptedSecret: decryptedMessage.encryptedSecret || ''
       };
 
+      // Add message to messages state
       setState(prev => ({
         ...prev,
-        messages: [...prev.messages, newMessage]
+        messages: [...prev.messages, newMessage],
+        isLoading: false
       }));
+
+      // Check if this is a new chat
+      const recipientDID = recipient.replace('eip155:', '');
+      setState(prev => {
+        // Check if chat already exists
+        const existingChatIndex = prev.chats.findIndex(chat => {
+          const chatDID = chat.fromDID.replace('eip155:', '');
+          return chatDID === recipientDID;
+        });
+
+        // If chat exists, update the last message
+        if (existingChatIndex >= 0) {
+          const updatedChats = [...prev.chats];
+          updatedChats[existingChatIndex] = {
+            ...updatedChats[existingChatIndex],
+          messageContent: newMessage.messageContent,
+            timestamp: newMessage.timestamp
+          };
+          
+          // Move updated chat to top
+          updatedChats.unshift(...updatedChats.splice(existingChatIndex, 1));
+          
+          return {
+            ...prev,
+            chats: updatedChats
+          };
+        }
+
+        // If new chat, add to top of the list
+        const newChatEntry = {
+          ...newMessage,
+          profilePicture: null, // Will be updated when user info is fetched
+          name: recipientDID // Use address as name initially
+        };
+
+        return {
+          ...prev,
+          chats: [newChatEntry, ...prev.chats]
+        };
+      });
 
       // Scroll to bottom after sending
       setTimeout(() => {
@@ -675,7 +717,7 @@ export const useChat = (
           });
           
           return {
-            ...prev,
+        ...prev,
             chats: updatedChats
           };
         }

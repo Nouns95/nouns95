@@ -1,0 +1,146 @@
+.profileTab {
+  padding: 8px;
+  height: 100%;
+  background: #c0c0c0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px;
+}
+
+.previewContent {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.previewImage {
+  width: 96px;
+  height: 96px;
+  border: 1px solid #000000;
+  background: #c0c0c0;
+}
+
+.settingsSection {
+  position: relative;
+  border: 1px solid #808080;
+  padding: 16px 8px 8px;
+  margin-top: 8px;
+}
+
+.sectionTitle {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  background: #c0c0c0;
+  padding: 0 4px;
+  font-size: 11px;
+}
+
+.settingsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settingsGroup {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.settingsGroup label {
+  font-size: 11px;
+  color: #000000;
+}
+
+.settingsGroup span {
+  font-size: 11px;
+  color: #000000;
+}
+
+.settingsGroup input,
+.settingsGroup textarea {
+  width: 100%;
+  padding: 2px 4px;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  background: #ffffff;
+  font-size: 11px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.settingsGroup textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.pictureInputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.selectedFileName {
+  font-size: 11px;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.address {
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.win95Button {
+  padding: 4px 8px;
+  min-width: 75px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  font-size: 11px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.win95Button:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 5px 7px 3px 9px;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.loading,
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 16px;
+  font-size: 11px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.error {
+  color: #ff0000;
+} 

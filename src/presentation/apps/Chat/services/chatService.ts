@@ -380,6 +380,46 @@ export class ChatService {
       };
     }
   }
+
+  /**
+   * Get list of chats
+   */
+  public async getChats(options?: {
+    page?: number;
+    limit?: number;
+  }): Promise<{ success: boolean; data?: IFeeds[]; error?: Error }> {
+    try {
+      const chats = await this.pushUser.chat.list(ChatListType.CHATS, options);
+      return { success: true, data: chats };
+    } catch (error) {
+      console.error('Failed to get chats:', error);
+      return {
+        success: false,
+        error: this.handlePushError(error, 'Failed to get chats')
+      };
+    }
+  }
+
+  /**
+   * Refresh chat list after accepting a request
+   */
+  public async refreshAfterAccept(target: string): Promise<{ success: boolean; error?: Error }> {
+    try {
+      // First accept the chat request
+      await this.pushUser.chat.accept(target);
+      
+      // Then do a fresh fetch of the chat list
+      await this.pushUser.chat.list(ChatListType.CHATS);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to refresh after accepting chat:', error);
+      return {
+        success: false,
+        error: this.handlePushError(error, 'Failed to refresh after accepting chat')
+      };
+    }
+  }
 }
 
 export interface PushMessage {

@@ -96,6 +96,27 @@ export class RequestsService {
     }
   }
 
+  /**
+   * Accept a chat request and refresh the chat list
+   */
+  public async refreshAfterAccept(target: string): Promise<{ success: boolean; error?: Error }> {
+    try {
+      // First accept the chat request
+      await this.pushUser.chat.accept(target);
+      
+      // Then do a fresh fetch of the chat list
+      await this.pushUser.chat.list(ChatListType.CHATS);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to refresh after accepting chat:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error('Failed to refresh after accepting chat')
+      };
+    }
+  }
+
   //---------------------------------------------------
   // GROUP REQUEST ACTIONS
   //---------------------------------------------------

@@ -99,6 +99,10 @@
   white-space: nowrap;
   margin-right: -2px;
   min-width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .chat-tab-button:first-child {
@@ -288,4 +292,19 @@
 .error-button:active {
   border-color: #808080 #ffffff #ffffff #808080;
   padding: calc(0.5rem + 1px) calc(2rem - 1px) calc(0.5rem - 1px) calc(2rem + 1px);
+}
+
+.tab-badge {
+  background-color: #ff4444;
+  color: white;
+  border-radius: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  line-height: 1;
 }

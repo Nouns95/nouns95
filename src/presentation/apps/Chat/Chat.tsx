@@ -4,13 +4,18 @@ import { ChatProvider, useChatContext } from './context/ChatContext';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ChatsTab } from './components/ChatsTab';
 import { NotificationsTab } from './components/NotificationsTab';
+import { RequestsTab } from './components/RequestsTab';
+import { ProfileTab } from './components/ProfileTab';
 import { ChatService } from './services/chatService';
 import { NotificationService } from './services/notificationService';
+import { RequestsService } from './services/requestsService';
+import { ProfileService } from './services/profileService';
 import { useChat } from './hooks/feature/useChat';
 import { useNotifications } from './hooks/feature/useNotifications';
+import { useRequests } from './hooks/feature/useRequests';
 import styles from './Chat.module.css';
 
-type TabType = 'Direct Messages' | 'Group Chats' | 'Video Calls' | 'Audio Spaces' | 'Channels' | 'Notifications';
+type TabType = 'Direct Messages' | 'Group Chats' | 'Video Calls' | 'Audio Spaces' | 'Channels' | 'Notifications' | 'Requests' | 'Profile';
 
 // Error screen component
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
@@ -49,9 +54,13 @@ const ChatContent = () => {
     if (!pushUser) return null;
     const chatService = new ChatService(pushUser);
     const notificationService = new NotificationService(pushUser);
+    const requestsService = new RequestsService(pushUser);
+    const profileService = new ProfileService(pushUser);
     return {
       chatService,
-      notificationService
+      notificationService,
+      requestsService,
+      profileService
     };
   }, [pushUser]);
 
@@ -64,6 +73,12 @@ const ChatContent = () => {
 
   const notificationState = useNotifications(
     services?.notificationService || null,
+    stream,
+    isStreamConnected
+  );
+
+  const requestState = useRequests(
+    services?.requestsService || null,
     stream,
     isStreamConnected
   );
@@ -112,6 +127,21 @@ const ChatContent = () => {
             notificationState={notificationState}
           />
         );
+      case 'Requests':
+        return (
+          <RequestsTab 
+            requestState={requestState}
+            onRequestAccepted={chatState.loadChats}
+          />
+        );
+      case 'Profile':
+        return services ? (
+          <ProfileTab 
+            profileService={services.profileService}
+            stream={stream}
+            isStreamConnected={isStreamConnected}
+          />
+        ) : null;
       default:
         return null;
     }
@@ -120,13 +150,27 @@ const ChatContent = () => {
   return (
     <div className={styles['chat-tabs']}>
       <div className={styles['chat-tab-buttons']}>
-        {(['Direct Messages', 'Group Chats', 'Video Calls', 'Audio Spaces', 'Channels', 'Notifications'] as TabType[]).map((tab) => (
+        {([
+          'Direct Messages',
+          'Group Chats',
+          'Video Calls',
+          'Audio Spaces',
+          'Channels',
+          'Notifications',
+          'Requests',
+          'Profile'
+        ] as TabType[]).map((tab) => (
           <button
             key={tab}
             className={`${styles['chat-tab-button']} ${activeTab === tab ? styles.active : ''}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab}
+            {tab === 'Requests' && (requestState.chatRequests.length + requestState.spaceRequests.length) > 0 && (
+              <span className={styles['tab-badge']}>
+                {requestState.chatRequests.length + requestState.spaceRequests.length}
+              </span>
+            )}
           </button>
         ))}
       </div>

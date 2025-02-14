@@ -13,11 +13,6 @@ interface IconProps {
   height?: number;
 }
 
-export const iconMap = {
-  // ... existing icons ...
-  programs: '/icons/programs.png',
-} as const;
-
 const Icon: React.FC<IconProps> = ({ 
   appId, 
   className = '',
@@ -39,6 +34,7 @@ const Icon: React.FC<IconProps> = ({
   }
 
   if (imageError) {
+    console.error(`Failed to load icon for ${appId}. Path attempted: ${icon.icon}`);
     return <span className={`icon-fallback ${className}`}>{icon.alt}</span>;
   }
 
@@ -49,7 +45,10 @@ const Icon: React.FC<IconProps> = ({
       width={width}
       height={height}
       className={`icon ${className}`}
-      onError={() => setImageError(true)}
+      onError={(e) => {
+        console.error(`Error loading icon for ${appId}:`, e);
+        setImageError(true);
+      }}
       style={{ objectFit: 'contain' }}
     />
   );

@@ -33,7 +33,12 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   programs: {
-    icon: '/icons/programs.png',
+    icon: '/icons/shell/TaskBar/StartMenu/programs.png',
+    alt: '📁',
+    isComponent: false
+  },
+  shutdown: {
+    icon: '/icons/shell/TaskBar/StartMenu/shutdown.png',
     alt: '📁',
     isComponent: false
   },

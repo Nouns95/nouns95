@@ -70,7 +70,7 @@ function isRequestUpdateEventData(data: unknown): data is RequestUpdateEventData
 }
 
 export function useRequests(
-  requestsService: RequestsService,
+  requestsService: RequestsService | null,
   stream: StreamService | null,
   isStreamConnected: boolean
 ) {
@@ -99,6 +99,7 @@ export function useRequests(
     page?: number;
     limit?: number;
   }) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -128,6 +129,7 @@ export function useRequests(
     page?: number;
     limit?: number;
   }) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -157,6 +159,7 @@ export function useRequests(
     page?: number;
     limit?: number;
   }) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -196,10 +199,11 @@ export function useRequests(
    * Accept a chat request
    */
   const acceptChat = useCallback(async (target: string) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const result = await requestsService.acceptChat(target);
+      const result = await requestsService.refreshAfterAccept(target);
       if (!result.success) {
         throw result.error || new Error('Failed to accept chat request');
       }
@@ -219,6 +223,7 @@ export function useRequests(
    * Reject a chat request
    */
   const rejectChat = useCallback(async (target: string) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -242,6 +247,7 @@ export function useRequests(
    * Accept a space request
    */
   const acceptSpace = useCallback(async (target: string) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -265,6 +271,7 @@ export function useRequests(
    * Reject a space request
    */
   const rejectSpace = useCallback(async (target: string) => {
+    if (!requestsService) return;
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -343,22 +350,78 @@ export function useRequests(
     if (!stream || !isStreamConnected) return;
 
     const requestHandler = (data: unknown) => {
-      if (data && typeof data === 'object' && 'type' in data) {
-        if (data.type === 'request') handleNewRequest(data);
-        else if (data.type === 'request_update') handleRequestUpdate(data);
+      console.log('🔔 Request event received:', data);
+      
+      if (data && typeof data === 'object') {
+        // Check for new request events
+        if ('type' in data && data.type === 'request') {
+          handleNewRequest(data);
+        }
+        // Check for request update events
+        else if ('type' in data && data.type === 'request_update') {
+          handleRequestUpdate(data);
+        }
+        // Check for chat request events
+        else if ('event' in data && (
+          data.event === 'chat.request' || 
+          data.event === 'CHAT_REQUEST' ||
+          data.event === 'REQUEST.CHAT'
+        )) {
+          console.log('📨 Chat request event detected:', data);
+          handleNewRequest({
+            type: 'chat',
+            requestId: (data as { reference?: string }).reference || Date.now().toString(),
+            from: (data as { from?: string }).from || '',
+            timestamp: (data as { timestamp?: number }).timestamp || Date.now()
+          });
+          // Reload chat requests immediately
+          loadChatRequests();
+        }
+        // Check for space request events
+        else if ('event' in data && (
+          data.event === 'space.request' ||
+          data.event === 'SPACE_REQUEST' ||
+          data.event === 'REQUEST.SPACE'
+        )) {
+          console.log('🌐 Space request event detected:', data);
+          handleNewRequest({
+            type: 'space',
+            requestId: (data as { reference?: string }).reference || Date.now().toString(),
+            from: (data as { from?: string }).from || '',
+            timestamp: (data as { timestamp?: number }).timestamp || Date.now()
+          });
+          // Reload space requests immediately
+          loadSpaceRequests();
+        }
       }
     };
 
-    // Subscribe to request events
+    // Subscribe to all relevant request events
     stream.on(CONSTANTS.STREAM.CHAT, requestHandler);
     stream.on(CONSTANTS.STREAM.CHAT_OPS, requestHandler);
+    stream.on(CONSTANTS.STREAM.SPACE, requestHandler);
+    stream.on(CONSTANTS.STREAM.SPACE_OPS, requestHandler);
+
+    // Debug logging
+    console.log('🔌 Request stream handlers registered for events:', {
+      chat: CONSTANTS.STREAM.CHAT,
+      chatOps: CONSTANTS.STREAM.CHAT_OPS,
+      space: CONSTANTS.STREAM.SPACE,
+      spaceOps: CONSTANTS.STREAM.SPACE_OPS
+    });
+
+    // Load initial requests
+    loadAllRequests();
 
     // Cleanup listeners on unmount or disconnect
     return () => {
       stream.off(CONSTANTS.STREAM.CHAT, requestHandler);
       stream.off(CONSTANTS.STREAM.CHAT_OPS, requestHandler);
+      stream.off(CONSTANTS.STREAM.SPACE, requestHandler);
+      stream.off(CONSTANTS.STREAM.SPACE_OPS, requestHandler);
+      console.log('🔌 Request stream handlers cleaned up');
     };
-  }, [stream, isStreamConnected, handleNewRequest, handleRequestUpdate]);
+  }, [stream, isStreamConnected, handleNewRequest, handleRequestUpdate, loadChatRequests, loadSpaceRequests, loadAllRequests]);
 
   // Load all requests on mount
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useChat } from '../../hooks/feature/useChat';
 import { useNotifications } from '../../hooks/feature/useNotifications';
@@ -22,6 +22,8 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
   const { pushUser } = useChatContext();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const chatListRef = useRef<HTMLDivElement>(null);
+  const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
+  const [newChatAddress, setNewChatAddress] = useState('');
 
   const { 
     chats,
@@ -119,6 +121,23 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
     }
   }, [chatHistoryLoading, messages, selectedChat]);
 
+  // Function to handle starting a new chat
+  const handleStartNewChat = () => {
+    setIsCreatingNewChat(true);
+    setSelectedChat(null);
+    setNewChatAddress('');
+  };
+
+  // Function to handle new chat address submission
+  const handleNewChatAddressSubmit = () => {
+    if (newChatAddress.trim()) {
+      setSelectedChat(newChatAddress);
+      loadChatHistory(newChatAddress);
+      setIsCreatingNewChat(false);
+      setNewChatAddress('');
+    }
+  };
+
   return (
     <div className={styles.container}>
       {/* Chat list section */}
@@ -176,6 +195,8 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
                         className={`${styles.chatItem} ${isActive ? styles.active : ''}`}
                         onClick={() => {
                           if (!isActive) {
+                            setIsCreatingNewChat(false);
+                            setNewChatAddress('');
                             setSelectedChat(chat.fromDID);
                             loadChatHistory(chat.fromDID);
                           }
@@ -216,11 +237,48 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
             )}
           </div>
         </div>
+        <div className={styles.newChatButton}>
+          <button 
+            className={styles.win95Button}
+            onClick={handleStartNewChat}
+          >
+            New Chat
+          </button>
+        </div>
       </div>
 
       {/* Active chat section */}
       <div className={styles.chatView}>
-        {selectedChat ? (
+        {isCreatingNewChat ? (
+          <>
+            <div className={styles.chatHeader}>
+              <div className={styles.newChatAddressInput}>
+                <input
+                  type="text"
+                  placeholder="Enter recipient's 0x address..."
+                  value={newChatAddress}
+                  onChange={(e) => setNewChatAddress(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleNewChatAddressSubmit();
+                    }
+                  }}
+                />
+                <button
+                  className={styles.win95Button}
+                  onClick={handleNewChatAddressSubmit}
+                >
+                  Start Chat
+                </button>
+              </div>
+            </div>
+            <div className={styles.messageContainer}>
+              <div className={styles.noChatSelected}>
+                Enter an address above to start a new chat
+              </div>
+            </div>
+          </>
+        ) : selectedChat ? (
           <>
             <div className={styles.chatHeader}>
               <div className={styles.chatName}>
@@ -254,7 +312,15 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
                             {msg.messageContent}
                           </div>
                           <div className={styles.messageTime}>
-                            {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}
+                            {msg.timestamp ? new Date(msg.timestamp).toLocaleDateString('en-US', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              year: '2-digit'
+                            }) + ' ' + new Date(msg.timestamp).toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            }) : ''}
                           </div>
                         </div>
                       ))}
