@@ -13,8 +13,8 @@ const queryClient = new QueryClient()
 const metadata = {
   name: 'next-reown-appkit',
   description: 'next-reown-appkit',
-  url: '', // origin must match your domain & subdomain
-  icons: []
+  url: 'https://nouns95.wtf',
+  icons: ['https://nouns95.wtf/icons/shell/TaskBar/StartMenu/StartMenu.png']
 }
 
 // Create the modal
