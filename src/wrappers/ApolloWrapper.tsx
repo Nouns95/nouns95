@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ApolloClient, InMemoryCache, ApolloProvider, split, HttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, split, HttpLink, NormalizedCacheObject } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 
 export function ApolloWrapper({ children }: { children: React.ReactNode }) {
-  const [client, setClient] = useState<ApolloClient<any> | null>(null);
+  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null);
 
   useEffect(() => {
     const httpLink = new HttpLink({

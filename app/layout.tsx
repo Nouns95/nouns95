@@ -54,11 +54,6 @@ export const metadata: Metadata = {
     },
   },
   manifest: "/manifest.json",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
 };
 
 export default async function RootLayout({
