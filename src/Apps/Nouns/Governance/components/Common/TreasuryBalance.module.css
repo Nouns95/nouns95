@@ -1,0 +1,132 @@
+.container {
+  background: var(--win95-gray);
+  border: 2px solid;
+  border-color: var(--win95-gray-light) var(--win95-gray-dark) var(--win95-gray-dark) var(--win95-gray-light);
+  padding: 0.75rem;
+  margin-bottom: 0.25rem;
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  color: #14161b;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.addressLink {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #0000ff;
+  text-decoration: none;
+}
+
+.addressLink:hover {
+  text-decoration: underline;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionTotal {
+  background: var(--win95-gray-light);
+  border: 1px solid var(--win95-gray-dark);
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  color: #14161b;
+}
+
+.balances {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
+}
+
+.stakedSection {
+  border-top: 1px solid var(--win95-gray-dark);
+  padding-top: 0.75rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #14161b;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.balance {
+  background: white;
+  border: 1px solid var(--win95-gray-dark);
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+}
+
+.label {
+  font-weight: bold;
+  color: #14161b;
+}
+
+.value {
+  font-family: monospace;
+  color: #14161b;
+}
+
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.error {
+  background: #ffdede;
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  text-align: center;
+} 

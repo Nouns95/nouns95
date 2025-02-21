@@ -1,0 +1,166 @@
+.container {
+  height: 100%;
+  background: var(--win95-gray);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  border-bottom: 0.125rem solid #e0e0e0;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #14161b;
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  overflow: hidden;
+  min-height: 0; /* Important for nested flex containers */
+  position: relative; /* Add this to contain absolute positioning */
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+  width: 18.75rem;
+  min-width: 18.75rem;
+  background: var(--win95-gray);
+}
+
+.sidebar.collapsed {
+  width: 4.6875rem;
+  min-width: 4.6875rem;
+}
+
+.sidebarContent {
+  width: 18.75rem;
+  padding-top: 2rem;
+}
+
+.collapsed .sidebarContent {
+  display: none;
+}
+
+.sidebarToggle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4.6875rem;
+  height: 1.5rem;
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  padding: 0;
+  color: #000000;
+  white-space: nowrap;
+}
+
+.sidebarToggle:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.0625rem 0 0 0.0625rem;
+}
+
+.proposalsSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  transition: all 0.3s ease;
+  min-width: 0; /* Add this to allow content to shrink */
+}
+
+.proposalsSection.expanded {
+  margin-left: 0;
+}
+
+.proposalsSection h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  color: #14161b;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.proposalsList {
+  min-height: 12.5rem;
+}
+
+.tabs {
+  display: inline-flex;
+  background: transparent;
+  padding: 0.1875rem 0 0 0;
+  gap: 0;
+  margin-bottom: -0.125rem;
+  z-index: 2;
+}
+
+.tab {
+  padding: 0.375rem 1.5rem;
+  font-size: 0.875rem;
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  position: relative;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  margin-right: -0.125rem;
+  min-width: 6.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.tab:first-child {
+  border-top-left-radius: 0;
+}
+
+.tab:last-child {
+  border-top-right-radius: 0;
+}
+
+.tab.active {
+  padding-top: 0.5rem;
+  padding-bottom: 0.375rem;
+  margin-top: -0.125rem;
+  border-color: #ffffff #808080 #c0c0c0 #ffffff;
+  z-index: 2;
+}
+
+.tab:not(.active) {
+  border-bottom-color: #808080;
+}
+
+.tabContent {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 1rem;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Important for nested flex containers */
+} 

@@ -1,0 +1,260 @@
+.container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.candidateDetails {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.candidateDetails::-webkit-scrollbar {
+  width: 16px;
+  background: #c0c0c0;
+  border-left: 1px solid #808080;
+}
+
+.candidateDetails::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  width: 16px;
+}
+
+.candidateDetails::-webkit-scrollbar-button {
+  display: none !important;
+}
+
+.backButton {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.25rem 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  margin: 1rem;
+}
+
+.backButton:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.candidateContent {
+  padding: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  width: 100%;
+  background: #c0c0c0;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+  padding: 0 1rem 1rem;
+}
+
+.sideContent {
+  width: clamp(20rem, 30%, 25rem);
+  display: flex;
+  flex-direction: column;
+  margin-right: .75rem;
+  background: #c0c0c0;
+  padding: 0.75rem;
+  gap: 1.5rem;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  height: fit-content;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.candidateTitle {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.875rem;
+  color: #000080;
+  margin: 0 0 0.5rem 0;
+}
+
+.proposerInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  color: #404040;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  margin-bottom: 1.5rem;
+}
+
+.proposerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.proposerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #808080;
+  margin-right: 0.25rem;
+}
+
+.description {
+  border-color: #808080;
+  border-width: 0.0625rem;
+  border-style: solid;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #404040;
+  line-height: 1.4;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+.transactionHistory {
+  position: relative;
+  background: transparent;
+  padding: 0.75rem;
+  border: 0.0625rem solid #808080;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sectionTitle {
+  position: absolute;
+  top: -0.6875rem;
+  left: 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  background: #c0c0c0;
+  color: #000000;
+}
+
+.transactionContent {
+  background: #ffffff;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.5rem;
+}
+
+.transactionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  font-size: 0.6875rem;
+}
+
+.transactionItem:not(:last-child) {
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.transactionLabel {
+  color: #404040;
+  font-weight: bold;
+  min-width: 5.5rem;
+  flex-shrink: 0;
+}
+
+.transactionLink {
+  color: #0000ff;
+  text-decoration: none;
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.transactionLink:hover {
+  text-decoration: underline;
+}
+
+.supportProgress {
+  position: relative;
+  background: transparent;
+  padding: 0.75rem;
+  border: 0.0625rem solid #808080;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.supportInfo {
+  margin: 1.5rem 0 0.5rem 0;
+  position: relative;
+}
+
+.supportPercentage {
+  font-family: monospace;
+  font-size: 1.25rem;
+  color: #000080;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.supportBar {
+  height: 12px;
+  background: #f0f0f0;
+  border: 1px solid #808080;
+  margin-bottom: 0.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.supportFill {
+  height: 100%;
+  background: #000080;
+  transition: width 0.3s ease;
+}
+
+.supportStats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  margin-top: 0.5rem;
+}
+
+.votes {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.voteLabel {
+  color: #404040;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.875rem;
+  color: #000080;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.875rem;
+  color: #800000;
+} 

@@ -1,4 +1,4 @@
-import { Shell } from '@/src/presentation/shell/Shell';
+import { Shell } from '@/src/shell/Shell';
 
 export default function Home() {
   return <Shell />;

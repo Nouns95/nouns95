@@ -1,0 +1,22 @@
+.menuBar {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  background: var(--win95-gray);
+  border-bottom: 1px solid var(--win95-gray-dark);
+  padding: 0 2px;
+  user-select: none;
+}
+
+.menuItem {
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  cursor: default;
+  position: relative;
+}
+
+.menuItem:hover {
+  background: var(--win95-highlight);
+  color: white;
+} 

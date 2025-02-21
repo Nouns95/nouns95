@@ -1,0 +1,491 @@
+.container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.proposalDetails {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.proposalDetails::-webkit-scrollbar {
+  width: 16px;
+  background: #c0c0c0;
+  border-left: 1px solid #808080;
+}
+
+.proposalDetails::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  width: 16px;
+}
+
+.proposalDetails::-webkit-scrollbar-button {
+  display: none !important;
+}
+
+.backButton {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.25rem 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  margin: 1rem;
+}
+
+.backButton:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.proposalContent {
+  padding: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  width: 100%;
+  background: #c0c0c0;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0; /* Important for text wrapping */
+  padding: 0 1rem 1rem;
+}
+
+.sideContent {
+  width: clamp(20rem, 30%, 25rem);
+  display: flex;
+  flex-direction: column;
+  margin-right: .75rem;
+  background: #c0c0c0;
+  padding: 0.75rem;
+  gap: 1.5rem;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  height: fit-content;
+}
+
+/* When the sidebar is collapsed, allow the sideContent to grow */
+:global(.collapsed) ~ * .sideContent {
+  width: clamp(20rem, 40%, 25rem);
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.proposalTitle {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.875rem;
+  color: #000080;
+  margin: 0 0 0.5rem 0;
+}
+
+.proposerInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  color: #404040;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  margin-bottom: 1.5rem;
+}
+
+.proposerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.proposerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #808080;
+  margin-right: 0.25rem;
+}
+
+.description {
+  border-color: #808080;
+  border-width: 0.0625rem;
+  border-style: solid;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #404040;
+  line-height: 1.4;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  padding: 1rem;
+  background: #ffffff;
+}
+
+/* Vote Form Styles */
+.voteForm {
+  position: relative;
+  background: transparent;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: 0.0625rem solid #808080;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sectionTitle {
+  position: absolute;
+  top: -0.6875rem;
+  left: 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  background: #c0c0c0;
+  color: #000000;
+}
+
+.formContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.voteOptions {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.voteButton {
+  flex: 1;
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  min-width: 5rem;
+}
+
+.voteButton:active,
+.voteButton.selected {
+  border-color: #808080 #ffffff #ffffff #808080;
+  background: #d0d0d0;
+}
+
+.voteButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.reasonInput {
+  width: 100%;
+  height: 5rem;
+  padding: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.submitButton {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  width: fit-content;
+  align-self: flex-end;
+}
+
+.submitButton:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.submitButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.error {
+  color: #800000;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  padding: 0.5rem;
+  background: #ffffff;
+  border: 0.0625rem solid #800000;
+}
+
+.inactiveMessage {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #404040;
+  padding: 1rem;
+  background: #ffffff;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+/* Vote History Styles */
+.voteHistory {
+  position: relative;
+  background: transparent;
+  padding: 0.75rem;
+  border: 0.0625rem solid #808080;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.votesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.voteItem {
+  background: #ffffff;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.voteHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.voteInfo {
+  color: #404040;
+}
+
+.timestamp {
+  display: block;
+  color: #808080;
+  font-size: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.loading {
+  color: #808080;
+  font-style: italic;
+}
+
+.error {
+  color: #800000;
+  font-style: italic;
+}
+
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 6.25rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #808080;
+  background: #ffffff;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.quorumProgress {
+  position: relative;
+  background: transparent;
+  padding: 0.75rem;
+  border: 0.0625rem solid #808080;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.votingProgress {
+  margin: 1.5rem 0 0.5rem 0;
+  position: relative;
+}
+
+.progressBar {
+  height: 12px;
+  background: #f0f0f0;
+  border: 1px solid #808080;
+  margin-bottom: 0.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  transition: width 0.3s ease;
+}
+
+.forVotes {
+  background: #00A556;
+  z-index: 3;
+}
+
+.againstVotes {
+  background: #f3322c;
+  z-index: 2;
+}
+
+.abstainVotes {
+  background: #D7D3DC;
+  z-index: 1;
+}
+
+.quorumMarker {
+  position: absolute;
+  top: -18px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #404040;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.quorumLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #000080;
+  z-index: 4;
+}
+
+.quorumLine::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -2px;
+  width: 6px;
+  height: 3px;
+  background: #000080;
+}
+
+.voteStats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  margin-top: 0.5rem;
+}
+
+.votes {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.voteLabel {
+  color: #404040;
+}
+
+/* Transaction Details Styles */
+.transactionHistory {
+  position: relative;
+  background: transparent;
+  padding: 0.75rem;
+  border: 0.0625rem solid #808080;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.transactionHistory .sectionTitle {
+  position: absolute;
+  top: -0.6875rem;
+  left: 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  background: #c0c0c0;
+  color: #000000;
+}
+
+.transactionContent {
+  background: #ffffff;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.5rem;
+}
+
+.technicalDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.transactionItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.transactionItem:not(:last-child) {
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.transactionLabel {
+  color: #404040;
+  font-weight: bold;
+  min-width: 5.5rem;
+  flex-shrink: 0;
+}
+
+.transactionValue {
+  color: #404040;
+  font-family: monospace;
+  word-break: break-all;
+  font-size: 10px;
+}
+
+.transactionLink {
+  color: #0000ff;
+  text-decoration: none;
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.transactionLink:hover {
+  text-decoration: underline;
+}
+
+.multiValueItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-left: 1rem;
+  font-size: 10px;
+}
+
+.multiValueItem:not(:last-child) {
+  margin-bottom: 0.25rem;
+}
+
+.multiValueIndex {
+  color: #808080;
+  font-size: 9px;
+} 

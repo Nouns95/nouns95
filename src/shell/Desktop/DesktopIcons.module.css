@@ -1,0 +1,55 @@
+.container {
+  display: grid;
+  grid-template-columns: 75px;
+  grid-auto-rows: min-content;
+  gap: 0.5rem;
+  padding: 1rem;
+  justify-content: start;
+  align-content: start;
+  height: 100%;
+}
+
+.iconButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 75px;
+  min-height: 64px;
+  padding: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.iconButton:hover {
+  background: rgba(0, 0, 128, 0.1);
+}
+
+.iconButton:focus {
+  outline: 1px dotted #000080;
+  background: rgba(0, 0, 128, 0.1);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.label {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #ffffff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  word-wrap: break-word;
+  max-width: 100%;
+  line-height: 1.2;
+  -webkit-font-smoothing: none;
+  user-select: none;
+} 

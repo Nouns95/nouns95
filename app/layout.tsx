@@ -21,15 +21,15 @@ export const metadata: Metadata = {
   applicationName: "Nouns 95",
   authors: [{ name: "Macrohard" }],
   keywords: ["Nouns", "DAO", "95"],
-  metadataBase: new URL("https://nouns95v2.vercel.app"),
+  metadataBase: new URL("https://nouns95.wtf"),
   openGraph: {
     title: "Nouns 95",
     description: "Nouns95 - A Web3 Operating System",
-    url: "https://nouns95v2.vercel.app",
+    url: "https://nouns95.wtf",
     siteName: "Nouns 95",
     images: [
       {
-        url: "https://nouns95v2.vercel.app/public/icons/clouds.png",
+        url: "https://nouns95.wtf/public/icons/clouds.png",
         width: 640,
         height: 480,
         alt: "Nouns 95"
@@ -42,15 +42,16 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nouns 95",
     description: "Nouns 95",
-    images: ["https://nouns95v2.vercel.app/public/icons/clouds.png"],
+    images: ["https://nouns95.wtf/public/icons/clouds.png"],
   },
   icons: {
-    icon: [
-      { url: "/public/icons/clouds.png" },
-    ],
-    apple: [
-      { url: "/icons/apple-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    icon: '/icons/shell/TaskBar/StartMenu/StartMenu.png',
+    shortcut: '/icons/shell/TaskBar/StartMenu/StartMenu.png',
+    apple: '/icons/shell/TaskBar/StartMenu/StartMenu.png',
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/icons/shell/TaskBar/StartMenu/StartMenu.png',
+    },
   },
   manifest: "/manifest.json",
 };
