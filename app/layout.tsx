@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     siteName: "Nouns 95",
     images: [
       {
-        url: "https://nouns95.wtf/public/icons/clouds.png",
-        width: 640,
-        height: 480,
+        url: "/icons/shell/TaskBar/StartMenu/StartMenu.png",
+        width: 32,
+        height: 32,
         alt: "Nouns 95"
       }
     ],
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nouns 95",
     description: "Nouns 95",
-    images: ["https://nouns95.wtf/public/icons/clouds.png"],
+    images: ["/icons/shell/TaskBar/StartMenu/StartMenu.png"],
   },
   icons: {
     icon: '/icons/shell/TaskBar/StartMenu/StartMenu.png',
@@ -54,6 +54,11 @@ export const metadata: Metadata = {
     },
   },
   manifest: "/manifest.json",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default async function RootLayout({

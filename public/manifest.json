@@ -1,0 +1,16 @@
+{
+  "name": "Nouns 95",
+  "short_name": "Nouns95",
+  "description": "Windows 95-style interface for Nouns DAO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#c0c0c0",
+  "theme_color": "#000080",
+  "icons": [
+    {
+      "src": "/icons/shell/TaskBar/StartMenu/StartMenu.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+} 
