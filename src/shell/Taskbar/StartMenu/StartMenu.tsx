@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { ProcessManager } from '@/src/shell/Window/domain/services/ProcessManager';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { ProcessManager } from '@/src/Shell/Window/domain/services/ProcessManager';
 import { getAppConfig, AppId } from '@/src/Apps/AppConfig';
-import { Icon } from '@/src/shell/Shell';
+import { Icon } from '@/src/Shell/Shell';
 import styles from './StartMenu.module.css';
 import Image from 'next/image';
-import { getAppIcon } from '@/src/shell/Desktop/icons';
+import { getAppIcon } from '@/src/Shell/Desktop/icons';
 
 interface MenuItem {
   id: string;

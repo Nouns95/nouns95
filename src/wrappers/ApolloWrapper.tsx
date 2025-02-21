@@ -1,19 +1,23 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider, split, HttpLink } from '@apollo/client';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 
-const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://api.thegraph.com/subgraphs/name/nounsdao/nouns-subgraph'
-});
+export function ApolloWrapper({ children }: { children: React.ReactNode }) {
+  const [client, setClient] = useState<ApolloClient<any> | null>(null);
 
-const wsLink = typeof window !== 'undefined'
-  ? new GraphQLWsLink(createClient({
+  useEffect(() => {
+    const httpLink = new HttpLink({
+      uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://api.thegraph.com/subgraphs/name/nounsdao/nouns-subgraph'
+    });
+
+    const wsLink = new GraphQLWsLink(createClient({
       url: process.env.NEXT_PUBLIC_WS_URL || 'wss://api.thegraph.com/subgraphs/name/nounsdao/nouns-subgraph',
       connectionParams: {
-        // Add any necessary authentication here
+        origin: typeof window !== 'undefined' ? window.location.origin : undefined
       },
       retryAttempts: 3,
       shouldRetry: (errOrCloseEvent: unknown) => {
@@ -22,11 +26,9 @@ const wsLink = typeof window !== 'undefined'
         }
         return true;
       },
-    }))
-  : null;
+    }));
 
-const splitLink = typeof window !== 'undefined' && wsLink
-  ? split(
+    const splitLink = split(
       ({ query }) => {
         const definition = getMainDefinition(query);
         return (
@@ -36,20 +38,25 @@ const splitLink = typeof window !== 'undefined' && wsLink
       },
       wsLink,
       httpLink
-    )
-  : httpLink;
+    );
 
-const client = new ApolloClient({
-  link: splitLink,
-  cache: new InMemoryCache(),
-  defaultOptions: {
-    watchQuery: {
-      fetchPolicy: 'cache-and-network',
-    },
-  },
-});
+    const client = new ApolloClient({
+      link: splitLink,
+      cache: new InMemoryCache(),
+      defaultOptions: {
+        watchQuery: {
+          fetchPolicy: 'cache-and-network',
+        },
+      },
+    });
 
-export function ApolloWrapper({ children }: { children: React.ReactNode }) {
+    setClient(client);
+  }, []);
+
+  if (!client) {
+    return null;
+  }
+
   return (
     <ApolloProvider client={client}>
       {children}

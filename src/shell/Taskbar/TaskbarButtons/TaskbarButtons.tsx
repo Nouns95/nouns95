@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Window } from '@/src/shell/Window/domain/models/Window';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { Icon } from '@/src/shell/Shell';
+import { Window } from '@/src/Shell/Window/domain/models/Window';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { Icon } from '@/src/Shell/Shell';
 import styles from './TaskbarButtons.module.css';
 
 const TaskbarButtons: React.FC = () => {

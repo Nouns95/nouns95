@@ -1,5 +1,5 @@
-import { Window, MiniAppWindow, WindowCoordinates, WindowDimensions } from '../../../../shell/Window/domain/models/Window';
-import { WindowState, WindowAction } from '../../../../shell/Window/domain/models/WindowState';
+import { Window, MiniAppWindow, WindowCoordinates, WindowDimensions } from '../models/Window';
+import { WindowState, WindowAction } from '../models/WindowState';
 import { EventBus } from '@/src/utils/EventBus';
 import { WindowEventName, WindowEventCallback } from '../events/WindowEvents';
 import { getAppConfig, calculateWindowPosition, convertToPixels } from '../../../../Apps/AppConfig';

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { TitleBar } from '@/src/shell/Window';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { TitleBar } from '@/src/Shell/Window';
 import styles from './Window.module.css';
-import { WindowCoordinates, WindowDimensions, WindowMetadata } from '@/src/shell/Window/domain/models/Window';
+import { WindowCoordinates, WindowDimensions, WindowMetadata } from '@/src/Shell/Window/domain/models/Window';
 import { getAppConfig } from '@/src/Apps/AppConfig';
 
 interface WindowState {

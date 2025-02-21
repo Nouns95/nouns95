@@ -28,7 +28,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
     if (isStreamConnecting) {
       return 'Establishing connection...';
     }
-    return 'Waiting for connection...';
+    return 'Connect your wallet in the taskbar to chat...';
   };
 
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { ProcessManager } from '@/src/shell/Window/domain/services/ProcessManager';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { ProcessManager } from '@/src/Shell/Window/domain/services/ProcessManager';
 import { AppId, getAppConfig } from '@/src/Apps/AppConfig';
 import { getAppIcon } from './icons';
 import styles from './DesktopIcons.module.css';

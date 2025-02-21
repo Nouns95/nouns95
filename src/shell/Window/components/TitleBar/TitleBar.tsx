@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { getAppIcon } from '@/src/shell/Desktop/icons';
-import type { IconComponentProps } from '@/src/shell/Desktop/icons';
+import { getAppIcon } from '@/src/Shell/Desktop/icons';
+import type { IconComponentProps } from '@/src/Shell/Desktop/icons';
 import styles from './TitleBar.module.css';
 
 interface TitleBarProps {

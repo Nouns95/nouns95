@@ -1,4 +1,4 @@
-import { WindowCoordinates, WindowDimensions, WindowSizeValue } from '../shell/Window/domain/models/Window';
+import { WindowCoordinates, WindowDimensions, WindowSizeValue } from '../Shell/Window/domain/models/Window';
 import { WalletApp } from '@/src/Apps/MiniApps/Wallet';
 import { FileExplorer } from '@/src/Apps/Windows/FileExplorer';
 import { Auction } from '@/src/Apps/Nouns/Auction';

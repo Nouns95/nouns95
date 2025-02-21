@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { WindowManager } from '@/src/shell/Window';
+import { WindowManager } from '@/src/Shell/Window';
 import { DesktopIcons } from './DesktopIcons';
 import styles from './Desktop.module.css';
 

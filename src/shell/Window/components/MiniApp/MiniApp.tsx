@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
 import { getAppConfig, calculateWindowPosition } from '@/src/Apps/AppConfig';
-import { MiniAppWindowState } from '@/src/shell/Window/domain/stores/WindowStore';
-import { Window } from '@/src/shell/Window';
+import { MiniAppWindowState } from '@/src/Shell/Window/domain/stores/WindowStore';
+import { Window } from '@/src/Shell/Window';
 import styles from './MiniApp.module.css';
 
 interface MiniAppProps {

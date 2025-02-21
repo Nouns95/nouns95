@@ -1,4 +1,4 @@
-import { Process, ProcessResources } from '../../../../shell/Window/domain/models/Process';
+import { Process, ProcessResources } from '../models/Process';
 import { EventBus } from '@/src/utils/EventBus';
 
 export class ProcessManager {

@@ -51,7 +51,7 @@ src/
 
 ## Shell System
 
-The shell system provides the core Windows 95 functionality and user interface components. 
+The shell system provides the core functionality and user interface components. 
 It's organized into several key subsystems:
 
 ### Desktop System

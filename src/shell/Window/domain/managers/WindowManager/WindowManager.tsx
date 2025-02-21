@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { Window as WindowType, MiniAppWindow } from '@/src/shell/Window/domain/models/Window';
-import { Window, MiniApp } from '@/src/shell/Window';
-import { useWindowStore, WindowStoreState } from '@/src/shell/Window/domain/stores/WindowStore';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { Window as WindowType, MiniAppWindow } from '@/src/Shell/Window/domain/models/Window';
+import { Window, MiniApp } from '@/src/Shell/Window';
+import { useWindowStore, WindowStoreState } from '@/src/Shell/Window/domain/stores/WindowStore';
 import { getAppConfig } from '@/src/Apps/AppConfig';
 import styles from './WindowManager.module.css';
 

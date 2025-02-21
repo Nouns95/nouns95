@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://nouns95.wtf"),
   openGraph: {
     title: "Nouns 95",
-    description: "Nouns95 - A Web3 Operating System",
+    description: "Nouns95 - Start me up.",
     url: "https://nouns95.wtf",
     siteName: "Nouns 95",
     images: [
@@ -70,8 +70,8 @@ export default async function RootLayout({
   const cookies = headersData.get('cookie');
 
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         <AppkitContext cookies={cookies}>
           <ApolloWrapper>
             {children}

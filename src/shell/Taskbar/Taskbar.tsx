@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { StartMenu, TaskbarButtons, TaskbarIcons, Clock } from '@/src/shell/Taskbar';
+import { StartMenu, TaskbarButtons, TaskbarIcons, Clock } from '@/src/Shell/Taskbar';
 import styles from './Taskbar.module.css';
 
 const Taskbar: React.FC = () => {

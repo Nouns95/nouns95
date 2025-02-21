@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Window, MiniAppWindow, WindowCoordinates, WindowDimensions, WindowMetadata } from '../../../../shell/Window/domain/models/Window';
+import { Window, MiniAppWindow, WindowCoordinates, WindowDimensions, WindowMetadata } from '../models/Window';
 
 export interface BaseWindowState {
   id: string;

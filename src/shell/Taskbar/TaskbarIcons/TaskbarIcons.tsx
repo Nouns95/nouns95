@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { ProcessManager } from '@/src/shell/Window/domain/services/ProcessManager';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { ProcessManager } from '@/src/Shell/Window/domain/services/ProcessManager';
 import { getAppConfig } from '@/src/Apps/AppConfig';
-import { useWindowStore } from '@/src/shell/Window/domain/stores/WindowStore';
-import { Icon } from '@/src/shell/Shell';
+import { useWindowStore } from '@/src/Shell/Window/domain/stores/WindowStore';
+import { Icon } from '@/src/Shell/Shell';
 import { AuctionNounImage } from '@/src/Apps/Nouns/Auction';
 import styles from './TaskbarIcons.module.css';
 

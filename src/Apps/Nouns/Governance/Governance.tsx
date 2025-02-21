@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MenuBar, MenuBarItem } from '@/src/shell/Window/components/Menu/MenuBar';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
-import { useWindowStore } from '@/src/shell/Window/domain/stores/WindowStore';
+import { MenuBar, MenuBarItem } from '@/src/Shell/Window/components/Menu/MenuBar';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
+import { useWindowStore } from '@/src/Shell/Window/domain/stores/WindowStore';
 import { TreasuryBalance } from './components/Common/TreasuryBalance';
 import { GovernanceOverview } from './components/Common/GovernanceOverview';
 import { ProposalsList } from './components/Proposals/ProposalsList';

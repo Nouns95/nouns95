@@ -4,8 +4,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { FileSystemService } from '@/src/Apps/Windows/FileExplorer/domain/fileSystem/services/FileSystemService';
 import { FileSystemNode, DirectoryNode } from '@/src/Apps/Windows/FileExplorer/domain/fileSystem/models/FileSystem';
-import { Menu, MenuAction } from '@/src/shell/Window/components/Menu/Menu';
-import { WindowService } from '@/src/shell/Window/domain/services/WindowService';
+import { Menu, MenuAction } from '@/src/Shell/Window/components/Menu/Menu';
+import { WindowService } from '@/src/Shell/Window/domain/services/WindowService';
 import styles from './FileExplorer.module.css';
 
 interface TreeItem {
