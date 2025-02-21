@@ -58,7 +58,7 @@ export const APP_ICONS: AppIcons = {
     isComponent: false
   },
   startmenu: {
-    icon: '/icons/shell/taskbar/startmenu/StartMenu.png',
+    icon: '/icons/shell/TaskBar/StartMenu/StartMenu.png',
     alt: 'Start Menu',
     isComponent: false
   },

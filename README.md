@@ -57,7 +57,6 @@ It's organized into several key subsystems:
 ### Desktop System
 - Manages the main workspace area
 - Handles icon placement and grid alignment
-- Supports drag-and-drop functionality
 - Controls desktop background and customization
 
 ### Window Management
