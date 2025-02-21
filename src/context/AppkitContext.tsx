@@ -29,6 +29,7 @@ export const modal = createAppKit({
     'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase
     '1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369', // Rainbow
   ],
+    allWallets: 'SHOW',
   debug: true,
   themeMode: 'light',
   features: {
