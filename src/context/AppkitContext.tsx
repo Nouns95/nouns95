@@ -23,10 +23,12 @@ export const modal = createAppKit({
   projectId: projectId as string,
   networks,
   metadata,
+  debug: true,
   themeMode: 'light',
   features: {
     analytics: false,
     email: false,
+    connectMethodsOrder: ['wallet', 'social'],
     socials: ['farcaster'],
   },
   themeVariables: {
