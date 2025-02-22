@@ -21,15 +21,23 @@ const getVimeoVideoId = (url: string) => {
   return match ? match[1] : null;
 };
 
+const getLoomVideoId = (url: string) => {
+  const regExp = /loom\.com\/share\/([a-zA-Z0-9-]+)/;
+  const match = url.match(regExp);
+  return match ? match[1] : null;
+};
+
 const isVideoUrl = (url: string): boolean => {
   const youtubeId = getYouTubeVideoId(url);
   const vimeoId = getVimeoVideoId(url);
-  return Boolean(youtubeId || vimeoId);
+  const loomId = getLoomVideoId(url);
+  return Boolean(youtubeId || vimeoId || loomId);
 };
 
 const VideoEmbed = ({ url }: { url: string }) => {
   const youtubeId = getYouTubeVideoId(url);
   const vimeoId = getVimeoVideoId(url);
+  const loomId = getLoomVideoId(url);
 
   if (youtubeId) {
     return (
@@ -54,6 +62,21 @@ const VideoEmbed = ({ url }: { url: string }) => {
           height="450"
           src={`https://player.vimeo.com/video/${vimeoId}`}
           title="Vimeo video player"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  if (loomId) {
+    return (
+      <div className={styles.videoContainer}>
+        <iframe
+          width="800"
+          height="450"
+          src={`https://www.loom.com/embed/${loomId}`}
+          title="Loom video player"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
