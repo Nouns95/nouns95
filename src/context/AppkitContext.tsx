@@ -1,9 +1,10 @@
 'use client'
 
-import React, { type ReactNode } from 'react'
+import React, { type ReactNode, useEffect, useState } from 'react'
 import { createAppKit } from '@reown/appkit/react'
 import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks } from '../config/appkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { WagmiProvider } from 'wagmi'
 
 // Set up queryClient with retry configuration
 const queryClient = new QueryClient({
@@ -54,14 +55,24 @@ export const modal = typeof window === 'undefined'
 
 // Wrapper component to handle initialization
 function AppkitContext({ children }: { children: ReactNode }) {
-  // Only render children when window is defined (client-side)
-  if (typeof window === 'undefined') {
-    return null; // Or a loading state if needed
-  }
+  const [isClient, setIsClient] = useState(false);
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Always render QueryClientProvider to maintain React tree structure
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      {isClient ? (
+        // Only render WagmiProvider on the client
+        <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+          {children}
+        </WagmiProvider>
+      ) : (
+        // During SSR, render children without web3 context
+        children
+      )}
     </QueryClientProvider>
   );
 }
