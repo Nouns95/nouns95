@@ -6,7 +6,7 @@ import { useAppKitNetwork } from '@reown/appkit/react'
 import { useAppKitState } from '@reown/appkit/react'
 import './WalletApp.styles.css'
 
-export default function ConnectEth() {
+export default function ConnectWallet() {
   const { open, close } = useAppKit()
   const { chainId } = useAppKitNetwork()
   const { selectedNetworkId } = useAppKitState()

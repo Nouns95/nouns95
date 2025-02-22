@@ -1,51 +1,75 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useEnsName, useEnsAvatar, useEnsAddress, useBalance } from 'wagmi';
+import { useBalance } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
+import { createPublicClient, http, fallback } from 'viem';
 
 interface AddressDisplayProps {
   address?: string;
   network: 'ethereum' | 'base' | 'solana' | 'bitcoin';
 }
 
+// Create a dedicated mainnet client for ENS resolution with fallback RPCs
+const mainnetClient = createPublicClient({
+  chain: mainnet,
+  transport: fallback([
+    http(process.env.NEXT_PUBLIC_RPC_URL),
+    http(`https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
+    http('https://rpc.ankr.com/eth'),
+    http('https://cloudflare-eth.com')
+  ])
+});
+
 export function AddressDisplay({ address = '', network }: AddressDisplayProps) {
-  const isEthNetwork = network === 'ethereum' || network === 'base';
-  const chainId = network === 'ethereum' ? mainnet.id : undefined;
-  
-  // Get ENS name from address (reverse resolution)
-  const { data: ensName } = useEnsName({
-    address: isEthNetwork ? (address as `0x${string}`) : undefined,
-    chainId,
-    gatewayUrls: ['https://ccip.ens.eth.limo', 'https://universal-offchain-unwrapper.ens-cf.workers.dev']
-  });
+  const [ensName, setEnsName] = useState<string | null>(null);
+  const [ensAvatar, setEnsAvatar] = useState<string | null>(null);
 
-  // Verify forward resolution
-  const { data: resolvedAddress } = useEnsAddress({
-    name: ensName || undefined,
-    chainId,
-    gatewayUrls: ['https://ccip.ens.eth.limo', 'https://universal-offchain-unwrapper.ens-cf.workers.dev']
-  });
+  // Get ENS data using the dedicated mainnet client
+  useEffect(() => {
+    async function resolveEns() {
+      if (!address) return;
+      
+      console.log('Resolving ENS for address:', address);
+      
+      try {
+        // Resolve ENS name
+        const name = await mainnetClient.getEnsName({
+          address: address as `0x${string}`
+        });
+        console.log('Resolved ENS name:', name);
+        setEnsName(name);
 
-  // Get balance
-  const { data: balanceData } = useBalance({
-    address: isEthNetwork ? (address as `0x${string}`) : undefined,
-    chainId
-  });
-
-  // Only use ENS name if forward resolution matches
-  const verifiedEnsName = resolvedAddress === address ? ensName : undefined;
-
-  // Get avatar only if ENS name is verified
-  const { data: ensAvatar } = useEnsAvatar({
-    name: verifiedEnsName || undefined,
-    chainId,
-    gatewayUrls: ['https://ccip.ens.eth.limo', 'https://universal-offchain-unwrapper.ens-cf.workers.dev'],
-    assetGatewayUrls: {
-      ipfs: 'https://cloudflare-ipfs.com',
-      arweave: 'https://arweave.net'
+        // If we have a name, get the avatar
+        if (name) {
+          console.log('Fetching avatar for:', name);
+          const avatar = await mainnetClient.getEnsAvatar({
+            name
+          });
+          console.log('Resolved avatar:', avatar);
+          setEnsAvatar(avatar);
+        }
+      } catch (error) {
+        console.error('Error resolving ENS:', error);
+        // Log the full error details
+        if (error instanceof Error) {
+          console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause
+          });
+        }
+      }
     }
+
+    resolveEns();
+  }, [address]);
+
+  // Get balance (only for Ethereum networks)
+  const { data: balanceData } = useBalance({
+    address: network === 'ethereum' ? (address as `0x${string}`) : undefined,
+    chainId: mainnet.id
   });
 
   // Format short address
@@ -55,7 +79,7 @@ export function AddressDisplay({ address = '', network }: AddressDisplayProps) {
       : `${address.slice(0, 6)}...${address.slice(-4)}`
   ) : 'Not Connected';
 
-  const displayName = verifiedEnsName || shortAddress;
+  const displayName = ensName || shortAddress;
   const formattedBalance = balanceData ? Number(balanceData.formatted).toFixed(3) : '0.000';
 
   return (
@@ -73,7 +97,7 @@ export function AddressDisplay({ address = '', network }: AddressDisplayProps) {
       </div>
       <div className="address-info">
         <div className="full-address">{displayName}</div>
-        {isEthNetwork && <div className="balance-display">{formattedBalance} Ξ</div>}
+        {network === 'ethereum' && <div className="balance-display">{formattedBalance} Ξ</div>}
         <div className="short-address">{shortAddress}</div>
       </div>
     </div>

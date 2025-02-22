@@ -23,7 +23,7 @@ export const modal = createAppKit({
   projectId: projectId as string,
   networks,
   metadata,
-  enableWalletConnect: false,
+  enableWalletConnect: true,
   includeWalletIds: [
     'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', // Phantom
     'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase
@@ -31,13 +31,13 @@ export const modal = createAppKit({
   ],
     allWallets: 'SHOW',
   debug: true,
-  themeMode: 'light',
   features: {
     analytics: false,
     email: false,
     connectMethodsOrder: ['wallet', 'social'],
     socials: ['farcaster'],
   },
+  themeMode: 'light',
   themeVariables: {
     '--w3m-accent': '#000000',
   }

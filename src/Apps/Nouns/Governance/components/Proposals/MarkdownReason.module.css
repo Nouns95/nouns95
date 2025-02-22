@@ -1,13 +1,17 @@
 .container {
   margin-top: 0.25rem;
-  padding-left: 0.5rem;
+  padding-left: 0;  /* Remove left padding to allow full centering */
   font-family: "MS Sans Serif", sans-serif;
   font-size: 11px;
   color: #404040;
+  width: 100%;
+  overflow-x: visible; /* Allow video to break out */
+  position: relative; /* Create new positioning context */
 }
 
 .markdown {
   overflow-wrap: break-word;
+  position: relative; /* Enable positioning context for absolute video */
 }
 
 /* Text Elements */
@@ -205,10 +209,14 @@
   color: #d4d4d4;
 }
 
-/* Ensure all content stays within bounds */
+/* Ensure all content stays within bounds except videos */
 .container * {
   max-width: 100%;
   box-sizing: border-box;
+}
+
+.container .videoWrapper {
+  max-width: none;
 }
 
 @keyframes pulse {
@@ -221,4 +229,23 @@
   100% {
     opacity: 0.6;
   }
-} 
+}
+
+/* Video Embed Styles */
+.videoContainer {
+  display: block;
+  width: 75%;
+  max-width: 800px;
+  margin: 2rem auto;
+  background: #000000;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  aspect-ratio: 16/9;
+}
+
+.videoContainer iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: none;
+}

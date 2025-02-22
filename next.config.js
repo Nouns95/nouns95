@@ -171,6 +171,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cryptocoven.s3.amazonaws.com',
         pathname: '/**',
+      },
+      // Add postimg.cc domain
+      {
+        protocol: 'https',
+        hostname: 'i.postimg.cc',
+        pathname: '/**',
+      },
+      // Add Gravatar domain
+      {
+        protocol: 'https',
+        hostname: 's.gravatar.com',
+        pathname: '/**',
       }
     ],
     dangerouslyAllowSVG: true,

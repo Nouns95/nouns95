@@ -6,10 +6,10 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { useAppKitNetwork } from '@reown/appkit/react'
 import { useAppKitState } from '@reown/appkit/react'
 import { useDisconnect } from '@reown/appkit/react'
-import ConnectEth from './ConnectEth'
-import './WalletApp.styles.css'
+import ConnectWallet from './ConnectWallet'
 import { AddressDisplay } from './AddressDisplay';
 import { NetworkDisplay } from './NetworkDisplay';
+import './WalletApp.styles.css'
 
 type TabType = 'Account' | 'Network' | 'Swap'
 
@@ -31,7 +31,7 @@ export default function WalletApp() {
   const [activeTab, setActiveTab] = useState<TabType>('Account')
 
   if (!isConnected) {
-    return <ConnectEth />
+    return <ConnectWallet />
   }
 
   const renderTabContent = () => {

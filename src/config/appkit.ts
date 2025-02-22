@@ -32,10 +32,10 @@ export const solanaWeb3JsAdapter = new SolanaAdapter({
 
 // Create fallback transports with multiple RPC providers
 const mainnetTransport = fallback([
-  http(process.env.NEXT_PUBLIC_RPC_URL),
-  http('https://mainnet.infura.io/v3/a7abc362801345d587dfe2e9a750d2e8'),
-  http('https://eth-mainnet.g.alchemy.com/v2/11in8BYkVbrKcuvj51C5gTeWzAoUgfg6'),
-  http('https://rpc.ankr.com/eth')
+  http(process.env.NEXT_PUBLIC_RPC_URL), // Primary Infura RPC
+  http(`https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`), // Alchemy backup
+  http('https://rpc.ankr.com/eth'), // Ankr backup
+  http('https://cloudflare-eth.com') // Cloudflare backup
 ])
 
 const baseTransport = fallback([

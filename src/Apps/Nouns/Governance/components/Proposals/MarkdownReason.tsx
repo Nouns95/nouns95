@@ -8,6 +8,62 @@ interface MarkdownReasonProps {
   content: string;
 }
 
+// Video embed utilities
+const getYouTubeVideoId = (url: string) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
+const getVimeoVideoId = (url: string) => {
+  const regExp = /vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_-]+)?/i;
+  const match = url.match(regExp);
+  return match ? match[1] : null;
+};
+
+const isVideoUrl = (url: string): boolean => {
+  const youtubeId = getYouTubeVideoId(url);
+  const vimeoId = getVimeoVideoId(url);
+  return Boolean(youtubeId || vimeoId);
+};
+
+const VideoEmbed = ({ url }: { url: string }) => {
+  const youtubeId = getYouTubeVideoId(url);
+  const vimeoId = getVimeoVideoId(url);
+
+  if (youtubeId) {
+    return (
+      <div className={styles.videoContainer}>
+        <iframe
+          width="800"
+          height="450"
+          src={`https://www.youtube.com/embed/${youtubeId}`}
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  if (vimeoId) {
+    return (
+      <div className={styles.videoContainer}>
+        <iframe
+          width="800"
+          height="450"
+          src={`https://player.vimeo.com/video/${vimeoId}`}
+          title="Vimeo video player"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
@@ -61,6 +117,7 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
               }}
               onLoadingComplete={() => setLoading(false)}
               onError={() => setError(true)}
+              priority={true}
             />
             {loading && (
               <div className={styles.loading}>Loading...</div>
@@ -99,6 +156,7 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
           style={{ objectFit: 'contain' }}
           onLoadingComplete={() => setLoading(false)}
           onError={() => setError(true)}
+          priority={true}
         />
       </span>
       {alt && <span className={styles.imageCaption}>{alt}</span>}
@@ -137,33 +195,41 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
 
   const components: Components = {
     p: ({ children, node }) => {
-      // Check if the paragraph only contains an image
+      // Check if the paragraph only contains an image or a link
       const childNodes = node?.children || [];
-      console.log('Paragraph node children:', JSON.stringify(childNodes, null, 2));
       
-      if (childNodes.length === 1 && 
-          'tagName' in childNodes[0] && 
-          childNodes[0].tagName === 'img') {
-        
-        // Extract the actual source from the node's value or properties
-        if ('properties' in childNodes[0]) {
-          const imgProps = childNodes[0].properties || {};
-          const imgSrc = String(imgProps.src || '');
-          
-          // Check if this is a data URI placeholder
-          if (imgSrc && imgSrc in dataUris) {
-            console.log('Found data URI placeholder:', imgSrc);
-            return <ImageComponent src={dataUris[imgSrc]} alt={String(imgProps.alt || '')} />;
+      if (childNodes.length === 1) {
+        // Handle image case
+        if ('tagName' in childNodes[0] && childNodes[0].tagName === 'img') {
+          if ('properties' in childNodes[0]) {
+            const imgProps = childNodes[0].properties || {};
+            const imgSrc = String(imgProps.src || '');
+            
+            if (imgSrc && imgSrc in dataUris) {
+              return <ImageComponent src={dataUris[imgSrc]} alt={String(imgProps.alt || '')} />;
+            }
+            
+            if (imgSrc.length > 0) {
+              return <ImageComponent src={imgSrc} alt={String(imgProps.alt || '')} />;
+            }
           }
-          
-          // If we have a valid src in properties, use that
-          if (imgSrc.length > 0) {
-            return <ImageComponent src={imgSrc} alt={String(imgProps.alt || '')} />;
-          }
+          return children;
         }
         
-        return children;
+        // Handle link case - check if it's a video URL
+        if ('tagName' in childNodes[0] && childNodes[0].tagName === 'a') {
+          if ('properties' in childNodes[0]) {
+            const linkProps = childNodes[0].properties || {};
+            const href = String(linkProps.href || '');
+            
+            if (href && isVideoUrl(href)) {
+              // Return the video embed directly without paragraph wrapping
+              return <VideoEmbed url={href} />;
+            }
+          }
+        }
       }
+      
       return <p className={styles.paragraph}>{children}</p>;
     },
     h1: ({ children }) => <h1 className={styles.heading1}>{children}</h1>,
@@ -171,16 +237,21 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     h3: ({ children }) => <h3 className={styles.heading3}>{children}</h3>,
     h4: ({ children }) => <h4 className={styles.heading4}>{children}</h4>,
     
-    a: ({ href, children }) => (
-      <a 
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.link}
-      >
-        {children}
-      </a>
-    ),
+    a: ({ href, children }) => {
+      if (href && isVideoUrl(href)) {
+        return <VideoEmbed url={href} />;
+      }
+      return (
+        <a 
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.link}
+        >
+          {children}
+        </a>
+      );
+    },
     
     ul: ({ children }) => <ul className={styles.list}>{children}</ul>,
     ol: ({ children }) => <ol className={styles.list}>{children}</ol>,
