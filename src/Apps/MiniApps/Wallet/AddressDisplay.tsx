@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useBalance } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
-import { createPublicClient, http, fallback } from 'viem';
+import { createPublicClient, http } from 'viem';
 
 interface AddressDisplayProps {
   address?: string;
@@ -14,12 +14,11 @@ interface AddressDisplayProps {
 // Create a dedicated mainnet client for ENS resolution with fallback RPCs
 const mainnetClient = createPublicClient({
   chain: mainnet,
-  transport: fallback([
-    http(process.env.NEXT_PUBLIC_RPC_URL),
-    http(`https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`),
-    http('https://rpc.ankr.com/eth'),
-    http('https://cloudflare-eth.com')
-  ])
+  transport: http(process.env.NEXT_PUBLIC_RPC_URL, {
+    timeout: 10000,
+    retryCount: 3,
+    retryDelay: 1000,
+  })
 });
 
 export function AddressDisplay({ address = '', network }: AddressDisplayProps) {

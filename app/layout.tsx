@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { headers } from 'next/headers'
 import "./globals.css";
 import { Inter } from "next/font/google";
 import AppkitContext from "../src/context/AppkitContext";
@@ -56,18 +55,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersData = await headers();
-  const cookies = headersData.get('cookie');
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <AppkitContext cookies={cookies}>
+        <AppkitContext>
           <ApolloWrapper>
             {children}
           </ApolloWrapper>
