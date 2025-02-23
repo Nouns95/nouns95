@@ -12,9 +12,10 @@ interface NounImageProps {
   width?: number;
   height?: number;
   className?: string;
+  skipLoading?: boolean;
 }
 
-export default function AuctionNounImage({ width = 320, height = 320, className }: NounImageProps) {
+export default function AuctionNounImage({ width = 320, height = 320, className, skipLoading = false }: NounImageProps) {
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { data, loading, error: queryError } = useQuery<AuctionsQueryResponse>(CURRENT_AUCTION_QUERY);
@@ -59,7 +60,7 @@ export default function AuctionNounImage({ width = 320, height = 320, className 
     }
   }, [currentAuctionSeed]); // Only depend on the seed data
 
-  if (loading || !svg) return (
+  if (!skipLoading && (loading || !svg)) return (
     <div style={{ 
       width, 
       height, 
@@ -79,6 +80,7 @@ export default function AuctionNounImage({ width = 320, height = 320, className 
   );
   if (queryError) return <div>Error loading Noun</div>;
   if (error) return <div>{error}</div>;
+  if (!svg) return null;
 
   return (
     <Image

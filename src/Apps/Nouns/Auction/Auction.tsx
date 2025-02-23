@@ -1,11 +1,11 @@
 'use client';
 
 import { useQuery } from '@apollo/client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useBlock, useWriteContract } from 'wagmi';
 import { CURRENT_AUCTION_QUERY, AUCTION_HISTORY_QUERY } from '../domain/graphql/queries/auction';
 import { NOUNDERS_NOUNS_QUERY } from '../domain/graphql/queries/noun';
-import type { AuctionsQueryResponse, Bid, Noun } from '../domain/types/graphql';
+import type { Bid } from '../domain/types/graphql';
 import { AuctionNounImage } from '.';
 import { StaticNounImage } from './StaticNounImage';
 import { CrystalBallNounImage } from './CrystalBallNounImage';
@@ -16,8 +16,49 @@ import { getTraitName } from './utils/trait-name-utils';
 import { BidderInfo } from './BidderInfo';
 import BidButton from './BidButton';
 import { ImageData } from './utils/image-data';
+import Image from 'next/image';
 
-// Add the contract ABI for the settle function
+interface AuctionData {
+  id: string;
+  amount: string;
+  startTime?: string;
+  endTime: string;
+  settled?: boolean;
+  bids: Bid[];
+  noun: {
+    id: string;
+    owner: {
+      id: string;
+    };
+    seed: {
+      background: string;
+      body: string;
+      accessory: string;
+      head: string;
+      glasses: string;
+    };
+  };
+}
+
+interface NounderNoun {
+  id: string;
+  seed: {
+    background: string;
+    body: string;
+    accessory: string;
+    head: string;
+    glasses: string;
+  };
+  owner: {
+    id: string;
+  };
+}
+
+interface NounderQueryResponse {
+  nouns: Array<NounderNoun>;
+}
+
+// Contract constants
 const NOUNS_AUCTION_HOUSE_ABI = [{
   name: 'settleCurrentAndCreateNewAuction',
   type: 'function',
@@ -28,6 +69,13 @@ const NOUNS_AUCTION_HOUSE_ABI = [{
 
 const NOUNS_AUCTION_HOUSE_ADDRESS = '0x830BD73E4184ceF73443C15111a1DF14e495C706';
 
+// Base query options for consistent data fetching
+const baseQueryOptions = {
+  fetchPolicy: 'cache-and-network' as const,
+  nextFetchPolicy: 'cache-first' as const
+};
+
+// Utility functions
 function formatTimestamp(timestamp: string): string {
   const date = new Date(Number(timestamp) * 1000);
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -47,17 +95,75 @@ function formatCountdown(secondsRemaining: number): string {
 
 type TabType = 'Auction' | 'Crystal Ball';
 
-function LoadingSkeleton() {
-  return (
-    <div className={styles['loading-skeleton']}>
-      <div className={styles['skeleton-image']}></div>
-      <div className={styles['skeleton-traits']}>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className={styles['skeleton-trait']}></div>
-        ))}
-      </div>
-    </div>
+// Custom hooks
+function useViewingState(viewingNounId: string | null, currentAuctionId?: string) {
+  return useMemo(() => {
+    const isCurrentAuction = !viewingNounId;
+    const isNounderNoun = viewingNounId && Number(viewingNounId) % 10 === 0;
+    
+    return {
+      isCurrentAuction,
+      isNounderNoun,
+      nounId: isCurrentAuction ? currentAuctionId : viewingNounId
+    };
+  }, [viewingNounId, currentAuctionId]);
+}
+
+function useAuctionData(viewingState: ReturnType<typeof useViewingState>, activeTab: TabType) {
+  const { isCurrentAuction, isNounderNoun, nounId } = viewingState;
+
+  const currentAuctionQuery = useQuery<{ auctions: AuctionData[] }>(
+    CURRENT_AUCTION_QUERY,
+    {
+      ...baseQueryOptions,
+      pollInterval: (isCurrentAuction && activeTab === 'Auction') ? 5000 : 0
+    }
   );
+
+  const historicalQuery = useQuery<{ auctions: AuctionData[] }>(
+    AUCTION_HISTORY_QUERY,
+    {
+      ...baseQueryOptions,
+      skip: isCurrentAuction || isNounderNoun || !nounId,
+      variables: { nounId }
+    }
+  );
+
+  const nounderQuery = useQuery<NounderQueryResponse>(
+    NOUNDERS_NOUNS_QUERY,
+    {
+      ...baseQueryOptions,
+      skip: !isNounderNoun || !nounId,
+      variables: { nounId }
+    }
+  );
+
+  return useMemo(() => {
+    const currentAuction = currentAuctionQuery.data?.auctions?.[0];
+    const historicalAuction = historicalQuery.data?.auctions?.[0];
+    const nounderNoun = nounderQuery.data?.nouns?.find((n: NounderNoun) => n.id === nounId);
+
+    // Transform Nounder data to match auction structure if needed
+    const transformedNounderNoun = nounderNoun ? {
+      id: nounderNoun.id,
+      amount: '0',
+      endTime: '0',
+      bids: [] as Bid[],
+      noun: {
+        id: nounderNoun.id,
+        owner: { id: "0x2573C60a6D127755aA2DC85e342F7da2378a0Cc5" },
+        seed: nounderNoun.seed
+      }
+    } : undefined;
+
+    return {
+      data: isCurrentAuction ? currentAuction 
+          : isNounderNoun ? transformedNounderNoun
+          : historicalAuction,
+      loading: currentAuctionQuery.loading || historicalQuery.loading || nounderQuery.loading,
+      currentAuctionId: currentAuction?.noun.id
+    };
+  }, [isCurrentAuction, isNounderNoun, nounId, currentAuctionQuery, historicalQuery, nounderQuery]);
 }
 
 export default function Auction() {
@@ -65,54 +171,21 @@ export default function Auction() {
   const [searchInput, setSearchInput] = useState('');
   const [viewingNounId, setViewingNounId] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<string>('');
+  
   const { data: block } = useBlock({
     watch: true,
   });
 
-  // Add Wagmi contract write hook at the top level
   const { writeContract, isPending } = useWriteContract();
 
-  const handleSettle = () => {
-    writeContract({
-      abi: NOUNS_AUCTION_HOUSE_ABI,
-      address: NOUNS_AUCTION_HOUSE_ADDRESS,
-      functionName: 'settleCurrentAndCreateNewAuction',
-    });
-  };
+  const viewingState = useViewingState(viewingNounId);
+  const { data: auctionData, loading: isLoading, currentAuctionId } = useAuctionData(viewingState, activeTab);
 
-  // Query for current auction
-  const { data: currentAuctionData, loading: currentLoading } = useQuery<AuctionsQueryResponse>(
-    CURRENT_AUCTION_QUERY,
-    {
-      pollInterval: (!viewingNounId && activeTab === 'Auction') ? 5000 : undefined, // Only poll when viewing current auction in Auction tab
-      fetchPolicy: 'cache-and-network'
-    }
-  );
-
-  // Query for historical auction when viewing a specific Noun
-  const { data: historicalData, loading: historicalLoading } = useQuery<AuctionsQueryResponse>(
-    AUCTION_HISTORY_QUERY,
-    {
-      variables: {
-        nounId: viewingNounId || ''
-      },
-      skip: !viewingNounId || !currentAuctionData || Number(viewingNounId) % 10 === 0, // Skip if viewing current auction, no data, or Nounder Noun
-      fetchPolicy: 'network-only' // Change to network-only to match Nounder Nouns speed
-    }
-  );
-
-  // Query for Nounders Nouns
-  const { data: noundersData, loading: noundersLoading } = useQuery(NOUNDERS_NOUNS_QUERY, {
-    skip: !viewingNounId || Number(viewingNounId) % 10 !== 0, // Only fetch for Nounder Nouns
-    fetchPolicy: 'cache-first' // Use cache-first to make it fast
-  });
-
-  // Update countdown in real-time
+  // Update countdown timer
   useEffect(() => {
-    if (!currentAuctionData?.auctions?.[0] || activeTab !== 'Auction') return;
+    if (!auctionData?.endTime || activeTab !== 'Auction' || !viewingState.isCurrentAuction) return;
     
-    const auction = currentAuctionData.auctions[0];
-    const endTime = Number(auction.endTime);
+    const endTime = Number(auctionData.endTime);
     
     const updateCountdown = () => {
       const now = Math.floor(Date.now() / 1000);
@@ -120,78 +193,51 @@ export default function Auction() {
       setCountdown(formatCountdown(Math.max(0, secondsRemaining)));
     };
 
-    // Update immediately and then every second
     updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
-
     return () => clearInterval(timer);
-  }, [currentAuctionData?.auctions, activeTab]);
+  }, [auctionData?.endTime, activeTab, viewingState.isCurrentAuction]);
 
-  if (currentLoading && !currentAuctionData?.auctions?.[0]) return <LoadingSkeleton />;
-  if (!currentAuctionData?.auctions?.[0]) return <div className="p-4">No active auction</div>;
-
-  const currentAuction = currentAuctionData.auctions[0];
-  const currentNounId = currentAuction.noun.id;
-  
-  // Get the auction data we should display
-  const historicalAuction = historicalData?.auctions?.[0];
-  const isNounderNoun = viewingNounId && Number(viewingNounId) % 10 === 0;
-  const nounderNoun = isNounderNoun && noundersData?.nouns ? 
-    noundersData.nouns.find((noun: Noun) => Number(noun.id) === Number(viewingNounId)) : 
-    null;
-  
-  // Debug logging only when in Auction tab
-  if (activeTab === 'Auction') {
-    console.log('Nounder Noun Debug:', {
-      viewingNounId,
-      isNounderNoun,
-      nounderNounFound: !!nounderNoun,
-      nounderNounId: nounderNoun?.id,
-      nounderNounSeed: nounderNoun?.seed,
-      noundersDataLoaded: !!noundersData?.nouns,
-      noundersLoading,
-      totalNounderNouns: noundersData?.nouns?.length
+  const handleSettle = useCallback(() => {
+    writeContract({
+      abi: NOUNS_AUCTION_HOUSE_ABI,
+      address: NOUNS_AUCTION_HOUSE_ADDRESS,
+      functionName: 'settleCurrentAndCreateNewAuction',
     });
-  }
-  
-  // Only show loading state when we're actually loading data
-  const isLoading = viewingNounId ? 
-    (isNounderNoun ? noundersLoading : historicalLoading) : 
-    false;
-  const auction = isLoading ? null : (!isNounderNoun && viewingNounId && historicalAuction) ? historicalAuction : currentAuction;
-  const bids = (auction?.bids as Bid[]) || [];
-  const currentBid = auction?.amount ? formatEther(BigInt(auction.amount)) : '0';
+  }, [writeContract]);
 
-  const handlePreviousNoun = () => {
-    const currentId = viewingNounId || currentNounId;
+  const handlePreviousNoun = useCallback(() => {
+    const currentId = viewingNounId || currentAuctionId;
     const prevId = String(Math.max(1, Number(currentId) - 1));
-    setViewingNounId(prevId === currentNounId ? null : prevId);
-  };
+    setViewingNounId(prevId === currentAuctionId ? null : prevId);
+  }, [viewingNounId, currentAuctionId]);
 
-  const handleNextNoun = () => {
-    if (!viewingNounId) return; // Already at current auction
-    const nextId = String(Math.min(Number(currentNounId), Number(viewingNounId) + 1));
-    setViewingNounId(nextId === currentNounId ? null : nextId);
-  };
+  const handleNextNoun = useCallback(() => {
+    if (!viewingNounId || !currentAuctionId) return;
+    const nextId = String(Math.min(Number(currentAuctionId), Number(viewingNounId) + 1));
+    setViewingNounId(nextId === currentAuctionId ? null : nextId);
+  }, [viewingNounId, currentAuctionId]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const searchId = Number(searchInput);
-    if (isNaN(searchId) || searchId < 1 || searchId > Number(currentNounId)) {
-      return; // Invalid ID
+    if (isNaN(searchId) || searchId < 1 || !currentAuctionId || searchId > Number(currentAuctionId)) {
+      return;
     }
-    setViewingNounId(searchId === Number(currentNounId) ? null : String(searchId));
+    setViewingNounId(searchId === Number(currentAuctionId) ? null : String(searchId));
     setSearchInput('');
-  };
+  }, [searchInput, currentAuctionId]);
 
-  const handleCurrentAuction = () => {
+  const handleCurrentAuction = useCallback(() => {
     setViewingNounId(null);
-  };
+  }, []);
+
+  const currentBid = auctionData?.amount ? formatEther(BigInt(auctionData.amount)) : '0';
 
   const renderCrystalBall = () => {
-    if (!currentAuctionData?.auctions?.[0] || !block?.hash) return null;
+    if (!auctionData || !block?.hash) return null;
     
-    const currentId = Number(currentAuctionData.auctions[0].noun.id);
+    const currentId = Number(auctionData.noun.id);
     const endsIn9 = currentId % 10 === 9;
     const nextNounIds = endsIn9 
       ? [String(currentId + 1), String(currentId + 2)] // Show both next nouns when current ends in 9
@@ -291,14 +337,13 @@ export default function Auction() {
           <div className={styles['auction-container']}>
             <div className={styles['auction-image']}>
               {isLoading ? (
-                <div 
-                  style={{ 
-                    width: '20rem',
-                    height: '20rem',
-                    background: '#c0c0c0',
-                    border: '0.125rem solid',
-                    borderColor: '#808080 #ffffff #ffffff #808080'
-                  }} 
+                <Image
+                  src="/icons/apps/auction/loading.gif"
+                  alt="Loading..."
+                  width={320}
+                  height={320}
+                  className={styles['noun-image']}
+                  unoptimized
                 />
               ) : viewingNounId ? (
                 <StaticNounImage 
@@ -306,12 +351,14 @@ export default function Auction() {
                   width={320} 
                   height={320}
                   className={styles['noun-image']}
+                  skipLoading={true}
                 />
               ) : (
                 <AuctionNounImage 
                   width={320} 
                   height={320}
                   className={styles['noun-image']}
+                  skipLoading={true}
                 />
               )}
               <div className={styles['noun-traits']}>
@@ -322,50 +369,50 @@ export default function Auction() {
                       <span className={styles['trait-value']}>Loading...</span>
                     </div>
                   ))
-                ) : isNounderNoun && nounderNoun?.seed ? (
+                ) : viewingState.isNounderNoun && auctionData?.noun?.seed ? (
                   <>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Head</span>
-                      <span className={styles['trait-value']}>{getTraitName('head', Number(nounderNoun.seed.head))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('head', Number(auctionData.noun.seed.head))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Glasses</span>
-                      <span className={styles['trait-value']}>{getTraitName('glasses', Number(nounderNoun.seed.glasses))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('glasses', Number(auctionData.noun.seed.glasses))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Accessory</span>
-                      <span className={styles['trait-value']}>{getTraitName('accessory', Number(nounderNoun.seed.accessory))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('accessory', Number(auctionData.noun.seed.accessory))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Body</span>
-                      <span className={styles['trait-value']}>{getTraitName('body', Number(nounderNoun.seed.body))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('body', Number(auctionData.noun.seed.body))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Background</span>
-                      <span className={styles['trait-value']}>{getTraitName('background', Number(nounderNoun.seed.background))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('background', Number(auctionData.noun.seed.background))}</span>
                     </div>
                   </>
-                ) : auction?.noun?.seed ? (
+                ) : auctionData?.noun?.seed ? (
                   <>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Head</span>
-                      <span className={styles['trait-value']}>{getTraitName('head', Number(auction.noun.seed.head))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('head', Number(auctionData.noun.seed.head))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Glasses</span>
-                      <span className={styles['trait-value']}>{getTraitName('glasses', Number(auction.noun.seed.glasses))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('glasses', Number(auctionData.noun.seed.glasses))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Accessory</span>
-                      <span className={styles['trait-value']}>{getTraitName('accessory', Number(auction.noun.seed.accessory))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('accessory', Number(auctionData.noun.seed.accessory))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Body</span>
-                      <span className={styles['trait-value']}>{getTraitName('body', Number(auction.noun.seed.body))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('body', Number(auctionData.noun.seed.body))}</span>
                     </div>
                     <div className={styles['trait-item']}>
                       <span className={styles['trait-label']}>Background</span>
-                      <span className={styles['trait-value']}>{getTraitName('background', Number(auction.noun.seed.background))}</span>
+                      <span className={styles['trait-value']}>{getTraitName('background', Number(auctionData.noun.seed.background))}</span>
                     </div>
                   </>
                 ) : null}
@@ -410,13 +457,13 @@ export default function Auction() {
               <h1 className={styles['noun-title']}>
                 {isLoading ? 'Loading...' : (
                   <>
-                    {isNounderNoun ? 
-                      `Noun ${nounderNoun?.id || viewingNounId}` : 
-                      `Noun ${auction?.noun.id || ''}`}
-                    {viewingNounId && !isNounderNoun && auction?.endTime && (
+                    {viewingState.isNounderNoun ? 
+                      `Noun ${viewingState.nounId}` : 
+                      `Noun ${auctionData?.noun.id || ''}`}
+                    {viewingNounId && !viewingState.isNounderNoun && auctionData?.endTime && (
                       <span className={styles['end-date']}>
                         <span className={styles['end-date-header']}>Auction Ended</span>
-                        {formatTimestamp(auction.endTime)}
+                        {formatTimestamp(auctionData.endTime)}
                       </span>
                     )}
                   </>
@@ -426,10 +473,10 @@ export default function Auction() {
               <div className={styles['auction-status']}>
                 <div className={styles['status-item']}>
                   <div className={styles.label}>
-                    {isNounderNoun ? 'Status' : (viewingNounId ? 'Winning Bid' : 'Current Bid')}
+                    {viewingState.isNounderNoun ? 'Status' : (viewingNounId ? 'Winning Bid' : 'Current Bid')}
                   </div>
                   <div className={styles.value}>
-                    {isLoading ? '\u00A0' : (isNounderNoun ? 'Not Auctioned' : `Ξ ${currentBid}`)}
+                    {isLoading ? '\u00A0' : (viewingState.isNounderNoun ? 'Not Auctioned' : `Ξ ${currentBid}`)}
                   </div>
                 </div>
                 {!viewingNounId ? (
@@ -450,9 +497,9 @@ export default function Auction() {
                       {isLoading ? '\u00A0' : (
                         <BidderInfo 
                           address={
-                            isNounderNoun 
+                            viewingState.isNounderNoun 
                               ? "0x2573C60a6D127755aA2DC85e342F7da2378a0Cc5"
-                              : auction?.noun?.owner?.id || ''
+                              : auctionData?.noun?.owner?.id || ''
                           } 
                         />
                       )}
@@ -479,7 +526,7 @@ export default function Auction() {
                         <button className={styles['view-tx']} disabled>↗</button>
                       </div>
                     </div>
-                  ) : isNounderNoun ? (
+                  ) : viewingState.isNounderNoun ? (
                     <div className={styles['bid-item']}>
                       <BidderInfo address="0x2573C60a6D127755aA2DC85e342F7da2378a0Cc5" />
                       <div className={styles['bid-details']}>
@@ -494,10 +541,10 @@ export default function Auction() {
                         </a>
                       </div>
                     </div>
-                  ) : bids.length === 0 ? (
+                  ) : auctionData?.bids.length === 0 ? (
                     <p>No bids yet</p>
                   ) : (
-                    bids.map((bid: Bid) => (
+                    auctionData?.bids.map((bid: Bid) => (
                       <div key={bid.id} className={styles['bid-item']}>
                         <BidderInfo address={bid.bidder.id} />
                         <div className={styles['bid-details']}>

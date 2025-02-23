@@ -12,6 +12,7 @@ interface StaticNounImageProps {
   width?: number;
   height?: number;
   className?: string;
+  skipLoading?: boolean;
 }
 
 interface NounQueryResponse {
@@ -27,7 +28,7 @@ interface NounQueryResponse {
   };
 }
 
-export function StaticNounImage({ nounId, width = 320, height = 320, className }: StaticNounImageProps) {
+export function StaticNounImage({ nounId, width = 320, height = 320, className, skipLoading = false }: StaticNounImageProps) {
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { data, loading, error: queryError } = useQuery<NounQueryResponse>(NOUN_BY_ID_QUERY, {
@@ -72,16 +73,23 @@ export function StaticNounImage({ nounId, width = 320, height = 320, className }
     }
   }, [data?.noun?.seed]);
 
-  if (loading) return (
-    <div 
-      style={{ 
-        width: width, 
-        height: height, 
-        background: '#c0c0c0',
-        border: '2px solid',
-        borderColor: '#808080 #ffffff #ffffff #808080'
-      }} 
-    />
+  if (!skipLoading && loading) return (
+    <div style={{ 
+      width, 
+      height, 
+      background: '#c0c0c0',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <Image
+        src="/icons/apps/auction/loading.gif"
+        alt="Loading..."
+        width={32}
+        height={32}
+        unoptimized
+      />
+    </div>
   );
   if (queryError) return <div>Error loading Noun</div>;
   if (error) return <div>{error}</div>;
