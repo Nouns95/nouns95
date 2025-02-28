@@ -143,7 +143,7 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
               priority={true}
             />
             {loading && (
-              <div className={styles.loading}>Loading...</div>
+              <span className={styles.skeletonLoader}></span>
             )}
           </span>
           {alt && <span className={styles.imageCaption}>{alt}</span>}
@@ -176,11 +176,17 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
           width={500}
           height={300}
           className={styles.image}
-          style={{ objectFit: 'contain' }}
+          style={{ 
+            objectFit: 'contain',
+            display: loading ? 'none' : 'block'
+          }}
           onLoadingComplete={() => setLoading(false)}
           onError={() => setError(true)}
           priority={true}
         />
+        {loading && (
+          <span className={styles.skeletonLoader}></span>
+        )}
       </span>
       {alt && <span className={styles.imageCaption}>{alt}</span>}
     </span>
@@ -281,15 +287,35 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     li: ({ children }) => <li className={styles.listItem}>{children}</li>,
     
     code: ({ className, children }) => {
+      // If it's a code block (has className with language)
       const match = /language-(\w+)/.exec(className || '');
-      return match ? (
-        <pre className={`${styles.codeBlock} ${styles[match[1]]}`}>
-          <code>{children}</code>
-        </pre>
-      ) : (
-        <code className={styles.inlineCode}>{children}</code>
-      );
+      
+      // Check if this is an address or signature (single line of hex)
+      const isAddressOrSignature = typeof children === 'string' && 
+        /^(0x)?[0-9a-fA-F]+$/.test(children.trim()) &&
+        !children.includes('\n');
+
+      // Check if this is legal text (contains paragraphs or long text)
+      const isLegalText = typeof children === 'string' && 
+        (children.includes('\n') || children.length > 100);
+
+      if (match) {
+        // For specific language blocks
+        return <div className={`${styles.codeBlock} ${styles[match[1]]}`}>{children}</div>;
+      } else if (isAddressOrSignature) {
+        // For addresses and signatures
+        return <div className={styles.codeBlock}>{children}</div>;
+      } else if (isLegalText) {
+        // For legal text and agreements
+        return <div className={styles.codeBlock}>{children}</div>;
+      } else {
+        // For inline code
+        return <code className={styles.inlineCode}>{children}</code>;
+      }
     },
+    
+    // Remove the pre handler since we're handling everything in the code component
+    pre: ({ children }) => children,
     
     img: ({ src, alt }) => {
       // Check if this is a data URI placeholder
@@ -321,14 +347,11 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
   };
 
   return (
-    <div className={styles.container}>
-      <ReactMarkdown
-        className={styles.markdown}
-        remarkPlugins={[remarkGfm]}
-        components={components}
-      >
-        {processedContent}
-      </ReactMarkdown>
-    </div>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={components}
+    >
+      {processedContent}
+    </ReactMarkdown>
   );
 } 

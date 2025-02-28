@@ -9,6 +9,7 @@ import { useDisconnect } from '@reown/appkit/react'
 import ConnectWallet from './ConnectWallet'
 import { AddressDisplay } from './AddressDisplay';
 import { NetworkDisplay } from './NetworkDisplay';
+import { useEnsResolution } from './useEnsResolution';
 import './WalletApp.styles.css'
 
 type TabType = 'Account' | 'Network' | 'Swap'
@@ -29,6 +30,7 @@ export default function WalletApp() {
   const { disconnect } = useDisconnect()
   const { open } = useAppKit()
   const [activeTab, setActiveTab] = useState<TabType>('Account')
+  const { ensName, ensAvatar } = useEnsResolution(address)
 
   if (!isConnected) {
     return <ConnectWallet />
@@ -43,6 +45,8 @@ export default function WalletApp() {
               <AddressDisplay 
                 address={address} 
                 network={getNetworkType(selectedNetworkId)}
+                ensName={ensName}
+                ensAvatar={ensAvatar}
               />
             </div>
           </div>

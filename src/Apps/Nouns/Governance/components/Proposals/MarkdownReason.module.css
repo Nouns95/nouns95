@@ -64,21 +64,64 @@
 
 /* Code */
 .inlineCode {
-  font-family: monospace;
-  background: #f0f0f0;
+  font-family: "MS Sans Serif", sans-serif;
+  background: #ffffff;
   padding: 0.125rem 0.25rem;
   border: 1px solid #808080;
+  color: #000080;
 }
 
 .codeBlock {
-  font-family: monospace;
-  background: #f0f0f0;
-  padding: 0.5rem;
-  margin: 0.5rem 0;
+  font-family: "MS Sans Serif", sans-serif;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  margin: 0;
   border: 2px solid;
   border-color: #808080 #ffffff #ffffff #808080;
-  white-space: pre-wrap;
-  overflow-x: auto;
+  white-space: pre-wrap;       /* Preserve whitespace and wrap */
+  word-wrap: break-word;       /* Break long words */
+  word-break: normal;          /* Use normal word breaking */
+  overflow-wrap: break-word;   /* Allow breaking of long words */
+  width: 100%;                 /* Take full width of container */
+  box-sizing: border-box;      /* Include padding in width calculation */
+  max-width: 100%;             /* Ensure it doesn't overflow container */
+  font-size: 11px;
+  line-height: 1.6;           /* Increased line height for better readability */
+  color: #000000;             /* Darker text color */
+  position: relative;         /* For label positioning */
+}
+
+/* Add a subtle inset effect */
+.codeBlock::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid;
+  border-color: #404040 #ffffff #ffffff #404040;
+  pointer-events: none;
+}
+
+/* Style for addresses and signatures */
+.codeBlock:has(> code:only-child) {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: #f8f8f8;
+  padding: 0.5rem 0.75rem;
+  letter-spacing: 0.5px;
+  border-width: 1px;
+}
+
+/* Style for legal text and agreements */
+.codeBlock:has(> p) {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 1rem;
+  background: #ffffff;
+  color: #000000;
 }
 
 /* Images */
@@ -103,6 +146,7 @@
   align-items: center;
 }
 
+/* Remove the loading text styles */
 .imageWrapper.loading::before {
   content: '';
   position: absolute;
@@ -111,15 +155,68 @@
   width: 100%;
   height: 100%;
   background: #f0f0f0;
-  animation: pulse 1.5s infinite;
 }
 
+/* Remove the loading text after pseudo-element */
 .imageWrapper.loading::after {
-  content: 'Loading...';
+  content: none;
+}
+
+/* Windows 95 skeleton loader */
+.skeletonLoader {
   position: absolute;
-  font-family: "MS Sans Serif", sans-serif;
-  font-size: 11px;
-  color: #404040;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+  background-color: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #555555;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.skeletonLoader::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(
+    135deg,
+    #c0c0c0 25%,
+    #d8d8d8 25%,
+    #d8d8d8 50%,
+    #c0c0c0 50%,
+    #c0c0c0 75%,
+    #d8d8d8 75%,
+    #d8d8d8
+  );
+  background-size: 16px 16px;
+  border: 1px solid #808080;
+  box-shadow: 1px 1px 0px #ffffff;
+  animation: hourglassRotate 2s infinite linear;
+}
+
+@keyframes hourglassRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(270deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .image {

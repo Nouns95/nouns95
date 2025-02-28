@@ -233,6 +233,16 @@
   border: 0.0625rem solid #800000;
 }
 
+.success {
+  color: #006400;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  padding: 0.5rem;
+  background: #f0fff0;
+  border: 0.0625rem solid #006400;
+  margin-top: 0.5rem;
+}
+
 .inactiveMessage {
   font-family: "MS Sans Serif", sans-serif;
   font-size: 0.6875rem;
@@ -241,6 +251,39 @@
   background: #ffffff;
   border: 0.125rem solid;
   border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.commentNotice {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #800000;
+  padding: 0.5rem;
+  background: #ffffcc;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  margin-bottom: 0.5rem;
+}
+
+.votingPeriodInfo {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #404040;
+  padding: 0.5rem;
+  background: #ffffff;
+  border: 0.125rem solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.votingPeriodLabel {
+  font-weight: bold;
+}
+
+.votingPeriodValue {
+  color: #000080;
 }
 
 /* Vote History Styles */
@@ -291,11 +334,6 @@
 
 .loading {
   color: #808080;
-  font-style: italic;
-}
-
-.error {
-  color: #800000;
   font-style: italic;
 }
 

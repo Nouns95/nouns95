@@ -420,7 +420,8 @@ export default function ProposalDetails({ id, onBackToList }: ProposalDetailsPro
           <div className={styles.sideContent}>
             <VoteForm 
               proposalId={proposal.id} 
-              status={proposal.status}
+              startBlock={proposal.startBlock}
+              endBlock={proposal.endBlock}
             />
 
             <div className={styles.quorumProgress}>
