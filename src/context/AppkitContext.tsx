@@ -38,6 +38,7 @@ export const modal = typeof window === 'undefined'
         'a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393', // Phantom
         'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa', // Coinbase
         '1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369', // Rainbow
+        '225affb176778569276e484e1b92637ad061b01e13a048b35a9d280c3b58970f', // Safe
       ],
       allWallets: 'SHOW',
       debug: true,
