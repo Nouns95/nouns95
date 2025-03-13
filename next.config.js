@@ -198,6 +198,39 @@ const nextConfig = {
         tls: false,
       };
     }
+
+    // Preserve class names and function names for better compatibility
+    // with libraries like WalletConnect that might rely on them
+    if (config.optimization) {
+      if (!config.optimization.minimizer) {
+        config.optimization.minimizer = [];
+      }
+      
+      // Add our custom configuration for production
+      config.optimization.minimizer.push({
+        apply: (compiler) => {
+          // Access terser plugin options
+          compiler.options.optimization.minimizer.forEach(plugin => {
+            if (plugin.constructor && plugin.constructor.name === 'TerserPlugin') {
+              if (!plugin.options) plugin.options = {};
+              if (!plugin.options.terserOptions) plugin.options.terserOptions = {};
+              
+              plugin.options.terserOptions.keep_classnames = true;
+              plugin.options.terserOptions.keep_fnames = true;
+              
+              if (!plugin.options.terserOptions.mangle) {
+                plugin.options.terserOptions.mangle = {};
+              }
+              
+              plugin.options.terserOptions.mangle.reserved = [
+                'Buffer', 'BigInt', 'Symbol', 'fetch'
+              ];
+            }
+          });
+        }
+      });
+    }
+
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
   },
