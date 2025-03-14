@@ -2,7 +2,7 @@
 
 import React, { type ReactNode, useEffect, useState } from 'react'
 import { createAppKit } from '@reown/appkit/react'
-import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks } from '../config/appkit'
+import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks, metadata } from '../config/appkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiProvider } from 'wagmi'
 
@@ -16,14 +16,6 @@ const queryClient = new QueryClient({
     },
   },
 })
-
-// Set up metadata
-const metadata = {
-  name: 'Nouns 95',
-  description: 'Start me up.',
-  url: 'https://nouns95.wtf',
-  icons: ['https://nouns95.wtf/icons/shell/TaskBar/StartMenu/StartMenu.png']
-}
 
 // Create the modal with dynamic initialization
 export const modal = typeof window === 'undefined' 
@@ -60,6 +52,13 @@ function AppkitContext({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setIsClient(true);
+    // Add debug logging
+    console.log('AppKit Context mounted:', {
+      projectId,
+      metadata,
+      origin: typeof window !== 'undefined' ? window.location.origin : 'SSR',
+      modal: modal ? 'initialized' : 'not initialized'
+    });
   }, []);
 
   // Always render QueryClientProvider to maintain React tree structure

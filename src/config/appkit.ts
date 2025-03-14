@@ -18,8 +18,8 @@ export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, base, sol
 export const metadata = {
   name: 'Nouns95',
   description: 'Nouns95 - A Web3 Operating System',
-  url: typeof window !== 'undefined' ? window.location.origin : 'https://nouns95.wtf',
-  icons: ['/icons/shell/TaskBar/StartMenu/StartMenu.png'],
+  url: 'https://nouns95.wtf',
+  icons: ['https://nouns95.wtf/icons/shell/TaskBar/StartMenu/StartMenu.png'],
 }
 
 export const bitcoinAdapter = new BitcoinAdapter({
