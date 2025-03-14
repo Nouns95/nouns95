@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
 import { serverConfig } from '../../../../src/config/env';
 
-// Add this export to explicitly mark the route as dynamic
-export const dynamic = 'force-dynamic';
-
 export async function GET(request: Request) {
   const etherscanKey = serverConfig.etherscanApiKey;
   

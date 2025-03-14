@@ -190,45 +190,6 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  // Add headers configuration for CSP
-  async headers() {
-    // Determine if we're in development mode
-    const isDev = process.env.NODE_ENV === 'development';
-    
-    // Use a more permissive CSP in development
-    const devCSP = `
-      default-src * 'unsafe-inline' 'unsafe-eval';
-      connect-src * 'self' wss: ws:;
-      frame-src * 'self';
-      frame-ancestors * 'self';
-      worker-src * 'self' blob:;
-    `.replace(/\s+/g, ' ').trim();
-    
-    // Use a stricter CSP in production
-    const prodCSP = `
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval';
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' data: https://fonts.gstatic.com;
-      img-src 'self' data: blob: https: http:;
-      connect-src 'self' https: wss: http: wss://*.walletconnect.org wss://*.walletconnect.com https://*.walletconnect.org https://*.walletconnect.com;
-      frame-src 'self' https://secure.walletconnect.org https://*.walletconnect.org https://*.walletconnect.com;
-      frame-ancestors 'self' https://secure.walletconnect.org https://*.walletconnect.org https://*.walletconnect.com;
-      worker-src 'self' blob:;
-    `.replace(/\s+/g, ' ').trim();
-
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: isDev ? devCSP : prodCSP
-          }
-        ]
-      }
-    ];
-  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
