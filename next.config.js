@@ -190,6 +190,30 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  // Add headers configuration for CSP
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-inline' 'unsafe-eval';
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' data: blob: https: http:;
+              font-src 'self' data:;
+              connect-src 'self' https: wss: http:;
+              frame-src 'self' https://secure.walletconnect.org https://*.walletconnect.org https://*.walletconnect.com;
+              frame-ancestors 'self' https://secure.walletconnect.org https://*.walletconnect.org https://*.walletconnect.com;
+              worker-src 'self' blob:;
+            `.replace(/\s+/g, ' ').trim()
+          }
+        ]
+      }
+    ];
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
