@@ -242,7 +242,7 @@ const BidButton = () => {
         address: AUCTION_HOUSE_ADDRESS,
         abi: NounsAuctionHouseABI,
         functionName: 'createBid',
-        args: [lastValidAuctionData.nounId],
+        args: [lastValidAuctionData.nounId, 11],
         value: parseEther(bidAmount),
       });
 
