@@ -17,6 +17,7 @@ import { BidderInfo } from './BidderInfo';
 import BidButton from './BidButton';
 import { ImageData } from './utils/image-data';
 import Image from 'next/image';
+import { NounSettlementABI } from '../domain/abis/FOMO';
 
 interface AuctionData {
   id: string;
@@ -59,15 +60,8 @@ interface NounderQueryResponse {
 }
 
 // Contract constants
-const NOUNS_AUCTION_HOUSE_ABI = [{
-  name: 'settleCurrentAndCreateNewAuction',
-  type: 'function',
-  stateMutability: 'nonpayable',
-  inputs: [],
-  outputs: [],
-}] as const;
-
-const NOUNS_AUCTION_HOUSE_ADDRESS = '0x830BD73E4184ceF73443C15111a1DF14e495C706';
+const NOUN_SETTLEMENT_ABI = NounSettlementABI;
+const NOUN_SETTLEMENT_ADDRESS = '0xb2341612271e122ff20905c9e389c3d7f0F222a1';
 
 // Base query options for consistent data fetching
 const baseQueryOptions = {
@@ -171,12 +165,13 @@ export default function Auction() {
   const [searchInput, setSearchInput] = useState('');
   const [viewingNounId, setViewingNounId] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<string>('');
+  const [settleError, setSettleError] = useState<string | null>(null);
   
   const { data: block } = useBlock({
     watch: true,
   });
 
-  const { writeContract, isPending } = useWriteContract();
+  const { writeContract, isPending, error } = useWriteContract();
 
   const viewingState = useViewingState(viewingNounId);
   const { data: auctionData, loading: isLoading, currentAuctionId } = useAuctionData(viewingState, activeTab);
@@ -199,12 +194,37 @@ export default function Auction() {
   }, [auctionData?.endTime, activeTab, viewingState.isCurrentAuction]);
 
   const handleSettle = useCallback(() => {
+    if (!block?.hash) {
+      setSettleError('Block data not available. Please try again.');
+      return;
+    }
+
+    setSettleError(null);
     writeContract({
-      abi: NOUNS_AUCTION_HOUSE_ABI,
-      address: NOUNS_AUCTION_HOUSE_ADDRESS,
-      functionName: 'settleCurrentAndCreateNewAuction',
+      abi: NOUN_SETTLEMENT_ABI,
+      address: NOUN_SETTLEMENT_ADDRESS,
+      functionName: 'settleAuction',
+      args: [block.hash],
     });
-  }, [writeContract]);
+  }, [writeContract, block?.hash]);
+
+  // Handle contract errors
+  useEffect(() => {
+    if (error) {
+      if (error.message.includes('Prior blockhash did not match intended hash')) {
+        setSettleError('Block hash mismatch. The auction may have already been settled or the block has changed. Please try again.');
+      } else {
+        setSettleError('Settlement failed. Please try again.');
+      }
+    }
+  }, [error]);
+
+  // Clear error when starting new settlement
+  useEffect(() => {
+    if (isPending) {
+      setSettleError(null);
+    }
+  }, [isPending]);
 
   const handlePreviousNoun = useCallback(() => {
     const currentId = viewingNounId || currentAuctionId;
@@ -245,13 +265,20 @@ export default function Auction() {
     
     return (
       <div className={styles['crystal-ball-container']}>
-        <button 
-          className={styles['settle-button']}
-          onClick={handleSettle}
-          disabled={isPending}
-        >
-          {isPending ? 'Settling...' : 'Settle Noun'}
-        </button>
+        <div className={styles['settle-button-container']}>
+          <button 
+            className={styles['settle-button']}
+            onClick={handleSettle}
+            disabled={isPending || !block?.hash}
+          >
+            {isPending ? 'Settling...' : 'Settle Noun'}
+          </button>
+          {settleError && (
+            <div className={styles['settle-error-message']}>
+              {settleError}
+            </div>
+          )}
+        </div>
         {nextNounIds.map((nextNounId) => {
           // Generate the seed using the same logic as CrystalBallNounImage
           const encodedData = encodePacked(

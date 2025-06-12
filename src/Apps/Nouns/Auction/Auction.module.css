@@ -540,11 +540,14 @@
   border-color: #ffffff #808080 #808080 #ffffff;
   cursor: pointer;
   font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.settle-button-container {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 10;
-  white-space: nowrap;
 }
 
 .settle-button:disabled {
@@ -557,4 +560,19 @@
 .settle-button:active:not(:disabled) {
   border-color: #808080 #ffffff #ffffff #808080;
   padding: 0.3125rem 0.6875rem 0.1875rem 0.8125rem;
+}
+
+.settle-error-message {
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  width: 16rem;
+  padding: 0.25rem 0.5rem;
+  background: #ff0000;
+  color: #ffffff;
+  font-size: 0.75rem;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  z-index: 9;
+  word-wrap: break-word;
 } 
