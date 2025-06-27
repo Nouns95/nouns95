@@ -1986,6 +1986,10 @@ interface ImageInfo {
             {
                 "filename": "paper-bag",
                 "data": "0x0005181607010001c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c90fd802c9010003d8010003d8010003d8010002d801c9030001d8030001d8030001d8030001d8"
+            },
+            {
+                "filename": "floppy-disc",
+                "data": "0x0005181408020e0100030e0673020e0200060e0373020e0173030e0100060e0373020e01730a0e0673470e0a4c060e0a4c060e0a4c060e0a4c060e0a4c060e034c0473034c060e0a4c060e0a4c030e"
             }
         ],
         "glasses": [
