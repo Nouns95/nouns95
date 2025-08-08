@@ -4,6 +4,12 @@ import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 import styles from './MarkdownReason.module.css';
 
+// Type for React element props that might contain data-video-url
+interface VideoLinkProps {
+  'data-video-url'?: string;
+  [key: string]: unknown;
+}
+
 interface MarkdownReasonProps {
   content: string;
 }
@@ -194,8 +200,6 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
 };
 
 export function MarkdownReason({ content }: MarkdownReasonProps) {
-  console.log('MarkdownReason rendering with content length:', content?.length);
-  console.log('Content preview:', content?.substring(0, 200));
 
   // Pre-process content to handle data URIs
   const [processedContent, dataUris] = React.useMemo(() => {
@@ -213,11 +217,7 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
       }
     );
     
-    console.log('Pre-processed content:', {
-      originalLength: content.length,
-      processedLength: processed.length,
-      dataUrisFound: Object.keys(uris).length
-    });
+
     
     return [processed, uris] as const;
   }, [content]);
@@ -252,11 +252,40 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
             const href = String(linkProps.href || '');
             
             if (href && isVideoUrl(href)) {
-              // Return the video embed directly without paragraph wrapping
+              // Return the video embed as a div (not wrapped in p tag)
               return <VideoEmbed url={href} />;
             }
           }
         }
+      }
+      
+      // For mixed content paragraphs, render as paragraph but avoid nesting div in p
+      // Check if any child is a video link and convert to simple text
+      const hasVideoLinks = React.Children.toArray(children).some(child => {
+        return React.isValidElement(child) && 
+               child.type === 'a' && 
+               child.props && 
+               typeof child.props === 'object' &&
+               'data-video-url' in child.props &&
+               (child.props as VideoLinkProps)['data-video-url'];
+      });
+      
+      if (hasVideoLinks) {
+        // Replace video links with simple text links in mixed content
+        const processedChildren = React.Children.map(children, (child) => {
+          if (React.isValidElement(child) && 
+              child.type === 'a' && 
+              child.props && 
+              typeof child.props === 'object' &&
+              'data-video-url' in child.props &&
+              (child.props as VideoLinkProps)['data-video-url']) {
+            const newProps = { ...(child.props as VideoLinkProps) };
+            delete newProps['data-video-url'];
+            return React.cloneElement(child as React.ReactElement, newProps);
+          }
+          return child;
+        });
+        return <p className={styles.paragraph}>{processedChildren}</p>;
       }
       
       return <p className={styles.paragraph}>{children}</p>;
@@ -267,15 +296,14 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     h4: ({ children }) => <h4 className={styles.heading4}>{children}</h4>,
     
     a: ({ href, children }) => {
-      if (href && isVideoUrl(href)) {
-        return <VideoEmbed url={href} />;
-      }
+      // Don't render video embeds directly in links - let the paragraph handler deal with it
       return (
         <a 
           href={href}
           target="_blank"
           rel="noopener noreferrer"
           className={styles.link}
+          data-video-url={href && isVideoUrl(href) ? href : undefined}
         >
           {children}
         </a>
@@ -299,15 +327,9 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
       const isLegalText = typeof children === 'string' && 
         (children.includes('\n') || children.length > 100);
 
-      if (match) {
-        // For specific language blocks
-        return <div className={`${styles.codeBlock} ${styles[match[1]]}`}>{children}</div>;
-      } else if (isAddressOrSignature) {
-        // For addresses and signatures
-        return <div className={styles.codeBlock}>{children}</div>;
-      } else if (isLegalText) {
-        // For legal text and agreements
-        return <div className={styles.codeBlock}>{children}</div>;
+      if (match || isAddressOrSignature || isLegalText) {
+        // For code blocks, use pre instead of div to avoid nesting issues
+        return <pre className={styles.codeBlock}>{children}</pre>;
       } else {
         // For inline code
         return <code className={styles.inlineCode}>{children}</code>;
@@ -321,7 +343,6 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
       // Check if this is a data URI placeholder
       const imgSrc = String(src || '');
       if (imgSrc && imgSrc in dataUris) {
-        console.log('Found data URI placeholder in img component:', imgSrc);
         return <ImageComponent src={dataUris[imgSrc]} alt={alt || ''} />;
       }
       

@@ -10,7 +10,8 @@ const TOKEN_ADDRESSES = {
   WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' as `0x${string}`,
   STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84' as `0x${string}`,
   WSTETH: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0' as `0x${string}`,
-  RETH: '0xae78736Cd615f374D3085123A210448E74Fc6393' as `0x${string}`
+  RETH: '0xae78736Cd615f374D3085123A210448E74Fc6393' as `0x${string}`,
+  METH: '0xd5F7838F5C461fefF7FE49ea5ebaF7728bB0ADfa' as `0x${string}`
 };
 
 // Token IDs for CoinGecko API
@@ -18,7 +19,8 @@ const COINGECKO_IDS = {
   ETH: 'ethereum',
   USDC: 'usd-coin',
   STETH: 'staked-ether',
-  RETH: 'rocket-pool-eth'
+  RETH: 'rocket-pool-eth',
+  METH: 'mantle-staked-ether' // Note: Verify this CoinGecko ID or use ETH price as proxy
 };
 
 interface TokenPrices {
@@ -90,6 +92,12 @@ export function TreasuryBalance() {
     chainId: mainnet.id,
   });
 
+  const { data: methBalance, isLoading: isLoadingMeth } = useBalance({
+    address: TREASURY_ADDRESS,
+    token: TOKEN_ADDRESSES.METH,
+    chainId: mainnet.id,
+  });
+
   // Retry mechanism for balance loading errors
   useEffect(() => {
     if (ethError && retryCount < 3) {
@@ -122,7 +130,8 @@ export function TreasuryBalance() {
           ETH: data[COINGECKO_IDS.ETH]?.usd || 0,
           USDC: data[COINGECKO_IDS.USDC]?.usd || 1, // USDC should be ~1
           STETH: data[COINGECKO_IDS.STETH]?.usd || 0,
-          RETH: data[COINGECKO_IDS.RETH]?.usd || 0
+          RETH: data[COINGECKO_IDS.RETH]?.usd || 0,
+          METH: data[COINGECKO_IDS.METH]?.usd || data[COINGECKO_IDS.ETH]?.usd || 0 // Fallback to ETH price if METH price not available
         });
       } catch (error) {
         console.error('Error fetching prices:', error);
@@ -145,7 +154,8 @@ export function TreasuryBalance() {
     isLoadingWeth || 
     isLoadingSteth || 
     isLoadingWsteth || 
-    isLoadingReth;
+    isLoadingReth || 
+    isLoadingMeth;
 
   // Calculate total USD values using real-time prices
   const mainBalanceUsd = (
@@ -157,7 +167,8 @@ export function TreasuryBalance() {
   const stakedBalanceUsd = (
     (Number(stethBalance?.formatted || 0) * (prices.STETH || 0)) +
     (Number(wstethBalance?.formatted || 0) * (prices.STETH || 0)) + // Using stETH price for wstETH
-    (Number(rethBalance?.formatted || 0) * (prices.RETH || 0))
+    (Number(rethBalance?.formatted || 0) * (prices.RETH || 0)) +
+    (Number(methBalance?.formatted || 0) * (prices.METH || 0))
   );
 
   if (ethError && retryCount >= 3) {
@@ -253,6 +264,10 @@ export function TreasuryBalance() {
             <div className={`${styles.balance} ${isLoadingReth ? styles.loading : ''}`}>
               <span className={styles.label}>rETH</span>
               <span className={styles.value}>{formatEthBalance(rethBalance?.formatted)}</span>
+            </div>
+            <div className={`${styles.balance} ${isLoadingMeth ? styles.loading : ''}`}>
+              <span className={styles.label}>mETH</span>
+              <span className={styles.value}>{formatEthBalance(methBalance?.formatted)}</span>
             </div>
           </div>
         </div>

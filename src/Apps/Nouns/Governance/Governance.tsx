@@ -8,6 +8,9 @@ import { TreasuryBalance } from './components/Common/TreasuryBalance';
 import { GovernanceOverview } from './components/Common/GovernanceOverview';
 import { ProposalsList } from './components/Proposals/ProposalsList';
 import ProposalDetails from './components/Proposals/[id]';
+import { CreateProposal } from './components/Proposals/CreateProposal';
+import { EditProposal } from './components/Proposals/EditProposal';
+import { CreateCandidate } from './components/Proposals/CreateCandidate';
 import CandidateDetails from './components/Candidates/[id]';
 import { CandidatesList } from './components/Candidates/CandidatesList';
 import styles from './Governance.module.css';
@@ -18,6 +21,9 @@ export default function Governance() {
   const [activeTab, setActiveTab] = useState<Tab>('proposals');
   const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [showCreateProposal, setShowCreateProposal] = useState(false);
+  const [showCreateCandidate, setShowCreateCandidate] = useState(false);
+  const [editProposalId, setEditProposalId] = useState<string | null>(null);
 
   // Get the current window's ID by finding the focused window with our app ID
   const windows = useWindowStore((state) => state.windows);
@@ -35,7 +41,58 @@ export default function Governance() {
   };
 
   const handleBackToProposals = () => {
+    setActiveTab('proposals');
     setSelectedProposalId(null);
+    setShowCreateProposal(false);
+    setShowCreateCandidate(false);
+    setEditProposalId(null);
+  };
+
+  const handleBackToProposalsList = () => {
+    setSelectedProposalId(null);
+    setShowCreateProposal(false);
+    setEditProposalId(null);
+  };
+
+  const handleBackToCandidatesList = () => {
+    setSelectedProposalId(null);
+    setShowCreateCandidate(false);
+  };
+
+  const handleCreateProposal = () => {
+    setActiveTab('proposals');
+    setSelectedProposalId(null);
+    setShowCreateProposal(true);
+    setShowCreateCandidate(false);
+    setEditProposalId(null);
+  };
+
+  const handleBackFromCreateProposal = () => {
+    setShowCreateProposal(false);
+  };
+
+  const handleEditProposal = (proposalId: string) => {
+    setActiveTab('proposals');
+    setSelectedProposalId(null);
+    setShowCreateProposal(false);
+    setShowCreateCandidate(false);
+    setEditProposalId(proposalId);
+  };
+
+  const handleBackFromEditProposal = () => {
+    setEditProposalId(null);
+  };
+
+  const handleCreateCandidate = () => {
+    setActiveTab('candidates'); // Switch to candidates tab
+    setSelectedProposalId(null);
+    setShowCreateProposal(false);
+    setShowCreateCandidate(true);
+    setEditProposalId(null);
+  };
+
+  const handleBackFromCreateCandidate = () => {
+    setShowCreateCandidate(false);
   };
 
   const MENU_ITEMS: MenuBarItem[] = [
@@ -43,6 +100,9 @@ export default function Governance() {
       id: 'file',
       label: 'File',
       items: [
+        { id: 'file-create-proposal', label: 'Create Proposal', action: handleCreateProposal },
+        { id: 'file-create-candidate', label: 'Create Candidate', action: handleCreateCandidate },
+        { id: 'file-separator-0', separator: true },
         { id: 'file-refresh', label: 'Refresh', disabled: true },
         { id: 'file-separator-1', separator: true },
         { id: 'file-close', label: 'Close', action: handleClose }
@@ -72,25 +132,49 @@ export default function Governance() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'proposals':
+        if (showCreateProposal) {
+          return (
+            <CreateProposal 
+              onBack={handleBackFromCreateProposal}
+            />
+          );
+        }
+        if (editProposalId) {
+          return (
+            <EditProposal 
+              proposalId={editProposalId}
+              onBack={handleBackFromEditProposal}
+            />
+          );
+        }
         if (selectedProposalId) {
           return (
             <ProposalDetails 
               id={selectedProposalId}
-              onBackToList={handleBackToProposals}
+              onBackToList={handleBackToProposalsList}
+              onEditProposal={handleEditProposal}
             />
           );
         }
         return (
           <ProposalsList 
             onProposalClick={handleProposalClick}
+            onEditProposal={handleEditProposal}
           />
         );
       case 'candidates':
+        if (showCreateCandidate) {
+          return (
+            <CreateCandidate 
+              onBack={handleBackFromCreateCandidate}
+            />
+          );
+        }
         if (selectedProposalId) {
           return (
             <CandidateDetails 
               id={selectedProposalId}
-              onBackToList={handleBackToProposals}
+              onBackToList={handleBackToCandidatesList}
             />
           );
         }

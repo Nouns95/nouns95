@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, RefObject } from 'react';
 import { useQuery, gql } from '@apollo/client';
+import { useAccount } from 'wagmi';
 import styles from './ProposalsList.module.css';
 import { AddressAvatar } from '../Common/AddressAvatar';
 import { MarkdownReason } from './MarkdownReason';
 import { providers } from 'ethers';
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 
 interface Vote {
   id: string;
@@ -48,13 +50,16 @@ interface Proposal {
   createdBlock: string;
 }
 
-const PROPOSALS_TO_SHOW = 10;
-const VOTES_TO_SHOW = 15;
+const INITIAL_PROPOSALS_TO_SHOW = 10;
+const INITIAL_VOTES_TO_SHOW = 15;
+const LOAD_MORE_PROPOSALS = 10;
+const LOAD_MORE_VOTES = 15;
 
 const RECENT_VOTES_QUERY = gql`
-  query RecentVotes($first: Int!) {
+  query RecentVotes($first: Int!, $skip: Int!) {
     votes(
       first: $first,
+      skip: $skip,
       orderBy: blockNumber,
       orderDirection: desc
     ) {
@@ -186,6 +191,7 @@ const getRealProposalStatus = (proposal: Proposal, currentBlock: number) => {
 
 interface ProposalsListProps {
   onProposalClick: (proposalId: string) => void;
+  onEditProposal?: (proposalId: string) => void;
 }
 
 const getProvider = () => {
@@ -202,10 +208,21 @@ const getProvider = () => {
   );
 };
 
-export function ProposalsList({ onProposalClick }: ProposalsListProps) {
+export function ProposalsList({ onProposalClick, onEditProposal }: ProposalsListProps) {
+  const { address } = useAccount();
   const [currentBlock, setCurrentBlock] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  
+  // Refs for infinite scroll containers
+  const votesContainerRef = useRef<HTMLDivElement>(null);
+  const proposalsContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Pagination state
+  const [hasMoreVotes, setHasMoreVotes] = useState(true);
+  const [hasMoreProposals, setHasMoreProposals] = useState(true);
+  const [isFetchingMoreVotes, setIsFetchingMoreVotes] = useState(false);
+  const [isFetchingMoreProposals, setIsFetchingMoreProposals] = useState(false);
 
   // Update the effect to use the new provider
   useEffect(() => {
@@ -227,16 +244,29 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const { loading: proposalsLoading, error: proposalsError, data: proposalsData } = useQuery(ACTIVE_PROPOSALS_QUERY, {
+  const { loading: proposalsLoading, error: proposalsError, data: proposalsData, fetchMore: fetchMoreProposals } = useQuery(ACTIVE_PROPOSALS_QUERY, {
     variables: {
-      first: PROPOSALS_TO_SHOW,
+      first: INITIAL_PROPOSALS_TO_SHOW,
       skip: 0
     },
     pollInterval: 30000,
+    onCompleted: (data) => {
+      if (data.proposals.length < INITIAL_PROPOSALS_TO_SHOW) {
+        setHasMoreProposals(false);
+      }
+    }
   });
 
-  const { loading: votesLoading, error: votesError, data: votesData } = useQuery(RECENT_VOTES_QUERY, {
-    variables: { first: 1000 }
+  const { loading: votesLoading, error: votesError, data: votesData, fetchMore: fetchMoreVotes } = useQuery(RECENT_VOTES_QUERY, {
+    variables: { 
+      first: INITIAL_VOTES_TO_SHOW,
+      skip: 0
+    },
+    onCompleted: (data) => {
+      if (data.votes.length < INITIAL_VOTES_TO_SHOW) {
+        setHasMoreVotes(false);
+      }
+    }
   });
 
   const formatTimestamp = (timestamp: string) => {
@@ -298,6 +328,19 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
     return num.toString();
   };
 
+  const canEditProposal = (proposal: Proposal) => {
+    if (!address || !onEditProposal) return false;
+    
+    // Only proposer can edit
+    if (proposal.proposer.id.toLowerCase() !== address.toLowerCase()) return false;
+    
+    // Can only edit proposals that are still in updatable period
+    const realStatus = getRealProposalStatus(proposal, currentBlock);
+    
+    // For now, allow editing of ACTIVE proposals (we'd need updatePeriodEndBlock for precise timing)
+    return realStatus === 'ACTIVE' || realStatus === 'PENDING';
+  };
+
   const renderLoadingProposal = () => (
     <div className={styles.loadingItem}>
       <div className={styles.proposalHeader}>
@@ -348,6 +391,102 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
            proposal.title.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  // Fetch more functions for infinite scroll
+  const handleFetchMoreVotes = async () => {
+    if (isFetchingMoreVotes) return; // Prevent multiple simultaneous fetches
+    
+    setIsFetchingMoreVotes(true);
+    try {
+      await fetchMoreVotes({
+        variables: {
+          first: LOAD_MORE_VOTES,
+          skip: votesData?.votes?.length || 0
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult || !fetchMoreResult.votes.length) {
+            setHasMoreVotes(false);
+            return prev;
+          }
+          
+          if (fetchMoreResult.votes.length < LOAD_MORE_VOTES) {
+            setHasMoreVotes(false);
+          }
+
+          // Deduplicate votes by ID to prevent duplicate keys
+          const existingVoteIds = new Set(prev.votes.map((vote: Vote) => vote.id));
+          const newVotes = fetchMoreResult.votes.filter((vote: Vote) => !existingVoteIds.has(vote.id));
+
+          return {
+            ...prev,
+            votes: [...prev.votes, ...newVotes]
+          };
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching more votes:', error);
+      setHasMoreVotes(false);
+    } finally {
+      setIsFetchingMoreVotes(false);
+    }
+  };
+
+  const handleFetchMoreProposals = async () => {
+    if (isFetchingMoreProposals) return; // Prevent multiple simultaneous fetches
+    
+    setIsFetchingMoreProposals(true);
+    try {
+      await fetchMoreProposals({
+        variables: {
+          first: LOAD_MORE_PROPOSALS,
+          skip: proposalsData?.proposals?.length || 0
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult || !fetchMoreResult.proposals.length) {
+            setHasMoreProposals(false);
+            return prev;
+          }
+          
+          if (fetchMoreResult.proposals.length < LOAD_MORE_PROPOSALS) {
+            setHasMoreProposals(false);
+          }
+
+          // Deduplicate proposals by ID to prevent duplicate keys
+          const existingProposalIds = new Set(prev.proposals.map((proposal: Proposal) => proposal.id));
+          const newProposals = fetchMoreResult.proposals.filter((proposal: Proposal) => !existingProposalIds.has(proposal.id));
+
+          return {
+            ...prev,
+            proposals: [...prev.proposals, ...newProposals]
+          };
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching more proposals:', error);
+      setHasMoreProposals(false);
+    } finally {
+      setIsFetchingMoreProposals(false);
+    }
+  };
+
+  // Infinite scroll hooks
+  useInfiniteScroll(
+    votesContainerRef as RefObject<HTMLElement | null>,
+    handleFetchMoreVotes,
+    {
+      hasMore: hasMoreVotes,
+      loading: isFetchingMoreVotes
+    }
+  );
+
+  useInfiniteScroll(
+    proposalsContainerRef as RefObject<HTMLElement | null>,
+    handleFetchMoreProposals,
+    {
+      hasMore: hasMoreProposals,
+      loading: isFetchingMoreProposals
+    }
+  );
+
   if (proposalsLoading || votesLoading) {
     return (
       <div className={styles.container}>
@@ -395,16 +534,23 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
 
   if (proposalsError || votesError) return <div>Error loading proposals</div>;
 
-  const votes = votesData?.votes || [];
+  // Filter out votes with 0 weight that have no reason (noise reduction)
+  const votes = (votesData?.votes || []).filter((vote: Vote) => {
+    // Keep votes with weight > 0
+    if (parseInt(vote.votes) > 0) return true;
+    
+    // For votes with 0 weight, only keep if they have a meaningful reason
+    return vote.reason && vote.reason.trim().length > 0;
+  });
 
-  const recentProposals = filteredProposals?.slice(0, PROPOSALS_TO_SHOW) || [];
+  const recentProposals = filteredProposals || [];
 
   return (
     <div className={styles.container}>
       <div className={styles.column}>
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Recent Voter Feedback</h3>
-          <div className={styles.feedbackList}>
+          <div className={styles.feedbackList} ref={votesContainerRef}>
             {votesLoading ? (
               Array(5).fill(0).map((_, i) => (
                 <React.Fragment key={`loading-vote-${i}`}>
@@ -412,27 +558,34 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
                 </React.Fragment>
               ))
             ) : votes.length ? (
-              votes.slice(0, VOTES_TO_SHOW).map((vote: Vote) => (
-                <div 
-                  key={vote.id} 
-                  className={styles.feedbackItem}
-                  onClick={() => onProposalClick(vote.proposal.id)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={styles.voteHeader}>
-                    <AddressAvatar address={vote.voter.id} />
-                    <span className={styles.comment}>
-                      Voted {getSupportText(vote.supportDetailed)} with {vote.votes} votes on Proposal #{vote.proposal.id}
+              <>
+                {votes.map((vote: Vote) => (
+                  <div 
+                    key={vote.id} 
+                    className={styles.feedbackItem}
+                    onClick={() => onProposalClick(vote.proposal.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className={styles.voteHeader}>
+                      <AddressAvatar address={vote.voter.id} />
+                      <span className={styles.comment}>
+                        Voted {getSupportText(vote.supportDetailed)} with {vote.votes} votes on Proposal #{vote.proposal.id}
+                      </span>
+                    </div>
+                    {vote.reason && (
+                      <MarkdownReason content={vote.reason} />
+                    )}
+                    <span className={styles.timestamp}>
+                      {formatTimestamp(vote.blockTimestamp)}
                     </span>
                   </div>
-                  {vote.reason && (
-                    <MarkdownReason content={vote.reason} />
-                  )}
-                  <span className={styles.timestamp}>
-                    {formatTimestamp(vote.blockTimestamp)}
-                  </span>
-                </div>
-              ))
+                ))}
+                {isFetchingMoreVotes && (
+                  <div className={styles.loadingMore}>
+                    <div className={styles.loadingIndicator}>Loading more votes...</div>
+                  </div>
+                )}
+              </>
             ) : (
               <div className={styles.emptyState}>No recent votes</div>
             )}
@@ -456,7 +609,7 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
               Search
             </button>
           </div>
-          <div className={styles.proposalsList}>
+          <div className={styles.proposalsList} ref={proposalsContainerRef}>
             {proposalsLoading ? (
               Array(3).fill(0).map((_, i) => (
                 <React.Fragment key={`loading-proposal-${i}`}>
@@ -464,7 +617,8 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
                 </React.Fragment>
               ))
             ) : recentProposals?.length ? (
-              recentProposals.map((proposal: Proposal) => {
+              <>
+                {recentProposals.map((proposal: Proposal) => {
                 const realStatus = getRealProposalStatus(proposal, currentBlock);
                 return (
                   <div 
@@ -475,9 +629,23 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
                   >
                     <div className={styles.proposalHeader}>
                       <span className={styles.proposalId}>Proposal #{proposal.id}</span>
-                      <span className={`${styles.status} ${styles[realStatus.toLowerCase()]}`}>
-                        {realStatus}
-                      </span>
+                      <div className={styles.proposalActions}>
+                        {canEditProposal(proposal) && (
+                          <button
+                            className={styles.editButton}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditProposal!(proposal.id);
+                            }}
+                            title="Edit proposal"
+                          >
+                            ✏️ Edit
+                          </button>
+                        )}
+                        <span className={`${styles.status} ${styles[realStatus.toLowerCase()]}`}>
+                          {realStatus}
+                        </span>
+                      </div>
                     </div>
                     <span className={styles.title}>{proposal.title}</span>
                     <div className={styles.proposerInfo}>
@@ -554,7 +722,13 @@ export function ProposalsList({ onProposalClick }: ProposalsListProps) {
                     </div>
                   </div>
                 );
-              })
+                })}
+                {isFetchingMoreProposals && (
+                  <div className={styles.loadingMore}>
+                    <div className={styles.loadingIndicator}>Loading more proposals...</div>
+                  </div>
+                )}
+              </>
             ) : (
               <div className={styles.emptyState}>No active proposals</div>
             )}

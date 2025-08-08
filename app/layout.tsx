@@ -3,7 +3,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import AppkitContext from "../src/context/AppkitContext";
 import { Analytics } from '@vercel/analytics/next';
-import { ApolloWrapper } from "../src/wrappers/ApolloWrapper";
+import { ApolloWrapper } from "../src/lib/wrappers/ApolloWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://nouns95.wtf"),
   openGraph: {
     title: "Nouns 95",
-    description: "Nouns95 - Start me up.",
+    description: "Nouns 95 - Start me up.",
     url: "https://nouns95.wtf",
     siteName: "Nouns 95",
     images: [

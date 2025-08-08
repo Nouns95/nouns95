@@ -1,5 +1,5 @@
 import { FileSystemState, FileNode, DirectoryNode, FileSystemNode } from '../models/FileSystem';
-import { EventBus } from '@/src/utils/EventBus';
+import { EventBus } from '@/src/lib/utils/EventBus';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FileSystemEventMap {

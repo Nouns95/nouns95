@@ -1,0 +1,226 @@
+.container {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.actionLabel {
+  font-weight: bold;
+  font-size: 11px;
+  color: #000080;
+}
+
+.toggleButton {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.125rem 0.375rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000000;
+}
+
+.toggleButton:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: calc(0.125rem + 1px) calc(0.375rem + 1px) calc(0.125rem - 1px) calc(0.375rem - 1px);
+}
+
+.toggleButton:disabled {
+  background: #c0c0c0;
+  color: #808080;
+  cursor: not-allowed;
+  border-color: #808080 #808080 #808080 #808080;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+.label {
+  font-size: 11px;
+  color: #000000;
+  margin-bottom: 0.25rem;
+  font-weight: normal;
+}
+
+.input, .select {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.25rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #000000;
+}
+
+.input:focus, .select:focus {
+  outline: none;
+  border-color: #000080 #ffffff #ffffff #000080;
+}
+
+.input:disabled, .select:disabled {
+  background: #c0c0c0;
+  color: #808080;
+}
+
+.select {
+  cursor: pointer;
+}
+
+.select:disabled {
+  cursor: not-allowed;
+}
+
+.status {
+  font-size: 11px;
+  color: #008000;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.contractName {
+  font-size: 11px;
+  color: #666666;
+  margin-top: 0.25rem;
+}
+
+.highlight {
+  color: #0066cc;
+  font-weight: bold;
+}
+
+.proxyInfo {
+  background: #e8f4fd;
+  border: 1px solid #b3d9f2;
+  padding: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 10px;
+  color: #0066cc;
+  border-radius: 2px;
+}
+
+.implementationInfo {
+  font-size: 9px;
+  color: #666666;
+  margin-top: 0.125rem;
+  font-family: "Courier New", monospace;
+}
+
+.error {
+  background: #ffcccc;
+  border: 1px solid #cc0000;
+  padding: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 11px;
+  color: #cc0000;
+}
+
+.warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  padding: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 11px;
+  color: #856404;
+}
+
+.parametersSection {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #c0c0c0;
+}
+
+.parameterGroup {
+  margin-bottom: 0.5rem;
+}
+
+.parameterLabel {
+  font-size: 11px;
+  color: #000080;
+  margin-bottom: 0.25rem;
+  display: block;
+  font-family: "Courier New", monospace;
+}
+
+.modeIndicator {
+  background: #e0e0e0;
+  border: 1px solid #c0c0c0;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.modeLabel {
+  font-size: 11px;
+  font-weight: bold;
+  color: #000080;
+}
+
+.proxyIndicator {
+  font-size: 10px;
+  font-weight: normal;
+  color: #0066cc;
+}
+
+.generatedInfo {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #f0f0f0;
+  border: 1px solid #c0c0c0;
+  border-radius: 2px;
+}
+
+.generatedLabel {
+  font-size: 11px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 0.25rem;
+}
+
+.generatedValue {
+  font-size: 11px;
+  color: #333333;
+  margin-bottom: 0.125rem;
+  font-family: "Courier New", monospace;
+}
+
+.noFunctionsMessage,
+.noAbiMessage {
+  text-align: center;
+  padding: 1rem;
+}
+
+.noFunctionsMessage p,
+.noAbiMessage p {
+  font-size: 11px;
+  color: #666666;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.4;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .container {
+    padding: 0.5rem;
+  }
+}

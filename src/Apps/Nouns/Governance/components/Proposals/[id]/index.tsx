@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
+import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import styles from './ProposalDetails.module.css';
 import { MarkdownReason } from '../MarkdownReason';
@@ -108,9 +109,11 @@ interface DecodedCall {
 interface ProposalDetailsProps {
   id: string;
   onBackToList: () => void;
+  onEditProposal?: (proposalId: string) => void;
 }
 
-export default function ProposalDetails({ id, onBackToList }: ProposalDetailsProps) {
+export default function ProposalDetails({ id, onBackToList, onEditProposal }: ProposalDetailsProps) {
+  const { address } = useAccount();
   const [ensNames, setEnsNames] = useState<Record<string, string>>({});
   const [decodedCalls, setDecodedCalls] = useState<Record<string, DecodedCall>>({});
   const { data, loading, error } = useQuery(PROPOSAL_QUERY, {
@@ -224,6 +227,16 @@ export default function ProposalDetails({ id, onBackToList }: ProposalDetailsPro
 
   const { proposal } = data;
 
+  const canEdit = () => {
+    if (!address || !onEditProposal) return false;
+    
+    // Only proposer can edit
+    if (proposal.proposer.id.toLowerCase() !== address.toLowerCase()) return false;
+    
+    // Can only edit proposals that are still active (voting not ended)
+    return proposal.status === 'ACTIVE' || proposal.status === 'PENDING';
+  };
+
   const getTargetDisplay = (target: string) => {
     const contractName = getContractName(target);
     if (contractName !== target) {
@@ -241,9 +254,19 @@ export default function ProposalDetails({ id, onBackToList }: ProposalDetailsPro
   return (
     <div className={styles.container}>
       <div className={styles.proposalDetails}>
-        <button className={styles.backButton} onClick={onBackToList}>
-          ← Back to Proposals
-        </button>
+        <div className={styles.headerActions}>
+          <button className={styles.backButton} onClick={onBackToList}>
+            ← Back to Proposals
+          </button>
+          {canEdit() && (
+            <button 
+              className={styles.editButton} 
+              onClick={() => onEditProposal!(id)}
+            >
+              ✏️ Edit Proposal
+            </button>
+          )}
+        </div>
         <div className={styles.proposalContent}>
           <div className={styles.mainContent}>
             <div className={styles.header}>

@@ -156,4 +156,65 @@ export type ProposalVotesQuery = {
   variables: {
     proposalId: string;
   };
+};
+
+export const PROPOSAL_DETAIL_QUERY = gql`
+  query ProposalDetail($proposalId: String!) {
+    proposal(id: $proposalId) {
+      id
+      title
+      description
+      status
+      proposer {
+        id
+      }
+      targets
+      values
+      signatures
+      calldatas
+      createdTimestamp
+      startBlock
+      endBlock
+      executionETA
+      quorumVotes
+      forVotes
+      againstVotes
+      abstainVotes
+      totalSupply
+      createdBlock
+      updatePeriodEndBlock
+    }
+  }
+`;
+
+export type ProposalDetailQuery = {
+  data: {
+    proposal: {
+      id: string;
+      title: string;
+      description: string;
+      status: string;
+      proposer: {
+        id: string;
+      };
+      targets: string[];
+      values: string[];
+      signatures: string[];
+      calldatas: string[];
+      createdTimestamp: string;
+      startBlock: string;
+      endBlock: string;
+      executionETA: string | null;
+      quorumVotes: string;
+      forVotes: string;
+      againstVotes: string;
+      abstainVotes: string;
+      totalSupply: string;
+      createdBlock: string;
+      updatePeriodEndBlock?: string;
+    };
+  };
+  variables: {
+    proposalId: string;
+  };
 }; 

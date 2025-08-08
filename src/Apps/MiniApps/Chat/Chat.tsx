@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { PushProtocolWrapper } from '../../../wrappers/PushProtocolWrapper';
+import { PushProtocolWrapper } from '../../../lib/wrappers/PushProtocolWrapper';
 import { ChatProvider, useChatContext } from './context/ChatContext';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ChatsTab } from './components/ChatsTab';

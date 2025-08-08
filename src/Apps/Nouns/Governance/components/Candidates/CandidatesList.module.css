@@ -4,22 +4,36 @@
   height: 100%;
 }
 
+.column {
+  min-width: 0;
+}
+
+.column:first-child {
+  flex: 6; /* 60% width for feedback */
+}
+
+.column:last-child {
+  flex: 4; /* 40% width for candidates */
+}
+
 .section {
+  position: relative;
   background: #c0c0c0;
   border: 2px solid;
-  border-color: #808080 #ffffff #ffffff #808080;
-  padding: 0.5rem;
+  border-color: #808080 #808080 #808080 #808080;
+  padding: 0.75rem;
   height: 100%;
-  width: 100%;
 }
 
 .sectionTitle {
-  margin: 0 0 0.5rem 0;
-  padding: 0.25rem;
-  font-size: 14px;
+  position: absolute;
+  top: -0.6875rem;
+  left: 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.6875rem;
   font-family: "MS Sans Serif", sans-serif;
-  background: #000080;
-  color: #ffffff;
+  background: #c0c0c0;
+  color: #000000;
 }
 
 .searchContainer {
@@ -65,12 +79,56 @@
   padding: 0.4375rem 0.6875rem 0.3125rem 0.8125rem;
 }
 
+.feedbackList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0; /* Remove padding to fill width better */
+  /* Safari compatibility - keep it simple */
+  -webkit-overflow-scrolling: touch;
+}
+
+.feedbackList::-webkit-scrollbar,
+.candidatesList::-webkit-scrollbar {
+  width: 16px;
+  background: #c0c0c0;
+  border-left: 1px solid #808080;
+}
+
+.feedbackList::-webkit-scrollbar-thumb,
+.candidatesList::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  width: 16px;
+}
+
+.feedbackList::-webkit-scrollbar-button,
+.candidatesList::-webkit-scrollbar-button {
+  display: none;
+}
+
+div.feedbackList::-webkit-scrollbar-button:vertical:start:decrement,
+.feedbackList::-webkit-scrollbar-button:vertical:start:decrement {
+  display: none !important;
+}
+
+div.feedbackList::-webkit-scrollbar-button:vertical:end:increment,
+.feedbackList::-webkit-scrollbar-button:vertical:end:increment {
+  display: none !important;
+}
+
+/* Removed problematic attribute selector - using module-scoped selectors instead */
+
 .candidatesList {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  height: calc(100% - 5.5rem);
+  height: calc(100% - 4.5rem); /* Account for search container (2.5rem + 1rem padding + 0.5rem margin + 0.75rem section title) */
   overflow-y: auto;
+  margin-top: 0.75rem;
 }
 
 .candidatesList::-webkit-scrollbar {
@@ -313,4 +371,72 @@
   background: #f0f0f0;
   border: 1px solid #d0d0d0;
   margin: 0.25rem 0;
+}
+
+/* Infinite scroll loading styles */
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #808080;
+}
+
+.loadingIndicator {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.loadingIndicator::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border: 2px solid #c0c0c0;
+  border-top: 2px solid #000080;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* New feedback item styles for the side-by-side layout */
+.feedbackItem {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.feedbackItem:hover {
+  border-color: #000080;
+}
+
+.comment {
+  color: #404040;
+  font-size: 11px;
+}
+
+/* Status classes for candidates */
+.status.canceled {
+  color: #800000;
+}
+
+.status.active {
+  color: #000080;
 } 

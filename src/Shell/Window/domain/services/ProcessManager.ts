@@ -1,5 +1,5 @@
 import { Process, ProcessResources } from '../models/Process';
-import { EventBus } from '@/src/utils/EventBus';
+import { EventBus } from '@/src/lib/utils/EventBus';
 
 export class ProcessManager {
   private static instance: ProcessManager;

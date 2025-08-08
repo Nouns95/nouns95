@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { serverConfig } from '../../../../src/config/env';
+import { serverConfig } from '../../../../src/lib/config/env';
 
 export async function GET(request: Request) {
   const etherscanKey = serverConfig.etherscanApiKey;

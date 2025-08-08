@@ -175,7 +175,7 @@ const DEFAULT_MARGINS: Required<WindowMargins> = {
   top: { value: 1.25, unit: 'rem' },
   right: { value: 1.25, unit: 'rem' },
   bottom: { value: 1.25, unit: 'rem' },
-  left: { value: 1.25, unit: 'rem' }
+  left: { value: 5, unit: 'rem' }
 };
 
 const DEFAULT_SIZE: WindowDimensions = {
@@ -287,8 +287,8 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
     title: 'Nouns Governance',
     size: {
       defaultSize: {
-        width: { value: 100, unit: 'rem' },
-        height: { value: 50, unit: 'rem' },
+        width: { value: 80, unit: 'rem' },
+        height: { value: 44, unit: 'rem' },
       },
       minSize: {
         width: { value: 25, unit: 'rem' },
