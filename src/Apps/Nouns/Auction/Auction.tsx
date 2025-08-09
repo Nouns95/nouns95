@@ -12,10 +12,10 @@ import { CrystalBallNounImage } from './CrystalBallNounImage';
 import { formatEther } from 'viem';
 import { keccak256, encodePacked } from 'viem';
 import styles from './Auction.module.css';
-import { getTraitName } from './utils/trait-name-utils';
+import { getTraitName } from '../domain/utils/trait-name-utils';
 import { BidderInfo } from './BidderInfo';
 import BidButton from './BidButton';
-import { ImageData } from './utils/image-data';
+import { ImageData } from '../domain/utils/image-data';
 import Image from 'next/image';
 import { NounSettlementABI } from '../domain/abis/FOMO';
 

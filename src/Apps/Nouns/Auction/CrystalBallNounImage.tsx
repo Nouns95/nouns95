@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { usePublicClient } from 'wagmi';
-import { buildSVG } from './utils/svg-builder';
-import { ImageData } from './utils/image-data';
+import { buildSVG } from '../domain/utils/svg-builder';
+import { ImageData } from '../domain/utils/image-data';
 import { keccak256, encodePacked } from 'viem';
 
 interface CrystalBallNounImageProps {

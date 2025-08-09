@@ -5,8 +5,8 @@ import { useQuery } from '@apollo/client';
 import Image from 'next/image';
 import { CURRENT_AUCTION_QUERY } from '../domain/graphql/queries/auction';
 import type { AuctionsQueryResponse } from '../domain/types/graphql';
-import { buildSVG } from './utils/svg-builder';
-import { ImageData } from './utils/image-data';
+import { buildSVG } from '../domain/utils/svg-builder';
+import { ImageData } from '../domain/utils/image-data';
 
 interface NounImageProps {
   width?: number;
