@@ -12,8 +12,5 @@
       "path": "/api/cron/sync-images",
       "schedule": "*/30 * * * *"
     }
-  ],
-  "env": {
-    "CRON_SECRET": "@cron-secret"
-  }
+  ]
 }
