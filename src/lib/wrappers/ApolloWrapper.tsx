@@ -6,10 +6,11 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 
-export function ApolloWrapper({ children }: { children: React.ReactNode }) {
-  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null);
+// Create client outside component to prevent recreation
+let apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
 
-  useEffect(() => {
+const getClient = () => {
+  if (!apolloClient) {
     const httpLink = new HttpLink({
       uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://api.thegraph.com/subgraphs/name/nounsdao/nouns-subgraph'
     });
@@ -40,7 +41,7 @@ export function ApolloWrapper({ children }: { children: React.ReactNode }) {
       httpLink
     );
 
-    const client = new ApolloClient({
+    apolloClient = new ApolloClient({
       link: splitLink,
       cache: new InMemoryCache(),
       defaultOptions: {
@@ -49,8 +50,16 @@ export function ApolloWrapper({ children }: { children: React.ReactNode }) {
         },
       },
     });
+  }
+  
+  return apolloClient;
+};
 
-    setClient(client);
+export function ApolloWrapper({ children }: { children: React.ReactNode }) {
+  const [client, setClient] = useState<ApolloClient<NormalizedCacheObject> | null>(null);
+
+  useEffect(() => {
+    setClient(getClient());
   }, []);
 
   if (!client) {

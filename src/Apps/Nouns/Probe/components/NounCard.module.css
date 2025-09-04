@@ -1,0 +1,163 @@
+.card {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 8px;
+  margin: 4px;
+  min-width: 180px;
+  max-width: 220px;
+  min-height: 280px;
+  transition: transform 0.1s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  border: 2px outset #808080;
+}
+
+.clickable:active {
+  border: 2px inset #c0c0c0;
+  transform: translateY(1px);
+}
+
+.imageContainer {
+  position: relative;
+  text-align: center;
+  margin-bottom: 8px;
+  width: 160px;
+  height: 160px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px inset #c0c0c0;
+  display: block;
+  flex-shrink: 0;
+}
+
+.imageSkeleton {
+  width: 100%;
+  height: 100%;
+  background: #f0f0f0;
+  background-image: 
+    linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
+    linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
+    linear-gradient(-45deg, transparent 75%, #e8e8e8 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.nounImage {
+  image-rendering: pixelated;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 100px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #808080;
+}
+
+.nounId {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+  color: #000;
+}
+
+.owner {
+  font-size: 11px;
+  color: #0000ff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.owner:hover {
+  color: #ff0000;
+}
+
+.ensName {
+  font-weight: bold;
+  color: #006400 !important;
+}
+
+.ensName:hover {
+  color: #228b22 !important;
+}
+
+.traits {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trait {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.traitLabel {
+  color: #000;
+  font-weight: bold;
+  min-width: 60px;
+}
+
+.traitValue {
+  color: #000080;
+  text-align: right;
+  flex: 1;
+  margin-left: 4px;
+  word-break: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    min-width: 160px;
+    max-width: 180px;
+    min-height: 260px;
+    margin: 2px;
+    padding: 6px;
+  }
+  
+  .imageContainer {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .trait {
+    font-size: 10px;
+  }
+  
+  .nounId {
+    font-size: 13px;
+  }
+}

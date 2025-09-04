@@ -106,21 +106,48 @@ body {
 
 /* Windows 95 Select Style */
 .win95-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background: var(--win95-gray-light);
-  border: var(--win95-border-width) solid;
-  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark);
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background: var(--win95-gray-light) !important;
+  border: var(--win95-border-width) solid !important;
+  border-color: var(--win95-gray-dark) var(--win95-gray-light) var(--win95-gray-light) var(--win95-gray-dark) !important;
   color: var(--win95-text);
-  font-family: "MS Sans Serif", sans-serif;
+  font-family: "MS Sans Serif", sans-serif !important;
   font-size: 0.75rem;
   padding: 4px 24px 4px 8px;
   cursor: pointer;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   background-repeat: no-repeat;
   background-position: right 4px center;
   background-size: 16px;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Additional Safari override for all selects */
+select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+/* Ultimate Safari override - target specific elements */
+[class*="select"],
+select[class*="select"] {
+  all: unset !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background: #ffffff !important;
+  border: 2px inset #c0c0c0 !important;
+  padding: 2px 18px 2px 4px !important;
+  font-family: "MS Sans Serif", sans-serif !important;
+  font-size: 11px !important;
+  color: #000000 !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  box-sizing: border-box !important;
 }
 
 .win95-select:focus {

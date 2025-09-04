@@ -7,6 +7,7 @@ import {
   UserRejectedRequestError
 } from 'viem';
 import NounsProxyABI from '../../../domain/abis/NounsProxy';
+import CandidatesProxyABI from '../../../domain/abis/CandidatesProxy';
 import { NOUNS_CONTRACTS } from '../../../domain/constants/contracts';
 import { SmartActionEditor } from './SmartActionEditor';
 import { MarkdownEditor } from './MarkdownEditor';
@@ -24,6 +25,8 @@ interface CreateProposalProps {
 }
 
 type ProposalState = 'idle' | 'confirming' | 'pending' | 'error' | 'success';
+type CandidateState = 'idle' | 'confirming' | 'pending' | 'error' | 'success';
+type TimelockV1State = 'idle' | 'confirming' | 'pending' | 'error' | 'success';
 
 const CLIENT_ID = 11; // Our client ID
 
@@ -34,6 +37,8 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
     { target: '', value: '0', signature: '', calldata: '0x' }
   ]);
   const [proposalState, setProposalState] = useState<ProposalState>('idle');
+  const [candidateState, setCandidateState] = useState<CandidateState>('idle');
+  const [timelockV1State, setTimelockV1State] = useState<TimelockV1State>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { address, isConnected } = useAccount();
@@ -74,10 +79,17 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
     functionName: 'totalSupply',
   });
 
+  // Get candidate creation costs
+  const { data: createCandidateCost } = useReadContract({
+    address: NOUNS_CONTRACTS.CANDIDATES.address as `0x${string}`,
+    abi: CandidatesProxyABI,
+    functionName: 'createCandidateCost',
+  });
+
   // Use Wagmi's useWriteContract hook for proposal creation
   const {
-    writeContract,
-    isPending: isCreating,
+    writeContract: writeProposal,
+    isPending: isCreatingProposal,
     reset: resetProposalState,
     isSuccess: isProposalSuccess
   } = useWriteContract({
@@ -138,13 +150,151 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
     }
   });
 
-  // Effect to handle success state
+  // Use Wagmi's useWriteContract hook for candidate creation
+  const {
+    writeContract: writeCandidate,
+    isPending: isCreatingCandidate,
+    reset: resetCandidateState,
+    isSuccess: isCandidateSuccess
+  } = useWriteContract({
+    mutation: {
+      onSuccess: () => {
+        setCandidateState('success');
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setActions([{ target: '', value: '0', signature: '', calldata: '0x' }]);
+      },
+      onError: (error: Error | BaseError) => {
+        console.error('Candidate creation error:', error);
+        setCandidateState('error');
+        
+        // Handle user rejection
+        if (error instanceof UserRejectedRequestError) {
+          setErrorMessage('Transaction was cancelled by user');
+          return;
+        }
+
+        // Handle contract execution errors
+        if (error instanceof ContractFunctionExecutionError) {
+          const message = error.message;
+          
+          if (message.includes('insufficient funds')) {
+            setErrorMessage('Insufficient funds to create candidate');
+          } else if (message.includes('invalid slug')) {
+            setErrorMessage('Invalid slug provided. Please use a unique identifier.');
+          } else {
+            const cleanMessage = message.split('Details:')[0]?.trim() || message;
+            setErrorMessage('Failed to create candidate: ' + cleanMessage);
+          }
+          return;
+        }
+
+        // Handle transaction execution errors
+        if (error instanceof TransactionExecutionError) {
+          const message = error.message;
+          if (message.includes('rejected') || message.includes('cancelled') || message.includes('denied')) {
+            setErrorMessage('Transaction was cancelled');
+          } else if (message.includes('insufficient funds')) {
+            setErrorMessage('Insufficient funds to complete the transaction');
+          } else {
+            setErrorMessage('Transaction failed: ' + message);
+          }
+          return;
+        }
+
+        // Handle other errors
+        const errorMessage = error?.message || 'An unknown error occurred';
+        setErrorMessage(errorMessage);
+      }
+    }
+  });
+
+  // Use Wagmi's useWriteContract hook for timelock V1 proposal creation
+  const {
+    writeContract: writeTimelockV1Proposal,
+    isPending: isCreatingTimelockV1,
+    reset: resetTimelockV1State,
+    isSuccess: isTimelockV1Success
+  } = useWriteContract({
+    mutation: {
+      onSuccess: () => {
+        setTimelockV1State('success');
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setActions([{ target: '', value: '0', signature: '', calldata: '0x' }]);
+      },
+      onError: (error: Error | BaseError) => {
+        console.error('Timelock V1 proposal creation error:', error);
+        setTimelockV1State('error');
+        
+        // Handle user rejection
+        if (error instanceof UserRejectedRequestError) {
+          setErrorMessage('Transaction was cancelled by user');
+          return;
+        }
+
+        // Handle contract execution errors
+        if (error instanceof ContractFunctionExecutionError) {
+          const message = error.message;
+          
+          if (message.includes('insufficient votes')) {
+            setErrorMessage('You do not have enough voting power to create a proposal');
+          } else if (message.includes('pending proposal')) {
+            setErrorMessage('You already have a pending or active proposal. Wait for it to be resolved before creating a new one.');
+          } else if (message.includes('targets.length must be != 0')) {
+            setErrorMessage('At least one action is required');
+          } else if (message.includes('inconsistent parameters')) {
+            setErrorMessage('Proposal parameters are inconsistent. Check that all actions have valid targets and parameters.');
+          } else {
+            const cleanMessage = message.split('Details:')[0]?.trim() || message;
+            setErrorMessage('Failed to create timelock V1 proposal: ' + cleanMessage);
+          }
+          return;
+        }
+
+        // Handle transaction execution errors
+        if (error instanceof TransactionExecutionError) {
+          const message = error.message;
+          if (message.includes('rejected') || message.includes('cancelled') || message.includes('denied')) {
+            setErrorMessage('Transaction was cancelled');
+          } else if (message.includes('insufficient funds')) {
+            setErrorMessage('Insufficient funds to complete the transaction');
+          } else {
+            setErrorMessage('Transaction failed: ' + message);
+          }
+          return;
+        }
+
+        // Handle other errors
+        const errorMessage = error?.message || 'An unknown error occurred';
+        setErrorMessage(errorMessage);
+      }
+    }
+  });
+
+  // Effect to handle success states
   useEffect(() => {
     if (isProposalSuccess) {
       setErrorMessage(null);
       setProposalState('success');
     }
   }, [isProposalSuccess]);
+
+  useEffect(() => {
+    if (isCandidateSuccess) {
+      setErrorMessage(null);
+      setCandidateState('success');
+    }
+  }, [isCandidateSuccess]);
+
+  useEffect(() => {
+    if (isTimelockV1Success) {
+      setErrorMessage(null);
+      setTimelockV1State('success');
+    }
+  }, [isTimelockV1Success]);
 
   // Check if user can create proposals
   const canCreateProposal = () => {
@@ -180,6 +330,26 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
 
   const handleActionUpdate = (index: number) => (field: string, value: string) => {
     updateAction(index, field as keyof ProposalAction, value);
+  };
+
+  // Generate a unique slug based on title and proposer address
+  const generateSlug = (title: string, proposerAddress: string): string => {
+    if (!title.trim() || !proposerAddress) return '';
+    
+    // Create a base slug from the title
+    const baseSlug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
+    // Add timestamp and short address for uniqueness
+    const timestamp = Math.floor(Date.now() / 1000);
+    const shortAddress = proposerAddress.slice(-6).toLowerCase();
+    
+    return `${baseSlug}-${shortAddress}-${timestamp}`;
   };
 
   const validateForm = () => {
@@ -241,7 +411,7 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
       const fullDescription = `# ${title}\n\n${description}`;
 
       // Create proposal using Wagmi's writeContract with client ID for Nouns95
-      await writeContract({
+      await writeProposal({
         address: NOUNS_CONTRACTS.GOVERNOR.address as `0x${string}`,
         abi: NounsProxyABI,
         functionName: 'propose',
@@ -266,6 +436,137 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
       }
     }
   };
+
+  const handleCandidateSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!address) {
+      setErrorMessage('Wallet not connected');
+      return;
+    }
+
+    setErrorMessage(null);
+    resetCandidateState?.();
+
+    try {
+      setCandidateState('confirming');
+
+      // Generate unique slug automatically
+      const generatedSlug = generateSlug(title, address);
+      
+      if (!generatedSlug) {
+        setErrorMessage('Unable to generate candidate slug');
+        setCandidateState('error');
+        return;
+      }
+
+      // Prepare candidate data
+      const targets = actions.map(action => action.target as `0x${string}`);
+      const values = actions.map(action => BigInt(action.value));
+      const signatures = actions.map(action => action.signature);
+      const calldatas = actions.map(action => {
+        const data = action.calldata;
+        // Ensure calldata has 0x prefix
+        return (data.startsWith('0x') ? data : `0x${data}`) as `0x${string}`;
+      });
+      const fullDescription = `# ${title}\n\n${description}`;
+
+      // Create candidate using Wagmi's writeContract
+      const writeConfig: {
+        address: `0x${string}`;
+        abi: unknown[];
+        functionName: string;
+        args: unknown[];
+        value?: bigint;
+      } = {
+        address: NOUNS_CONTRACTS.CANDIDATES.address as `0x${string}`,
+        abi: CandidatesProxyABI,
+        functionName: 'createProposalCandidate',
+        args: [targets, values, signatures, calldatas, fullDescription, generatedSlug, 0], // proposalIdToUpdate = 0 for new candidates
+      };
+      
+      if (createCandidateCost) {
+        writeConfig.value = createCandidateCost as bigint;
+      }
+      
+      await writeCandidate(writeConfig);
+      
+      setCandidateState('pending');
+    } catch (err: unknown) {
+      console.error('Error creating candidate:', err);
+      setCandidateState('error');
+      
+      if (err instanceof Error) {
+        if (err.message.includes('user rejected transaction')) {
+          setErrorMessage('Transaction was rejected');
+        } else if (err.message.includes('insufficient funds')) {
+          setErrorMessage('Insufficient funds for transaction');
+        } else {
+          setErrorMessage(err.message);
+        }
+      } else {
+        setErrorMessage('Failed to create candidate. Please try again.');
+      }
+    }
+  };
+
+  const handleTimelockV1Submit = async () => {
+    if (!canCreateProposal()) {
+      setErrorMessage('You do not have enough voting power to create proposals');
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setErrorMessage(null);
+    resetTimelockV1State?.();
+
+    try {
+      setTimelockV1State('confirming');
+
+      // Prepare proposal data
+      const targets = actions.map(action => action.target as `0x${string}`);
+      const values = actions.map(action => BigInt(action.value));
+      const signatures = actions.map(action => action.signature);
+      const calldatas = actions.map(action => {
+        const data = action.calldata;
+        // Ensure calldata has 0x prefix
+        return (data.startsWith('0x') ? data : `0x${data}`) as `0x${string}`;
+      });
+      const fullDescription = `# ${title}\n\n${description}`;
+
+      // Create timelock V1 proposal using Wagmi's writeContract with client ID for Nouns95
+      await writeTimelockV1Proposal({
+        address: NOUNS_CONTRACTS.GOVERNOR.address as `0x${string}`,
+        abi: NounsProxyABI,
+        functionName: 'proposeOnTimelockV1',
+        args: [targets, values, signatures, calldatas, fullDescription, CLIENT_ID],
+      });
+      
+      setTimelockV1State('pending');
+    } catch (err: unknown) {
+      console.error('Error creating timelock V1 proposal:', err);
+      setTimelockV1State('error');
+      
+      if (err instanceof Error) {
+        if (err.message.includes('user rejected transaction')) {
+          setErrorMessage('Transaction was rejected');
+        } else if (err.message.includes('insufficient funds')) {
+          setErrorMessage('Insufficient funds for transaction');
+        } else {
+          setErrorMessage(err.message);
+        }
+      } else {
+        setErrorMessage('Failed to create timelock V1 proposal. Please try again.');
+      }
+    }
+  };
+
+  const isCreating = isCreatingProposal || isCreatingCandidate || isCreatingTimelockV1;
 
   return (
     <div className={styles.container}>
@@ -362,10 +663,24 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
         <div className={styles.submitSection}>
           <button
             className={styles.submitButton}
+            onClick={handleCandidateSubmit}
+            disabled={isCreating || !isConnected}
+          >
+            {isCreatingCandidate ? 'Creating Candidate...' : `Create Candidate${createCandidateCost ? ` (${Number(createCandidateCost) / 1e18} ETH)` : ''}`}
+          </button>
+          <button
+            className={styles.submitButton}
+            onClick={handleTimelockV1Submit}
+            disabled={isCreating || !canCreateProposal()}
+          >
+            {isCreatingTimelockV1 ? 'Creating Timelock V1...' : 'Propose on Timelock V1'}
+          </button>
+          <button
+            className={styles.submitButton}
             onClick={handleSubmit}
             disabled={isCreating || !canCreateProposal()}
           >
-            {isCreating ? 'Creating Proposal...' : 'Create Proposal'}
+            {isCreatingProposal ? 'Creating Proposal...' : 'Create Proposal'}
           </button>
         </div>
 
@@ -376,6 +691,18 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
         {proposalState === 'success' && (
           <div className={styles.success}>
             Your proposal has been successfully created! It will appear in the proposals list once confirmed on-chain.
+          </div>
+        )}
+        
+        {candidateState === 'success' && (
+          <div className={styles.success}>
+            Your candidate has been successfully created! It will appear in the candidates list once confirmed on-chain.
+          </div>
+        )}
+        
+        {timelockV1State === 'success' && (
+          <div className={styles.success}>
+            Your timelock V1 proposal has been successfully created! It will appear in the proposals list once confirmed on-chain.
           </div>
         )}
       </div>

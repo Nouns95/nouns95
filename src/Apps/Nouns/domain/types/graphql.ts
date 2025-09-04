@@ -56,7 +56,19 @@ export enum Account_orderBy {
 export enum Noun_orderBy {
   id = 'id',
   seed = 'seed',
-  owner = 'owner'
+  seed__id = 'seed__id',
+  seed__background = 'seed__background',
+  seed__body = 'seed__body',
+  seed__accessory = 'seed__accessory',
+  seed__head = 'seed__head',
+  seed__glasses = 'seed__glasses',
+  owner = 'owner',
+  owner__id = 'owner__id',
+  owner__tokenBalanceRaw = 'owner__tokenBalanceRaw',
+  owner__tokenBalance = 'owner__tokenBalance',
+  owner__totalTokensHeldRaw = 'owner__totalTokensHeldRaw',
+  owner__totalTokensHeld = 'owner__totalTokensHeld',
+  votes = 'votes'
 }
 
 export enum Proposal_orderBy {

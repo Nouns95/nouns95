@@ -34,4 +34,90 @@ export const NOUNDERS_NOUNS_QUERY = gql`
       }
     }
   }
+`;
+
+export const ALL_NOUNS_QUERY = gql`
+  query AllNouns($first: Int = 1000, $skip: Int = 0) {
+    nouns(first: $first, skip: $skip, orderBy: id, orderDirection: desc) {
+      id
+      seed {
+        background
+        body
+        accessory
+        head
+        glasses
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
+export const PROBE_NOUNS_QUERY = gql`
+  query ProbeNouns($first: Int = 100, $skip: Int = 0, $orderBy: Noun_orderBy = id, $orderDirection: OrderDirection = asc) {
+    nouns(first: $first, skip: $skip, orderBy: $orderBy, orderDirection: $orderDirection) {
+      id
+      seed {
+        background
+        body
+        accessory
+        head
+        glasses
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
+export const PROBE_NOUNS_INITIAL_QUERY = gql`
+  query ProbeNounsInitial($first: Int = 500) {
+    nouns(first: $first, orderBy: id, orderDirection: desc) {
+      id
+      seed {
+        background
+        body
+        accessory
+        head
+        glasses
+      }
+      owner {
+        id
+      }
+    }
+  }
+`;
+
+export const NOUN_DETAIL_QUERY = gql`
+  query NounDetail($id: String!) {
+    noun(id: $id) {
+      id
+      seed {
+        background
+        body
+        accessory
+        head
+        glasses
+      }
+      owner {
+        id
+      }
+      votes(first: 100, orderBy: blockNumber, orderDirection: desc) {
+        id
+        support
+        votes
+        blockNumber
+        voter {
+          id
+        }
+        proposal {
+          id
+          title
+          status
+        }
+      }
+    }
+  }
 `; 

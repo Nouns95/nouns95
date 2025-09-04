@@ -1,6 +1,9 @@
 import { ImageData } from './image-data';
 
-function getTraitName(type: 'background' | 'body' | 'accessory' | 'head' | 'glasses', value: number): string {
+// Define trait types that match the GraphQL schema
+export type TraitType = 'background' | 'body' | 'accessory' | 'head' | 'glasses';
+
+export function getTraitName(type: TraitType, value: number): string {
   if (type === 'background') {
     // Map background colors to their labels
     const bgLabels: Record<string, string> = {
@@ -38,4 +41,4 @@ function getTraitName(type: 'background' | 'body' | 'accessory' | 'head' | 'glas
     .join(' ');
 }
 
-export { getTraitName }; 
+ 

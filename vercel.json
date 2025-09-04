@@ -1,0 +1,19 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-nouns",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-ens", 
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/sync-images",
+      "schedule": "*/30 * * * *"
+    }
+  ],
+  "env": {
+    "CRON_SECRET": "@cron-secret"
+  }
+}

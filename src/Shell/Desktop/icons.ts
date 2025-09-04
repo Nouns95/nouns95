@@ -42,6 +42,11 @@ export const APP_ICONS: AppIcons = {
     alt: '📁',
     isComponent: false
   },
+  probe: {
+    icon: '/icons/apps/probe/probe.png',
+    alt: '🔍',
+    isComponent: false
+  },
   programs: {
     icon: '/icons/shell/TaskBar/StartMenu/programs.png',
     alt: '📁',

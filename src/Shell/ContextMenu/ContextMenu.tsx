@@ -19,24 +19,43 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ children, position, on
   const [menuPosition, setMenuPosition] = useState<Position>(position);
 
   useEffect(() => {
-    // Adjust menu position if it would render outside viewport
+    // Adjust menu position if it would render outside the window boundaries
     if (menuRef.current) {
       const menu = menuRef.current;
       const rect = menu.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+      
+      // Find the window content container that this dropdown should be constrained to
+      const windowContent = menu.closest('[class*="content"]') || 
+                           menu.closest('[class*="window"]') ||
+                           document.body;
+      
+      const containerRect = windowContent.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
 
       let adjustedX = position.x;
       let adjustedY = position.y;
 
+      // Convert viewport coordinates to container-relative coordinates
+      const relativeX = position.x - containerRect.left;
+      const relativeY = position.y - containerRect.top;
+
       // Adjust horizontal position if needed
-      if (position.x + rect.width > viewportWidth) {
-        adjustedX = viewportWidth - rect.width;
+      if (relativeX + rect.width > containerWidth) {
+        adjustedX = Math.max(containerRect.left + 8, position.x - rect.width);
       }
 
-      // Adjust vertical position if needed
-      if (position.y + rect.height > viewportHeight) {
-        adjustedY = viewportHeight - rect.height;
+      // Adjust vertical position if needed - prioritize showing above if not enough space below
+      const spaceBelow = containerHeight - relativeY;
+      const spaceAbove = relativeY;
+      const menuHeight = Math.min(rect.height, 200); // Max height constraint
+
+      if (spaceBelow < menuHeight && spaceAbove > spaceBelow && spaceAbove > menuHeight) {
+        // Show above the trigger if there's more space above
+        adjustedY = Math.max(containerRect.top + 8, position.y - menuHeight);
+      } else if (relativeY + menuHeight > containerHeight) {
+        // Adjust to fit within container
+        adjustedY = Math.max(containerRect.top + 8, containerRect.bottom - menuHeight - 8);
       }
 
       setMenuPosition({ x: adjustedX, y: adjustedY });

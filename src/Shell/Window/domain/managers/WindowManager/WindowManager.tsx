@@ -83,7 +83,7 @@ export default function WindowManager() {
       windowService.off('windowStateChanged', handleStateChange);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [windowService, setWindows]);
+  }, [setWindows, windowService]); // Add required dependencies
 
   const renderAppContent = (window: WindowStoreState) => {
     const appConfig = getAppConfig(window.applicationId);

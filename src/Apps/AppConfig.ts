@@ -3,6 +3,7 @@ import { WalletApp } from '@/src/Apps/MiniApps/Wallet';
 import { FileExplorer } from '@/src/Apps/Windows/FileExplorer';
 import { Auction } from '@/src/Apps/Nouns/Auction';
 import { Studio } from '@/src/Apps/Nouns/Studio';
+import { Probe } from '@/src/Apps/Nouns/Probe';
 import { Chat } from '@/src/Apps/MiniApps/Chat';
 import { default as Governance } from '@/src/Apps/Nouns/Governance/Governance';
 
@@ -13,6 +14,7 @@ export type AppId =
   | 'chat'
   | 'fileexplorer'
   | 'governance'
+  | 'probe'
   | 'programs'
   | 'settings'
   | 'shutdown'
@@ -311,6 +313,37 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
       category: 'nouns'
     },
     component: Governance
+  },
+
+  probe: {
+    type: 'window',
+    title: 'Probe',
+    size: {
+      defaultSize: {
+        width: { value: 60, unit: 'rem' },
+        height: { value: 40, unit: 'rem' },
+      },
+      minSize: {
+        width: { value: 25, unit: 'rem' },
+        height: { value: 18.75, unit: 'rem' },
+      },
+    },
+    position: {
+      preferred: 'center',
+      margins: DEFAULT_MARGINS,
+    },
+    behavior: {
+      canResize: true,
+      canMinimize: true,
+      canMaximize: true,
+      stackingOffset: { x: 20, y: 20 },
+    },
+    metadata: {
+      icon: 'probe',
+      description: 'Nouns data analysis and investigation tool',
+      category: 'nouns'
+    },
+    component: Probe
   },
 
   studio: {

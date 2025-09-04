@@ -78,15 +78,20 @@ export function StaticNounImage({ nounId, width = 320, height = 320, className, 
       width, 
       height, 
       background: '#c0c0c0',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      border: '1px inset #c0c0c0',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
       <Image
         src="/icons/apps/auction/loading.gif"
         alt="Loading..."
-        width={32}
-        height={32}
+        fill
+        style={{
+          objectFit: 'contain',
+          objectPosition: 'center center',
+          filter: 'contrast(1.2) brightness(0.9)',
+          imageRendering: 'pixelated'
+        }}
         unoptimized
       />
     </div>

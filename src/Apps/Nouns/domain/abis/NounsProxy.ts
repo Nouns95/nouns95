@@ -877,6 +877,89 @@ const NounsProxyABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'targets',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'values',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'string[]',
+        name: 'signatures',
+        type: 'string[]',
+      },
+      {
+        internalType: 'bytes[]',
+        name: 'calldatas',
+        type: 'bytes[]',
+      },
+      {
+        internalType: 'string',
+        name: 'description',
+        type: 'string',
+      },
+    ],
+    name: 'proposeOnTimelockV1',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: 'targets',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'values',
+        type: 'uint256[]',
+      },
+      {
+        internalType: 'string[]',
+        name: 'signatures',
+        type: 'string[]',
+      },
+      {
+        internalType: 'bytes[]',
+        name: 'calldatas',
+        type: 'bytes[]',
+      },
+      {
+        internalType: 'string',
+        name: 'description',
+        type: 'string',
+      },
+      {
+        internalType: 'uint32',
+        name: 'clientId',
+        type: 'uint32',
+      },
+    ],
+    name: 'proposeOnTimelockV1',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ];
 
 export default NounsProxyABI;

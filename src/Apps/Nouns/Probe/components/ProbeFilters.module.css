@@ -1,0 +1,477 @@
+.container {
+  background: #c0c0c0;
+  border: 2px inset #c0c0c0;
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: "MS Sans Serif", sans-serif;
+  flex-shrink: 0; /* Prevent filters from shrinking */
+}
+
+.searchSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  background: #c0c0c0;
+  border: 1px inset #c0c0c0;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: normal;
+  color: #000;
+  min-width: fit-content;
+  font-family: "MS Sans Serif", sans-serif;
+  white-space: nowrap;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 3px 6px;
+  border: 2px inset #c0c0c0;
+  font-size: 11px;
+  background: #ffffff;
+  color: #000;
+  min-width: 200px;
+  font-family: "MS Sans Serif", sans-serif;
+  height: 20px;
+}
+
+.searchInput:focus {
+  outline: 1px dotted #000;
+  outline-offset: -3px;
+}
+
+.clearButton {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000;
+  min-width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MS Sans Serif", sans-serif;
+  font-weight: bold;
+}
+
+
+
+.clearButton:active:not(:disabled) {
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.clearButton:disabled {
+  color: #808080;
+  cursor: not-allowed;
+}
+
+.sortSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 4px;
+  background: #c0c0c0;
+  border: 1px inset #c0c0c0;
+}
+
+.sortGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.select {
+  /* Aggressive Safari override */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  
+  /* Clean slate - remove all browser styling */
+  all: unset !important;
+  
+  /* Windows 95 Select styling to match screenshot 2 */
+  display: inline-block !important;
+  width: 120px !important;
+  height: 24px !important;
+  padding: 2px 18px 2px 4px !important;
+  font-family: "MS Sans Serif", sans-serif !important;
+  font-size: 11px !important;
+  color: #000000 !important;
+  cursor: pointer !important;
+  
+  /* Clean Windows 95 appearance like screenshot 2 */
+  background: #ffffff !important;
+  border: 2px inset #c0c0c0 !important;
+  
+  /* Simple dropdown arrow using a single background image */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M4 6l4 4 4-4' stroke='%23000' stroke-width='2' fill='none'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 8px) center !important;
+  background-size: 12px 12px !important;
+  
+  /* Override any inherited styles */
+  box-sizing: border-box !important;
+  vertical-align: top !important;
+}
+
+.select:focus {
+  outline: 1px dotted #000000 !important;
+  outline-offset: -3px !important;
+}
+
+.select:active {
+  border: 2px outset #c0c0c0 !important;
+}
+
+.refreshButton {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: auto;
+  min-width: 32px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.refreshButton:hover {
+  background: #d0d0d0;
+}
+
+.refreshButton:active {
+  border: 2px inset #c0c0c0;
+}
+
+.filtersRow {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+  align-items: flex-start !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  /* Force row layout with aggressive overrides */
+  flex-flow: row nowrap !important;
+  justify-content: flex-start !important;
+
+}
+
+/* Override any media query that might be forcing column layout */
+.container .filtersRow {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-flow: row nowrap !important;
+}
+
+@media (min-width: 1px) {
+  .filtersRow {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-flow: row nowrap !important;
+  }
+}
+
+.quickFilters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  padding: 4px;
+  background: #c0c0c0;
+  border: 1px inset #c0c0c0;
+  flex: 0 0 auto !important;
+  min-width: fit-content;
+}
+
+.quickFilter {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000;
+  white-space: nowrap;
+  font-family: "MS Sans Serif", sans-serif;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  border-radius: 0 !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+
+
+.quickFilter:active {
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  border-radius: 0 !important;
+}
+
+/* Trait Filters */
+.traitFilters {
+  padding: 6px;
+  background: #c0c0c0;
+  border: 1px inset #c0c0c0;
+  margin: 2px 0;
+  flex: 1 1 auto !important;
+  min-width: 0;
+}
+
+.traitGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .traitGrid {
+    gap: 8px;
+  }
+  
+  .traitGroup {
+    min-width: 100px;
+  }
+}
+
+.traitGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.traitLabel {
+  font-size: 11px;
+  font-weight: normal;
+  color: #000;
+  font-family: "MS Sans Serif", sans-serif;
+  margin-bottom: 2px;
+}
+
+.traitSelect {
+  /* Aggressive Safari override */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  
+  /* Clean slate - remove all browser styling */
+  all: unset !important;
+  
+  /* Windows 95 Select styling to match screenshot 2 */
+  display: inline-block !important;
+  width: 100% !important;
+  min-width: 120px !important;
+  height: 22px !important;
+  padding: 2px 18px 2px 4px !important;
+  font-family: "MS Sans Serif", sans-serif !important;
+  font-size: 11px !important;
+  color: #000000 !important;
+  cursor: pointer !important;
+  
+  /* Clean Windows 95 appearance like screenshot 2 */
+  background: #ffffff !important;
+  border: 2px inset #c0c0c0 !important;
+  
+  /* Simple dropdown arrow using a single background image */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath d='M4 6l4 4 4-4' stroke='%23000' stroke-width='2' fill='none'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 8px) center !important;
+  background-size: 12px 12px !important;
+  
+  /* Override any inherited styles */
+  box-sizing: border-box !important;
+  vertical-align: top !important;
+}
+
+.traitSelect:focus {
+  outline: 1px dotted #000000 !important;
+  outline-offset: -3px !important;
+}
+
+.traitSelect:active {
+  border: 2px outset #c0c0c0 !important;
+}
+
+.clearTraitsButton {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-family: "MS Sans Serif", sans-serif;
+  cursor: pointer;
+  color: #000;
+  white-space: nowrap;
+  height: 26px;
+  align-self: flex-end;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+}
+
+
+
+.clearTraitsButton:active:not(:disabled) {
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.clearTraitsButton:disabled {
+  color: #808080;
+  cursor: not-allowed;
+  background: #c0c0c0;
+}
+
+/* Additional Safari overrides */
+.select,
+select.select,
+.select::-webkit-outer-spin-button,
+.select::-webkit-inner-spin-button,
+.select::-webkit-search-decoration,
+.select::-webkit-search-cancel-button,
+.select::-webkit-search-results-button,
+.select::-webkit-search-results-decoration {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+.traitSelect,
+select.traitSelect,
+.traitSelect::-webkit-outer-spin-button,
+.traitSelect::-webkit-inner-spin-button,
+.traitSelect::-webkit-search-decoration,
+.traitSelect::-webkit-search-cancel-button,
+.traitSelect::-webkit-search-results-button,
+.traitSelect::-webkit-search-results-decoration {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* Force remove any iOS/Safari specific styling */
+@supports (-webkit-touch-callout: none) {
+  .select,
+  .traitSelect {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border-radius: 0 !important;
+    background-image: 
+      /* Main white background */
+      linear-gradient(to right, #ffffff 0%, #ffffff calc(100% - 18px), #c0c0c0 calc(100% - 18px), #c0c0c0 100%),
+      /* Dropdown button 3D effect */
+      linear-gradient(to bottom, #ffffff 0%, #ffffff 1px, #dfdfdf 1px, #c0c0c0 50%, #a0a0a0 100%),
+      /* Down arrow - left line */
+      linear-gradient(135deg, transparent 40%, #000000 40%, #000000 42%, transparent 42%),
+      /* Down arrow - right line */
+      linear-gradient(45deg, transparent 40%, #000000 40%, #000000 42%, transparent 42%) !important;
+  }
+}
+
+/* Note: Global select overrides removed - styling applied through local classes */
+
+/* Safari-specific vendor prefixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .select,
+  .traitSelect {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    -webkit-border-radius: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .container {
+    padding: 6px;
+  }
+  
+  .searchSection {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  
+  .searchInput {
+    min-width: unset;
+  }
+  
+  .sortSection {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  
+  .sortGroup {
+    justify-content: space-between;
+  }
+  
+  .refreshButton {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+  
+  .quickFilters {
+    gap: 4px;
+  }
+  
+  .quickFilter {
+    flex: 1;
+    text-align: center;
+    padding: 4px 6px;
+  }
+  
+  .quickFilters {
+    flex-wrap: wrap;
+  }
+  
+  .traitFilters {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .label {
+    font-size: 10px;
+  }
+  
+  .searchInput,
+  .select {
+    font-size: 10px;
+  }
+  
+  .quickFilter {
+    font-size: 9px;
+    padding: 3px 4px;
+  }
+}

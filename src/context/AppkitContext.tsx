@@ -59,7 +59,12 @@ function AppkitContext({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    // Use a small delay to prevent hydration issues
+    const timer = setTimeout(() => {
+      setIsClient(true);
+    }, 10);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Always render QueryClientProvider to maintain React tree structure

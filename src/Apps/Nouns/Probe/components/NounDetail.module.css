@@ -1,0 +1,314 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #c0c0c0;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 2px inset #c0c0c0;
+  background: #c0c0c0;
+}
+
+.backButton {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000;
+}
+
+.backButton:hover {
+  background: #d0d0d0;
+}
+
+.backButton:active {
+  border: 2px inset #c0c0c0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: #000;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.imageSection {
+  flex-shrink: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.nounImage {
+  border: 2px inset #c0c0c0;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.nounTraits {
+  width: 320px;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  margin-top: -2px;
+}
+
+.infoSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 300px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  color: #000;
+  border-bottom: 1px solid #808080;
+  padding-bottom: 4px;
+}
+
+.basicInfo {
+  background: #ffffff;
+  border: 2px inset #c0c0c0;
+  padding: 12px;
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-weight: bold;
+  color: #000;
+}
+
+.value {
+  color: #000080;
+  font-family: monospace;
+}
+
+.ensValue {
+  color: #006400;
+  font-weight: bold;
+  font-family: inherit;
+}
+
+
+
+/* Trait styles to match auction component exactly */
+.nounTraits .traitItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #dfdfdf;
+}
+
+.nounTraits .traitItem:last-child {
+  border-bottom: none;
+}
+
+.nounTraits .traitLabel {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: normal;
+}
+
+.nounTraits .traitValue {
+  font-weight: bold;
+  color: #000;
+}
+
+.votesSection {
+  background: #ffffff;
+  border: 2px inset #c0c0c0;
+  padding: 12px;
+  flex: 1;
+}
+
+.noVotes {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.votesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px inset #c0c0c0;
+  padding: 8px;
+}
+
+.voteItem {
+  background: #f0f0f0;
+  border: 1px outset #c0c0c0;
+  padding: 8px;
+  font-size: 11px;
+}
+
+.voteHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.voteSupport {
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.supportFor {
+  background: #90ee90;
+  color: #006400;
+}
+
+.supportAgainst {
+  background: #ffb6c1;
+  color: #8b0000;
+}
+
+.voteCount {
+  font-weight: bold;
+  color: #000080;
+}
+
+.proposalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.proposalTitle {
+  color: #000;
+  font-weight: bold;
+}
+
+.proposalStatus {
+  color: #666;
+  font-size: 10px;
+}
+
+.voteDetails {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.blockNumber {
+  color: #666;
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.loadingState {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}
+
+.loadingImage {
+  width: 320px;
+  height: 320px;
+  background: #d0d0d0;
+  border: 2px inset #c0c0c0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loadingContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loadingLine {
+  height: 20px;
+  background: #d0d0d0;
+  border-radius: 2px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loadingLine:nth-child(1) {
+  width: 60%;
+}
+
+.loadingLine:nth-child(2) {
+  width: 80%;
+}
+
+.loadingLine:nth-child(3) {
+  width: 40%;
+}
+
+.errorMessage {
+  padding: 20px;
+  text-align: center;
+  color: #8b0000;
+  font-weight: bold;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .imageSection {
+    align-self: center;
+  }
+  
+  .nounImage {
+    width: 240px !important;
+    height: 240px !important;
+  }
+  
+  .infoSection {
+    min-width: unset;
+  }
+}
