@@ -172,14 +172,37 @@ export async function fetchNounDetailFromGraphQL(id: string): Promise<GraphQLNou
 
 /**
  * Get the latest noun ID from GraphQL
+ * Note: We fetch multiple nouns and find the max ID since GraphQL sorts IDs as strings
  */
 export async function getLatestNounIdFromGraphQL(): Promise<number> {
   try {
-    const nouns = await fetchNounsFromGraphQL(0, 1);
-    if (nouns.length === 0) {
+    // Fetch a larger batch to find the true maximum ID
+    // Since GraphQL sorts IDs as strings, we need to check multiple pages
+    let maxId = 0;
+    let skip = 0;
+    const batchSize = 1000;
+    
+    // Check first few pages to find the actual maximum
+    for (let page = 0; page < 5; page++) {
+      const nouns = await fetchNounsFromGraphQL(skip, batchSize);
+      if (nouns.length === 0) break;
+      
+      // Find max ID in this batch
+      const batchMaxId = Math.max(...nouns.map(noun => parseInt(noun.id)));
+      maxId = Math.max(maxId, batchMaxId);
+      
+      // If we got less than a full batch, we've reached the end
+      if (nouns.length < batchSize) break;
+      
+      skip += batchSize;
+    }
+    
+    if (maxId === 0) {
       throw new Error('No nouns found in GraphQL');
     }
-    return parseInt(nouns[0].id);
+    
+    console.log(`📊 Found maximum noun ID: ${maxId}`);
+    return maxId;
   } catch (error) {
     console.error('Error getting latest noun ID:', error);
     throw error;
