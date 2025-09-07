@@ -14,6 +14,7 @@ interface DesktopIcon {
 const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'governance', label: 'Nouns Governance' },
   { id: 'auction', label: 'Auction House' },
+  { id: 'probe', label: 'Probe' },
   { id: 'chat', label: 'Chat' },
   { id: 'fileexplorer', label: 'File Explorer' },
   { id: 'studio', label: 'Studio' }
