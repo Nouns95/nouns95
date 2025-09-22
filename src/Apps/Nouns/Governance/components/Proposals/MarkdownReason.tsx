@@ -96,6 +96,7 @@ const VideoEmbed = ({ url }: { url: string }) => {
 const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
   const [error, setError] = React.useState(false);
 
+
   if (!src) {
     return (
       <span className={styles.imageError}>
@@ -140,20 +141,18 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
       return (
         <span className={styles.imageContainer}>
           <span className={styles.imageWrapper}>
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={src}
               alt={alt || ''}
-              width={500}
-              height={300}
               className={styles.image}
               style={{ 
                 maxWidth: '100%', 
                 height: 'auto',
-                objectFit: 'contain'
+                objectFit: 'contain',
+                display: 'block'
               }}
               onError={() => setError(true)}
-              priority={false}
-              unoptimized
             />
           </span>
           {alt && <span className={styles.imageCaption}>{alt}</span>}
@@ -199,8 +198,24 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     const uris: Record<string, string> = {};
     let count = 0;
     
+    
     // Replace data URIs with placeholders (both standalone and linked images)
     let processed = content;
+    
+    // Handle linked images FIRST: [![alt](data:...)](external-link)
+    // This needs to come before standalone images to avoid conflicts
+    processed = processed.replace(
+      /\[!\[(.*?)\]\((data:image\/[^;]+;base64,[A-Za-z0-9+/=]+)\)\]\(([^)]+)\)/g,
+      (match, alt, uri, externalLink) => {
+        const placeholder = `__DATA_URI_${count}__`;
+        const linkPlaceholder = `__LINK_${count}__`;
+        uris[placeholder] = uri;
+        uris[linkPlaceholder] = externalLink;
+        count++;
+        // Convert to image with special link marker
+        return `[![${alt}](${placeholder})](${linkPlaceholder})`;
+      }
+    );
     
     // Handle standalone images: ![alt](data:...)
     processed = processed.replace(
@@ -213,21 +228,8 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
       }
     );
     
-    // Handle linked images: [![alt](data:...)](external-link)
-    processed = processed.replace(
-      /\[!\[(.*?)\]\((data:image\/[^;]+;base64,[^)]+)\)\]\(([^)]+)\)/g,
-      (match, alt, uri, externalLink) => {
-        const placeholder = `__DATA_URI_${count}__`;
-        const linkPlaceholder = `__LINK_${count}__`;
-        uris[placeholder] = uri;
-        uris[linkPlaceholder] = externalLink;
-        count++;
-        // Convert to image with special link marker
-        return `[![${alt}](${placeholder})](${linkPlaceholder})`;
-      }
-    );
-    
 
+    
     
     return [processed, uris] as const;
   }, [content]);
@@ -273,10 +275,29 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
               // Handle data URI images with external links
               if (imgSrc && imgSrc in dataUris) {
                 const actualLink = href in dataUris ? dataUris[href] : href;
+                const base64Src = dataUris[imgSrc];
+                
+                // For base64 images, use regular img tag directly
                 return (
                   <div>
                     <a href={actualLink} target="_blank" rel="noopener noreferrer">
-                      <ImageComponent src={dataUris[imgSrc]} alt={imgAlt} />
+                      <span className={styles.imageContainer}>
+                        <span className={styles.imageWrapper}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={base64Src}
+                            alt={imgAlt}
+                            className={styles.image}
+                            style={{ 
+                              maxWidth: '100%', 
+                              height: 'auto',
+                              objectFit: 'contain',
+                              display: 'block'
+                            }}
+                          />
+                        </span>
+                        {imgAlt && <span className={styles.imageCaption}>{imgAlt}</span>}
+                      </span>
                     </a>
                   </div>
                 );
