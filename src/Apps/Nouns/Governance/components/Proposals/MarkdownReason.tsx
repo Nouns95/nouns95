@@ -159,7 +159,7 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
           {alt && <span className={styles.imageCaption}>{alt}</span>}
         </span>
       );
-    } catch (err) {
+    } catch {
       setError(true);
       return null; // This will trigger the error state above
     }
