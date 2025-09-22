@@ -29,15 +29,13 @@ export function BidderInfo({ address }: BidderInfoProps) {
   return (
     <div className={styles.container}>
       <div className={styles['avatar-container']}>
-        {ensAvatar && (
-          <Image
-            src={ensAvatar}
-            alt="Profile"
-            width={32}
-            height={32}
-            priority
-          />
-        )}
+        <Image
+          src={ensAvatar || "/icons/shell/TaskBar/StartMenu/StartMenu.png"}
+          alt="Profile"
+          width={32}
+          height={32}
+          priority
+        />
       </div>
       <span className={styles['bidder-name']}>{displayName}</span>
     </div>

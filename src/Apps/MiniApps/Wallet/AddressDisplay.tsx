@@ -37,15 +37,13 @@ export function AddressDisplay({
   return (
     <div className="address-display">
       <div className="address-avatar">
-        {ensAvatar && (
-          <Image 
-            src={ensAvatar} 
-            alt="Profile" 
-            width={48} 
-            height={48}
-            priority
-          />
-        )}
+        <Image 
+          src={ensAvatar || "/icons/shell/TaskBar/StartMenu/StartMenu.png"} 
+          alt="Profile" 
+          width={48} 
+          height={48}
+          priority
+        />
       </div>
       <div className="address-info">
         <div className="full-address">{displayName}</div>

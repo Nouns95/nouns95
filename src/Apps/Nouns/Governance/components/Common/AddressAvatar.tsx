@@ -34,9 +34,12 @@ export function AddressAvatar({ address, size = 20 }: AddressAvatarProps) {
           className={styles.avatar}
         />
       ) : (
-        <div 
-          className={styles.placeholder}
-          style={{ width: size, height: size }}
+        <Image
+          src="/icons/shell/TaskBar/StartMenu/StartMenu.png"
+          alt={ensName || address}
+          width={size}
+          height={size}
+          className={styles.avatar}
         />
       )}
       <span className={styles.name}>
