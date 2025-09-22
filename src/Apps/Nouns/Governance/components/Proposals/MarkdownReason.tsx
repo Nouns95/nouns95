@@ -95,9 +95,17 @@ const VideoEmbed = ({ url }: { url: string }) => {
 
 const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
   const [error, setError] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
 
-  if (!src || error) {
+  if (!src) {
+    return (
+      <span className={styles.imageError}>
+        No image source provided
+        {alt && <span className={styles.imageCaption}>{alt}</span>}
+      </span>
+    );
+  }
+
+  if (error) {
     return (
       <span className={styles.imageError}>
         Failed to load image
@@ -141,29 +149,19 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
               style={{ 
                 maxWidth: '100%', 
                 height: 'auto',
-                display: loading ? 'none' : 'block',
                 objectFit: 'contain'
               }}
-              onLoadingComplete={() => setLoading(false)}
               onError={() => setError(true)}
-              priority={true}
+              priority={false}
+              unoptimized
             />
-            {loading && (
-              <span className={styles.skeletonLoader}></span>
-            )}
           </span>
           {alt && <span className={styles.imageCaption}>{alt}</span>}
         </span>
       );
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(true);
-      return (
-        <span className={styles.imageError}>
-          Invalid data URI format: {errorMessage}
-          {alt && <span className={styles.imageCaption}>{alt}</span>}
-        </span>
-      );
+      return null; // This will trigger the error state above
     }
   }
 
@@ -175,7 +173,7 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
 
   return (
     <span className={styles.imageContainer}>
-      <span className={`${styles.imageWrapper} ${loading ? styles.loading : ''}`}>
+      <span className={styles.imageWrapper}>
         <Image
           src={imageSrc}
           alt={alt || ''}
@@ -183,16 +181,11 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
           height={300}
           className={styles.image}
           style={{ 
-            objectFit: 'contain',
-            display: loading ? 'none' : 'block'
+            objectFit: 'contain'
           }}
-          onLoadingComplete={() => setLoading(false)}
           onError={() => setError(true)}
-          priority={true}
+          priority={false}
         />
-        {loading && (
-          <span className={styles.skeletonLoader}></span>
-        )}
       </span>
       {alt && <span className={styles.imageCaption}>{alt}</span>}
     </span>
@@ -228,21 +221,21 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
       const childNodes = node?.children || [];
       
       if (childNodes.length === 1) {
-        // Handle image case
+        // Handle image case - return as div to avoid nesting block elements in p
         if ('tagName' in childNodes[0] && childNodes[0].tagName === 'img') {
           if ('properties' in childNodes[0]) {
             const imgProps = childNodes[0].properties || {};
             const imgSrc = String(imgProps.src || '');
             
             if (imgSrc && imgSrc in dataUris) {
-              return <ImageComponent src={dataUris[imgSrc]} alt={String(imgProps.alt || '')} />;
+              return <div><ImageComponent src={dataUris[imgSrc]} alt={String(imgProps.alt || '')} /></div>;
             }
             
             if (imgSrc.length > 0) {
-              return <ImageComponent src={imgSrc} alt={String(imgProps.alt || '')} />;
+              return <div><ImageComponent src={imgSrc} alt={String(imgProps.alt || '')} /></div>;
             }
           }
-          return children;
+          return <div>{children}</div>;
         }
         
         // Handle link case - check if it's a video URL
