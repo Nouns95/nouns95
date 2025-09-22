@@ -136,6 +136,18 @@
   width: 100%;
 }
 
+/* Linked images */
+.imageContainer a {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.imageContainer a:hover .image {
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
 .imageWrapper {
   position: relative;
   width: 100%;

@@ -199,14 +199,31 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     const uris: Record<string, string> = {};
     let count = 0;
     
-    // Replace data URIs with placeholders
-    const processed = content.replace(
+    // Replace data URIs with placeholders (both standalone and linked images)
+    let processed = content;
+    
+    // Handle standalone images: ![alt](data:...)
+    processed = processed.replace(
       /!\[(.*?)\]\((data:image\/[^;]+;base64,[^)]+)\)/g,
       (match, alt, uri) => {
         const placeholder = `__DATA_URI_${count}__`;
         uris[placeholder] = uri;
         count++;
         return `![${alt}](${placeholder})`;
+      }
+    );
+    
+    // Handle linked images: [![alt](data:...)](external-link)
+    processed = processed.replace(
+      /\[!\[(.*?)\]\((data:image\/[^;]+;base64,[^)]+)\)\]\(([^)]+)\)/g,
+      (match, alt, uri, externalLink) => {
+        const placeholder = `__DATA_URI_${count}__`;
+        const linkPlaceholder = `__LINK_${count}__`;
+        uris[placeholder] = uri;
+        uris[linkPlaceholder] = externalLink;
+        count++;
+        // Convert to image with special link marker
+        return `[![${alt}](${placeholder})](${linkPlaceholder})`;
       }
     );
     
@@ -238,14 +255,48 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
           return <div>{children}</div>;
         }
         
-        // Handle link case - check if it's a video URL
+        // Handle linked image case: [![alt](src)](link)
         if ('tagName' in childNodes[0] && childNodes[0].tagName === 'a') {
-          if ('properties' in childNodes[0]) {
+          if ('properties' in childNodes[0] && 'children' in childNodes[0]) {
             const linkProps = childNodes[0].properties || {};
             const href = String(linkProps.href || '');
+            const linkChildren = (childNodes[0].children || []) as any[];
             
+            // Check if this link contains only an image
+            if (linkChildren.length === 1 && 
+                'tagName' in linkChildren[0] && 
+                linkChildren[0].tagName === 'img') {
+              const imgProps = linkChildren[0].properties || {};
+              const imgSrc = String(imgProps.src || '');
+              const imgAlt = String(imgProps.alt || '');
+              
+              // Handle data URI images with external links
+              if (imgSrc && imgSrc in dataUris) {
+                const actualLink = href in dataUris ? dataUris[href] : href;
+                return (
+                  <div>
+                    <a href={actualLink} target="_blank" rel="noopener noreferrer">
+                      <ImageComponent src={dataUris[imgSrc]} alt={imgAlt} />
+                    </a>
+                  </div>
+                );
+              }
+              
+              // Handle regular images with links
+              if (imgSrc.length > 0) {
+                const actualLink = href in dataUris ? dataUris[href] : href;
+                return (
+                  <div>
+                    <a href={actualLink} target="_blank" rel="noopener noreferrer">
+                      <ImageComponent src={imgSrc} alt={imgAlt} />
+                    </a>
+                  </div>
+                );
+              }
+            }
+            
+            // Handle video links (existing logic)
             if (href && isVideoUrl(href)) {
-              // Return the video embed as a div (not wrapped in p tag)
               return <VideoEmbed url={href} />;
             }
           }
