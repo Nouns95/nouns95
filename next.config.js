@@ -65,10 +65,14 @@ const nextConfig = {
 
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     
-    // Fix for AppKit dynamic import issues
+    // Fix for AppKit dynamic import issues - resolve phosphor icon imports
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@phosphor-icons/webcomponents': '@phosphor-icons/webcomponents/dist',
+      '@phosphor-icons/webcomponents/PhArrowCircleDown': '@phosphor-icons/webcomponents/dist/PhArrowCircleDown',
+      '@phosphor-icons/webcomponents/PhArrowClockwise': '@phosphor-icons/webcomponents/dist/PhArrowClockwise',
+      '@phosphor-icons/webcomponents/PhArrowDown': '@phosphor-icons/webcomponents/dist/PhArrowDown',
+      '@phosphor-icons/webcomponents/PhArrowLeft': '@phosphor-icons/webcomponents/dist/PhArrowLeft',
+      '@phosphor-icons/webcomponents/PhArrowRight': '@phosphor-icons/webcomponents/dist/PhArrowRight',
     };
     
     // Improve chunk splitting for better loading
