@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useWriteContract, useAccount, useReadContract } from 'wagmi';
-import CandidatesProxyABI from '../../../domain/abis/CandidatesProxy';
+import CandidatesProxyABI from '../../../../domain/abis/CandidatesProxy';
 import { SmartActionEditor } from './SmartActionEditor';
 import { MarkdownEditor } from './MarkdownEditor';
 import styles from './CreateProposal.module.css'; // Reuse CreateProposal styles

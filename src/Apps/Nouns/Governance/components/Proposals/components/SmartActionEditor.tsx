@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import ClientIncentivesRewardsABI from '../../../domain/abis/ClientIncentivesRewards';
-import CandidatesProxyABI from '../../../domain/abis/CandidatesProxy';
+import ClientIncentivesRewardsABI from '../../../../domain/abis/ClientIncentivesRewards';
+import CandidatesProxyABI from '../../../../domain/abis/CandidatesProxy';
 import styles from './SmartActionEditor.module.css';
 
 interface ABIInput {

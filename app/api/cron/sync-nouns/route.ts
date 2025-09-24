@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLastNounId, batchUpsertNouns } from '@/lib/services/nounsService';
+import { batchUpsertNouns } from '@/lib/services/nounsService';
 import { fetchNounsFromGraphQL, convertGraphQLNoun, getLatestNounIdFromGraphQL } from '@/lib/services/graphqlService';
 import { query } from '@/lib/database';
 

@@ -3,7 +3,7 @@ import { useQuery, gql } from '@apollo/client';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import styles from './ProposalDetails.module.css';
-import { MarkdownReason } from '../MarkdownReason';
+import { MarkdownReason } from '../components/MarkdownReason';
 import { AddressAvatar } from '../../Common/AddressAvatar';
 import { VoteHistory } from './VoteHistory';
 import { VoteForm } from './VoteForm';

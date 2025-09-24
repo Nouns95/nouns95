@@ -65,14 +65,23 @@ const nextConfig = {
 
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     
-    // Fix for AppKit dynamic import issues - resolve phosphor icon imports
+    // Fix for AppKit + phosphor icons import issues
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@phosphor-icons/webcomponents/PhArrowCircleDown': '@phosphor-icons/webcomponents/dist/PhArrowCircleDown',
-      '@phosphor-icons/webcomponents/PhArrowClockwise': '@phosphor-icons/webcomponents/dist/PhArrowClockwise',
-      '@phosphor-icons/webcomponents/PhArrowDown': '@phosphor-icons/webcomponents/dist/PhArrowDown',
-      '@phosphor-icons/webcomponents/PhArrowLeft': '@phosphor-icons/webcomponents/dist/PhArrowLeft',
-      '@phosphor-icons/webcomponents/PhArrowRight': '@phosphor-icons/webcomponents/dist/PhArrowRight',
+    };
+    
+    // Add webpack plugin to ignore phosphor icon imports during build
+    config.plugins.push(
+      new (require('webpack')).IgnorePlugin({
+        resourceRegExp: /@phosphor-icons\/webcomponents\/Ph/,
+      })
+    );
+    
+    // Fix MetaMask SDK warnings by providing fallbacks for React Native modules
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      '@react-native-async-storage/async-storage': false,
+      'react-native': false,
     };
     
     // Improve chunk splitting for better loading

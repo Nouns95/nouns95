@@ -24,7 +24,7 @@ const MENU_ITEMS: MenuItem[] = [
     label: 'Programs', 
     appId: 'programs',
     submenu: [
-      { id: 'governance', label: 'Governance', appId: 'governance' },
+      { id: 'governance', label: 'Camp', appId: 'governance' },
       { id: 'probe', label: 'Probe', appId: 'probe' },
       { id: 'studio', label: 'Studio', appId: 'studio' },
       { id: 'chat', label: 'Chat', appId: 'chat' }

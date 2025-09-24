@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery, gql } from '@apollo/client';
 import styles from './ProposalDetails.module.css';
 import { AddressAvatar } from '../../Common/AddressAvatar';
-import { MarkdownReason } from '../MarkdownReason';
+import { MarkdownReason } from '../components/MarkdownReason';
 
 interface Vote {
   id: string;

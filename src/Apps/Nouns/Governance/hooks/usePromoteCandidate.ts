@@ -179,9 +179,9 @@ export function usePromoteCandidate() {
           // The first topic after the event signature should be the proposal ID
           if (log.topics && log.topics.length > 1) {
             try {
-              proposalId = parseInt(log.topics[1], 16);
+              proposalId = parseInt(log.topics[1] || '0x0', 16);
               break;
-            } catch (e) {
+            } catch {
               // Continue looking
             }
           }

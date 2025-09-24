@@ -14,7 +14,7 @@ export function WalletFeatures({ onFeatureSelect }: WalletFeaturesProps) {
   const { open } = useAppKit()
   const { isConnected, address } = useAppKitAccount()
   const { selectedNetworkId } = useAppKitState()
-  const { data: walletInfo } = useWalletInfo()
+  const { walletInfo } = useWalletInfo()
 
   if (!isConnected) {
     return (

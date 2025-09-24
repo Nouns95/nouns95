@@ -17,6 +17,10 @@ interface NounData {
   };
   owner: {
     id: string;
+    delegate?: {
+      id: string;
+      delegatedVotes: string;
+    };
   };
 }
 
@@ -32,35 +36,42 @@ export function NounCard({ noun, onClick }: NounCardProps) {
     onClick?.(noun.id);
   };
 
-  const handleOwnerClick = (e: React.MouseEvent) => {
+  const handleDelegateClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Could implement navigation to owner's profile in the future
+    // Could implement navigation to delegate's profile in the future
   };
 
-  const shortOwner = noun.owner.id.slice(0, 6) + '...' + noun.owner.id.slice(-4);
+  // Get the delegate address (fallback to owner if no delegate)
+  const delegateAddress = noun.owner.delegate?.id || noun.owner.id;
+  const shortDelegate = delegateAddress.slice(0, 6) + '...' + delegateAddress.slice(-4);
+  const isDelegateSameAsOwner = noun.owner.delegate?.id?.toLowerCase() === noun.owner.id.toLowerCase();
 
   // ENS resolution effect - completely background, no loading states
   useEffect(() => {
-    if (!noun.owner.id) return;
+    if (!delegateAddress) return;
 
     // Check if we already have cached result
-    const cached = ensResolver.getCached(noun.owner.id);
+    const cached = ensResolver.getCached(delegateAddress);
     if (cached !== undefined) {
       setEnsName(cached);
       return;
     }
 
     // Start background resolution - no loading state
-    ensResolver.resolve(noun.owner.id).then((name) => {
+    ensResolver.resolve(delegateAddress).then((name) => {
       setEnsName(name);
     }).catch(() => {
       // Silent failure - just don't update the ENS name
     });
-  }, [noun.owner.id]);
+  }, [delegateAddress]);
 
-  // Display logic for owner - clean and simple
-  const getOwnerDisplay = () => {
-    return ensName || shortOwner;
+  // Display logic for delegate - clean and simple
+  const getDelegateDisplay = () => {
+    if (!noun.owner.delegate?.id) {
+      return 'No delegate';
+    }
+    const displayName = ensName || shortDelegate;
+    return isDelegateSameAsOwner ? `${displayName} (self)` : displayName;
   };
 
   return (
@@ -91,10 +102,13 @@ export function NounCard({ noun, onClick }: NounCardProps) {
           <h3 className={styles.nounId}>Noun {noun.id}</h3>
           <div 
             className={`${styles.owner} ${ensName ? styles.ensName : ''}`}
-            onClick={handleOwnerClick}
-            title={ensName ? `${ensName} (${noun.owner.id})` : noun.owner.id}
+            onClick={handleDelegateClick}
+            title={noun.owner.delegate?.id ? 
+              (ensName ? `${ensName} (${noun.owner.delegate.id})` : noun.owner.delegate.id) :
+              'No delegate set'
+            }
           >
-            {getOwnerDisplay()}
+            {getDelegateDisplay()}
           </div>
         </div>
         

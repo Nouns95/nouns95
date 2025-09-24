@@ -17,8 +17,13 @@ interface NounData {
   };
   owner: {
     id: string;
+    delegate?: {
+      id: string;
+      delegatedVotes: string;
+    };
   };
-  __ensName?: string | null; // Preloaded ENS data
+  __ensName?: string | null; // Preloaded ENS data for owner
+  __delegateEnsName?: string | null; // Preloaded ENS data for delegate
   __cachedImage?: string | null; // Cached SVG image data
 }
 
@@ -28,48 +33,55 @@ interface EnhancedNounCardProps {
 }
 
 export function EnhancedNounCard({ noun, onClick }: EnhancedNounCardProps) {
-  const [ensName, setEnsName] = useState<string | null>(noun.__ensName || null);
+  const [ensName, setEnsName] = useState<string | null>(noun.__delegateEnsName || null);
   const [imageError, setImageError] = useState(false);
 
   const handleClick = () => {
     onClick?.(noun.id);
   };
 
-  const handleOwnerClick = (e: React.MouseEvent) => {
+  const handleDelegateClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Could implement navigation to owner's profile in the future
+    // Could implement navigation to delegate's profile in the future
   };
 
-  const shortOwner = noun.owner.id.slice(0, 6) + '...' + noun.owner.id.slice(-4);
+  // Get the delegate address (fallback to owner if no delegate)
+  const delegateAddress = noun.owner.delegate?.id || noun.owner.id;
+  const shortDelegate = delegateAddress.slice(0, 6) + '...' + delegateAddress.slice(-4);
+  const isDelegateSameAsOwner = noun.owner.delegate?.id?.toLowerCase() === noun.owner.id.toLowerCase();
 
   // ENS resolution effect - use preloaded data or fallback to resolution
   useEffect(() => {
-    if (!noun.owner.id) return;
+    if (!delegateAddress) return;
 
-    // If we already have preloaded ENS data, use it
-    if (noun.__ensName !== undefined) {
-      setEnsName(noun.__ensName);
+    // If we already have preloaded ENS data for delegate, use it
+    if (noun.__delegateEnsName !== undefined) {
+      setEnsName(noun.__delegateEnsName);
       return;
     }
 
     // Check if we already have cached result
-    const cached = ensResolver.getCached(noun.owner.id);
+    const cached = ensResolver.getCached(delegateAddress);
     if (cached !== undefined) {
       setEnsName(cached);
       return;
     }
 
     // Start background resolution - no loading state
-    ensResolver.resolve(noun.owner.id).then((name) => {
+    ensResolver.resolve(delegateAddress).then((name) => {
       setEnsName(name);
     }).catch(() => {
       // Silent failure - just don't update the ENS name
     });
-  }, [noun.owner.id, noun.__ensName]);
+  }, [delegateAddress, noun.__delegateEnsName]);
 
-  // Display logic for owner - clean and simple
-  const getOwnerDisplay = () => {
-    return ensName || shortOwner;
+  // Display logic for delegate - clean and simple
+  const getDelegateDisplay = () => {
+    if (!noun.owner.delegate?.id) {
+      return 'No delegate';
+    }
+    const displayName = ensName || shortDelegate;
+    return isDelegateSameAsOwner ? `${displayName} (self)` : displayName;
   };
 
   const handleImageError = () => {
@@ -122,10 +134,13 @@ export function EnhancedNounCard({ noun, onClick }: EnhancedNounCardProps) {
           <h3 className={styles.nounId}>Noun {noun.id}</h3>
           <div 
             className={`${styles.owner} ${ensName ? styles.ensName : ''}`}
-            onClick={handleOwnerClick}
-            title={ensName ? `${ensName} (${noun.owner.id})` : noun.owner.id}
+            onClick={handleDelegateClick}
+            title={noun.owner.delegate?.id ? 
+              (ensName ? `${ensName} (${noun.owner.delegate.id})` : noun.owner.delegate.id) :
+              'No delegate set'
+            }
           >
-            {getOwnerDisplay()}
+            {getDelegateDisplay()}
           </div>
         </div>
         

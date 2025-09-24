@@ -6,9 +6,9 @@ import {
   TransactionExecutionError,
   UserRejectedRequestError
 } from 'viem';
-import NounsProxyABI from '../../../domain/abis/NounsProxy';
-import CandidatesProxyABI from '../../../domain/abis/CandidatesProxy';
-import { NOUNS_CONTRACTS } from '../../../domain/constants/contracts';
+import NounsProxyABI from '../../../../domain/abis/NounsProxy';
+import CandidatesProxyABI from '../../../../domain/abis/CandidatesProxy';
+import { NOUNS_CONTRACTS } from '../../../../domain/constants/contracts';
 import { SmartActionEditor } from './SmartActionEditor';
 import { MarkdownEditor } from './MarkdownEditor';
 import styles from './CreateProposal.module.css';

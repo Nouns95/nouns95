@@ -40,6 +40,10 @@ interface NounDetailData {
     };
     owner: {
       id: string;
+      delegate?: {
+        id: string;
+        delegatedVotes: string;
+      };
     };
     votes: Vote[];
   };
@@ -47,7 +51,9 @@ interface NounDetailData {
 
 export function NounDetail({ nounId, onBack }: NounDetailProps) {
   const [ensName, setEnsName] = useState<string | null>(null);
+  const [delegateEnsName, setDelegateEnsName] = useState<string | null>(null);
   const resolvedAddressRef = useRef<string | null>(null);
+  const resolvedDelegateRef = useRef<string | null>(null);
   
   console.log('NounDetail rendering with nounId:', nounId);
 
@@ -91,6 +97,39 @@ export function NounDetail({ nounId, onBack }: NounDetailProps) {
     });
   }, [data?.noun?.owner?.id]);
 
+  // ENS resolution for delegate - completely background, no loading states
+  useEffect(() => {
+    if (!data?.noun?.owner?.delegate?.id) {
+      setDelegateEnsName(null);
+      resolvedDelegateRef.current = null;
+      return;
+    }
+
+    const delegateAddress = data.noun.owner.delegate.id;
+
+    // If we already resolved this address, don't do it again
+    if (resolvedDelegateRef.current === delegateAddress) {
+      return;
+    }
+
+    // Check if we already have cached result
+    const cached = ensResolver.getCached(delegateAddress);
+    if (cached !== undefined) {
+      setDelegateEnsName(cached);
+      resolvedDelegateRef.current = delegateAddress;
+      return;
+    }
+
+    // Start background resolution - no loading state
+    ensResolver.resolve(delegateAddress).then((name) => {
+      setDelegateEnsName(name);
+      resolvedDelegateRef.current = delegateAddress;
+    }).catch(() => {
+      // Silent failure - just don't update the ENS name
+      resolvedDelegateRef.current = delegateAddress;
+    });
+  }, [data?.noun?.owner?.delegate?.id]);
+
   const getSupportDisplay = (support: boolean) => {
     return support ? 'For' : 'Against';
   };
@@ -104,6 +143,20 @@ export function NounDetail({ nounId, onBack }: NounDetailProps) {
     if (!data?.noun?.owner?.id) return '';
     if (ensName) return ensName;
     return data.noun.owner.id.slice(0, 6) + '...' + data.noun.owner.id.slice(-4);
+  };
+
+  const getDelegateDisplay = () => {
+    if (!data?.noun?.owner?.delegate?.id) return 'No delegate';
+    if (delegateEnsName) return delegateEnsName;
+    return data.noun.owner.delegate.id.slice(0, 6) + '...' + data.noun.owner.delegate.id.slice(-4);
+  };
+
+  const getDelegateVotes = () => {
+    return data?.noun?.owner?.delegate?.delegatedVotes || '0';
+  };
+
+  const isDelegateSameAsOwner = () => {
+    return data?.noun?.owner?.id?.toLowerCase() === data?.noun?.owner?.delegate?.id?.toLowerCase();
   };
 
   if (loading) {
@@ -226,6 +279,21 @@ export function NounDetail({ nounId, onBack }: NounDetailProps) {
                 <span className={styles.label}>Owner:</span>
                 <span className={`${styles.value} ${ensName ? styles.ensValue : ''}`}>
                   {getOwnerDisplay()}
+                </span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Delegate:</span>
+                <span className={`${styles.value} ${delegateEnsName ? styles.ensValue : ''}`}>
+                  {getDelegateDisplay()}
+                  {isDelegateSameAsOwner() && <span className={styles.selfDelegate}> (self)</span>}
+                </span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Voting Power:</span>
+                <span className={styles.value}>
+                  {getDelegateVotes()} votes
                 </span>
               </div>
             </div>

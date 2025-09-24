@@ -3,7 +3,7 @@ import { useQuery, gql } from '@apollo/client';
 import { useAccount } from 'wagmi';
 import styles from './ProposalsList.module.css';
 import { AddressAvatar } from '../Common/AddressAvatar';
-import { MarkdownReason } from './MarkdownReason';
+import { MarkdownReason } from './components/MarkdownReason';
 import { providers } from 'ethers';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 

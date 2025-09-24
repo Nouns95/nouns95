@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useWriteContract, useAccount } from 'wagmi';
 import { useQuery } from '@apollo/client';
 
-import NounsProxyABI from '../../../domain/abis/NounsProxy';
-import { NOUNS_CONTRACTS } from '../../../domain/constants/contracts';
+import NounsProxyABI from '../../../../domain/abis/NounsProxy';
+import { NOUNS_CONTRACTS } from '../../../../domain/constants/contracts';
 import { SmartActionEditor } from './SmartActionEditor';
 import { MarkdownEditor } from './MarkdownEditor';
-import { PROPOSAL_DETAIL_QUERY } from '../../../domain/graphql/queries/governance';
+import { PROPOSAL_DETAIL_QUERY } from '../../../../domain/graphql/queries/governance';
 import styles from './CreateProposal.module.css'; // Reuse CreateProposal styles
 
 interface ProposalAction {

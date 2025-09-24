@@ -6,12 +6,7 @@ import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiProvider } from 'wagmi'
 
-// Preload phosphor icons to prevent chunk loading errors
-if (typeof window !== 'undefined') {
-  import('@phosphor-icons/webcomponents').catch(() => {
-    // Silently handle import errors - this is just a preload
-  });
-}
+// AppKit will handle phosphor icons internally
 
 // Set up queryClient with retry configuration
 const queryClient = new QueryClient({

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useSignTypedData } from 'wagmi';
-import { encodePacked, keccak256, parseEther, encodeAbiParameters, parseAbiParameters, toHex } from 'viem';
+import { encodeAbiParameters, parseAbiParameters } from 'viem';
 import { NOUNS_CONTRACTS } from '../../domain/constants/contracts';
 
 // Contract address for the Nouns Proposal Candidates contract
@@ -56,12 +56,10 @@ export function useSponsorCandidate() {
   const { 
     writeContract, 
     data: transactionHash,
-    error: writeError,
-    isPending: isWritePending 
+    error: writeError
   } = useWriteContract();
 
   const {
-    isLoading: isConfirming,
     isSuccess: isConfirmed
   } = useWaitForTransactionReceipt({
     hash: transactionHash,
@@ -88,7 +86,7 @@ export function useSponsorCandidate() {
     );
   };
 
-  const generateSignature = async (params: SponsorCandidateParams, encodedProp: `0x${string}`, expirationTimestamp: number): Promise<`0x${string}`> => {
+  const generateSignature = async (params: SponsorCandidateParams): Promise<`0x${string}`> => {
     if (!address || !isConnected) {
       throw new Error('Wallet not connected');
     }
@@ -173,8 +171,8 @@ export function useSponsorCandidate() {
       // Encode the proposal data
       const encodedProp = encodeProposalData(params);
       
-      // Generate the EIP-712 signature
-      const signature = await generateSignature(params, encodedProp, expirationTimestamp);
+          // Generate the EIP-712 signature
+          const signature = await generateSignature(params);
 
       // Call the contract
       writeContract({

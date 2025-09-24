@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
 import styles from './CandidateDetails.module.css';
-import { MarkdownReason } from '../../Proposals/MarkdownReason';
+import { MarkdownReason } from '../../Proposals/components/MarkdownReason';
 import { AddressAvatar } from '../../Common/AddressAvatar';
 import { useSponsorCandidate } from '../../../hooks/useSponsorCandidate';
 import { usePromoteCandidate } from '../../../hooks/usePromoteCandidate';
@@ -40,8 +40,7 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
     isSuccess: isPromoteSuccess,
     isError: isPromoteError,
     error: promoteError,
-    proposalId: createdProposalId,
-    transactionHash: promoteTransactionHash
+    proposalId: createdProposalId
   } = usePromoteCandidate();
 
   const [showSponsorForm, setShowSponsorForm] = React.useState(false);

@@ -277,13 +277,15 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
           if ('properties' in childNodes[0] && 'children' in childNodes[0]) {
             const linkProps = childNodes[0].properties || {};
             const href = String(linkProps.href || '');
-            const linkChildren = (childNodes[0].children || []) as any[];
+            const linkChildren = (childNodes[0].children || []) as unknown as React.ReactNode[];
             
             // Check if this link contains only an image
             if (linkChildren.length === 1 && 
+                typeof linkChildren[0] === 'object' && 
+                linkChildren[0] !== null &&
                 'tagName' in linkChildren[0] && 
-                linkChildren[0].tagName === 'img') {
-              const imgProps = linkChildren[0].properties || {};
+                (linkChildren[0] as { tagName: string }).tagName === 'img') {
+              const imgProps = (linkChildren[0] as unknown as { properties: Record<string, unknown> }).properties || {};
               const imgSrc = String(imgProps.src || '');
               const imgAlt = String(imgProps.alt || '');
               

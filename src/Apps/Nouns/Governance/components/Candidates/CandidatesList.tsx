@@ -2,7 +2,7 @@ import React, { useState, useRef, RefObject } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import styles from './CandidatesList.module.css';
 import { AddressAvatar } from '../Common/AddressAvatar';
-import { MarkdownReason } from '../Proposals/MarkdownReason';
+import { MarkdownReason } from '../Proposals/components/MarkdownReason';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { 
   PROPOSAL_CANDIDATES_QUERY,

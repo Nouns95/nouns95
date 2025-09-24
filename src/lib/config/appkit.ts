@@ -4,13 +4,20 @@ import { mainnet, base, solana, bitcoin } from '@reown/appkit/networks'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { cookieStorage, createStorage, http, fallback } from 'wagmi'
 import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
-import { HuobiWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 
 export const projectId = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID
 
 if (!projectId) {
   throw new Error('Project ID is not defined')
 }
+
+export const bitcoinAdapter = new BitcoinAdapter({
+  projectId
+})
+
+export const solanaWeb3JsAdapter = new SolanaAdapter({
+  wallets: []
+})
 
 export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, base, solana, bitcoin]
 
@@ -21,14 +28,6 @@ export const metadata = {
   url: typeof window !== 'undefined' ? window.location.origin : 'https://nouns95.wtf',
   icons: ['/icons/shell/TaskBar/StartMenu/StartMenu.png'],
 }
-
-export const bitcoinAdapter = new BitcoinAdapter({
-  projectId
-})
-
-export const solanaWeb3JsAdapter = new SolanaAdapter({
-  wallets: [new HuobiWalletAdapter(), new SolflareWalletAdapter()]
-})
 
 // Simplified RPC configuration with timeout settings
 const mainnetTransport = http(process.env.NEXT_PUBLIC_RPC_URL, {
