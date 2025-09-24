@@ -290,7 +290,7 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
     size: {
       defaultSize: {
         width: { value: 80, unit: 'rem' },
-        height: { value: 44, unit: 'rem' },
+        height: { value: 46.5, unit: 'rem' },
       },
       minSize: {
         width: { value: 25, unit: 'rem' },

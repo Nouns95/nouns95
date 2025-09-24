@@ -31,7 +31,8 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
     isError: isSponsorError, 
     error: sponsorError,
     transactionHash,
-    isConnected 
+    isConnected,
+    isPending: isSponsorPending
   } = useSponsorCandidate();
 
   const { 
@@ -45,7 +46,7 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
 
   const [showSponsorForm, setShowSponsorForm] = React.useState(false);
   const [sponsorReason, setSponsorReason] = React.useState('');
-  const [isSponsoring, setIsSponsoring] = React.useState(false);
+  // Remove local isSponsoring state since we now use isPending from the hook
   const [showPromoteDialog, setShowPromoteDialog] = React.useState(false);
   const [selectedSignatures, setSelectedSignatures] = React.useState<ValidSignature[]>([]);
 
@@ -106,16 +107,10 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
     if (isSponsorSuccess) {
       setSponsorReason('');
       setShowSponsorForm(false);
-      setIsSponsoring(false);
     }
   }, [isSponsorSuccess]);
 
-  // Reset sponsoring state on error
-  React.useEffect(() => {
-    if (isSponsorError) {
-      setIsSponsoring(false);
-    }
-  }, [isSponsorError]);
+  // No need for error useEffect since we're not managing local pending state
 
   // NOW WE CAN DO CONDITIONAL RENDERING
   // Show error state only if we have a critical error and no data
@@ -165,8 +160,7 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
       return;
     }
 
-    setIsSponsoring(true);
-
+    // No need to set local state - the hook handles pending state
     try {
       await sponsorCandidate({
         proposer: candidate.proposer,
@@ -362,7 +356,7 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
                       <button 
                         className={styles.sponsorButton}
                         onClick={() => setShowSponsorForm(true)}
-                        disabled={isSponsoring}
+                        disabled={isSponsorPending}
                       >
                         Sponsor Candidate
                       </button>
@@ -374,15 +368,15 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
                           value={sponsorReason}
                           onChange={(e) => setSponsorReason(e.target.value)}
                           rows={3}
-                          disabled={isSponsoring}
+                          disabled={isSponsorPending}
                         />
                         <div className={styles.sponsorFormButtons}>
                           <button 
                             className={styles.sponsorSubmitButton}
                             onClick={handleSponsorSubmit}
-                            disabled={isSponsoring || !sponsorReason.trim()}
+                            disabled={isSponsorPending || !sponsorReason.trim()}
                           >
-                            {isSponsoring ? 'Sponsoring...' : 'Submit Sponsorship'}
+                            {isSponsorPending ? 'Sponsoring...' : 'Submit Sponsorship'}
                           </button>
                           <button 
                             className={styles.sponsorCancelButton}
@@ -390,7 +384,7 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
                               setShowSponsorForm(false);
                               setSponsorReason('');
                             }}
-                            disabled={isSponsoring}
+                            disabled={isSponsorPending}
                           >
                             Cancel
                           </button>

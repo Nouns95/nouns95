@@ -52,11 +52,13 @@ export function useSponsorCandidate() {
     isError: false,
     error: null,
   });
+  const [isPending, setIsPending] = useState(false);
 
   const { 
     writeContract, 
     data: transactionHash,
-    error: writeError
+    error: writeError,
+    isPending: isWritePending
   } = useWriteContract();
 
   const {
@@ -157,7 +159,16 @@ export function useSponsorCandidate() {
       return;
     }
 
+    // Prevent multiple simultaneous calls
+    if (isPending || isWritePending) {
+      console.log('Transaction already in progress, ignoring duplicate call');
+      return;
+    }
+
     try {
+      // Set pending state immediately
+      setIsPending(true);
+      
       // Reset previous states
       setSponsorState({
         isSuccess: false,
@@ -171,8 +182,8 @@ export function useSponsorCandidate() {
       // Encode the proposal data
       const encodedProp = encodeProposalData(params);
       
-          // Generate the EIP-712 signature
-          const signature = await generateSignature(params);
+      // Generate the EIP-712 signature
+      const signature = await generateSignature(params);
 
       // Call the contract
       writeContract({
@@ -192,6 +203,7 @@ export function useSponsorCandidate() {
 
     } catch (error) {
       console.error('Error sponsoring candidate:', error);
+      setIsPending(false); // Reset pending state on error
       setSponsorState({
         isSuccess: false,
         isError: true,
@@ -203,6 +215,7 @@ export function useSponsorCandidate() {
   // Update state based on transaction status
   useEffect(() => {
     if (isConfirmed) {
+      setIsPending(false); // Reset pending state on success
       setSponsorState({
         isSuccess: true,
         isError: false,
@@ -210,6 +223,7 @@ export function useSponsorCandidate() {
         transactionHash: transactionHash,
       });
     } else if (writeError) {
+      setIsPending(false); // Reset pending state on error
       setSponsorState({
         isSuccess: false,
         isError: true,
@@ -226,5 +240,6 @@ export function useSponsorCandidate() {
     transactionHash: sponsorState.transactionHash,
     isConnected,
     address,
+    isPending: isPending || isWritePending, // Expose combined pending state
   };
 }
