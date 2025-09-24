@@ -1,12 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Ensure production builds use webpack (not turbopack) for Vercel compatibility
-  experimental: {
-    turbo: {
-      // Turbo configs if needed
-    }
-  },
+  
+  // Fix for multiple lockfile warning
+  outputFileTracingRoot: __dirname,
   images: {
     remotePatterns: [
       // Allow all HTTPS domains for Nouns proposal images

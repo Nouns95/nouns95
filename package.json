@@ -60,7 +60,19 @@
     "ip": "^2.0.1",
     "webpack-dev-middleware": "^7.4.2",
     "selfsigned": "^2.1.1",
-    "@solana/spl-token": "0.3.11"
+    "@solana/spl-token": "0.3.11",
+    "@fractalwagmi/popup-connection": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "qrcode.react": {
+      "react": "$react"
+    },
+    "react-qr-reader": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    },
+    "punycode": "^2.3.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
