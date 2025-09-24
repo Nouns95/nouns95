@@ -12,7 +12,7 @@ interface DesktopIcon {
 }
 
 const DESKTOP_ICONS: DesktopIcon[] = [
-  { id: 'governance', label: 'Nouns Governance' },
+  { id: 'governance', label: 'Camp' },
   { id: 'auction', label: 'Auction House' },
   { id: 'probe', label: 'Probe' },
   { id: 'chat', label: 'Chat' },

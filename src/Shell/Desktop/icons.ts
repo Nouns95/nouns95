@@ -132,6 +132,26 @@ export const APP_ICONS: AppIcons = {
     alt: '💰',
     isComponent: false
   },
+  'network-ethereum': {
+    icon: '/icons/apps/wallet/networks/ethereum.png',
+    alt: 'Ethereum',
+    isComponent: false
+  },
+  'network-base': {
+    icon: '/icons/apps/wallet/networks/base.png',
+    alt: 'Base',
+    isComponent: false
+  },
+  'network-solana': {
+    icon: '/icons/apps/wallet/networks/solana.png',
+    alt: 'Solana',
+    isComponent: false
+  },
+  'network-bitcoin': {
+    icon: '/icons/apps/wallet/networks/bitcoin.png',
+    alt: 'Bitcoin',
+    isComponent: false
+  },
 };
 
 export const getAppIcon = (appId: string): AppIcon => {

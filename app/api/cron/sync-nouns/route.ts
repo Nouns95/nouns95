@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLastNounId, batchUpsertNouns } from '@/lib/services/nounsService';
-import { fetchNewNounsFromGraphQL, convertGraphQLNoun, getLatestNounIdFromGraphQL } from '@/lib/services/graphqlService';
+import { fetchNounsFromGraphQL, convertGraphQLNoun, getLatestNounIdFromGraphQL } from '@/lib/services/graphqlService';
 import { query } from '@/lib/database';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Vercel Cron Job: Sync new nouns every 5 minutes
- * This endpoint should be called by Vercel Cron
+ * Vercel Cron Job: Sync ALL nouns every 5 minutes  
+ * This ensures ownership changes are captured immediately
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -19,62 +19,70 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('🔄 Starting noun sync job...');
+    console.log('🔄 Starting full noun sync job...');
 
     // Log sync start
     const syncId = await logSyncStart('nouns');
 
-    // Get the last noun ID we have in the database
-    const lastCachedId = await getLastNounId();
-    console.log(`📊 Last cached noun ID: ${lastCachedId}`);
-
-    // Get the latest noun ID from GraphQL
+    // Get the latest noun ID from GraphQL to know how many we need to fetch
     const latestGraphQLId = await getLatestNounIdFromGraphQL();
     console.log(`📊 Latest GraphQL noun ID: ${latestGraphQLId}`);
 
-    if (latestGraphQLId <= lastCachedId) {
-      console.log('✅ No new nouns to sync');
+    // Fetch ALL nouns from GraphQL in batches
+    console.log('📦 Fetching ALL nouns from GraphQL...');
+    const BATCH_SIZE = 1000;
+    const allGraphQLNouns = [];
+    let skip = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const batch = await fetchNounsFromGraphQL(skip, BATCH_SIZE);
+      
+      if (batch.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      allGraphQLNouns.push(...batch);
+      
+      // If we got fewer than BATCH_SIZE nouns, we've reached the end
+      if (batch.length < BATCH_SIZE) {
+        hasMore = false;
+      } else {
+        skip += BATCH_SIZE;
+      }
+
+      // Small delay to be respectful to the API
+      if (hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    console.log(`📦 Fetched ${allGraphQLNouns.length} total nouns from GraphQL`);
+
+    if (allGraphQLNouns.length === 0) {
+      console.log('⚠️ No nouns found in GraphQL');
       await logSyncComplete(syncId, 0, true);
       
       return NextResponse.json({
         success: true,
-        message: 'No new nouns to sync',
+        message: 'No nouns found in GraphQL',
         meta: {
-          lastCachedId,
           latestGraphQLId,
           duration: Date.now() - startTime
         }
       });
     }
 
-    // Fetch new nouns from GraphQL
-    const newGraphQLNouns = await fetchNewNounsFromGraphQL(lastCachedId);
-    console.log(`📦 Fetched ${newGraphQLNouns.length} new nouns from GraphQL`);
-
-    if (newGraphQLNouns.length === 0) {
-      console.log('✅ No new nouns found');
-      await logSyncComplete(syncId, 0, true);
-      
-      return NextResponse.json({
-        success: true,
-        message: 'No new nouns found',
-        meta: {
-          lastCachedId,
-          latestGraphQLId,
-          duration: Date.now() - startTime
-        }
-      });
-    }
-
-    // Convert and batch insert
-    const convertedNouns = newGraphQLNouns.map(convertGraphQLNoun);
+    // Convert and batch upsert ALL nouns
+    const convertedNouns = allGraphQLNouns.map(convertGraphQLNoun);
     const upsertResult = await batchUpsertNouns(convertedNouns);
 
     // Log completion
     await logSyncComplete(syncId, upsertResult.processed, upsertResult.errors.length === 0);
 
     const duration = Date.now() - startTime;
-    console.log(`✅ Sync completed: ${upsertResult.processed} nouns processed in ${duration}ms`);
+    console.log(`✅ Full sync completed: ${upsertResult.processed} nouns processed in ${duration}ms`);
 
     if (upsertResult.errors.length > 0) {
       console.error('⚠️ Sync errors:', upsertResult.errors);
@@ -82,11 +90,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Synced ${upsertResult.processed} new nouns`,
+      message: `Synced ${upsertResult.processed} total nouns`,
       meta: {
         processed: upsertResult.processed,
         errors: upsertResult.errors.length,
-        lastCachedId,
+        totalNouns: allGraphQLNouns.length,
         latestGraphQLId: upsertResult.lastId || latestGraphQLId,
         duration
       }

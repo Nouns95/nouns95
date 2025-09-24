@@ -12,5 +12,36 @@
       "path": "/api/cron/sync-images",
       "schedule": "*/30 * * * *"
     }
+  ],
+  "functions": {
+    "app/api/cron/sync-nouns/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/cron/sync-ens/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/cron/sync-images/route.ts": {
+      "maxDuration": 300
+    }
+  },
+  "buildCommand": "npm run build",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
   ]
 }

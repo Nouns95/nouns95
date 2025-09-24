@@ -106,6 +106,10 @@ export interface NounSeed {
 
 export interface Account {
   id: string;
+  delegate?: {
+    id: string;
+    delegatedVotes: string;
+  };
 }
 
 export interface Noun extends BaseResponse {

@@ -5,7 +5,8 @@ export interface ProposalCandidateVersion {
   id: string;
   createdTimestamp: string;
   createdBlock: string;
-  content?: string | null;
+  updateMessage: string;
+  content: ProposalCandidateContent;
 }
 
 export interface ProposalCandidateContent {
@@ -25,10 +26,15 @@ export interface ProposalCandidateContent {
 
 export interface ProposalCandidateSignature {
   id: string;
-  signer: string;
+  signer: {
+    id: string;
+    nounsRepresented: { id: string }[];
+  };
   sig: string;
   expirationTimestamp: string;
-  reason: string | null;
+  reason: string;
+  canceled: boolean;
+  createdTimestamp: string;
 }
 
 export interface CandidateFeedback {
@@ -120,13 +126,53 @@ export const PROPOSAL_CANDIDATE_QUERY = gql`
         id
         createdTimestamp
         createdBlock
-        content
+        updateMessage
+        content {
+          id
+          proposer
+          targets
+          values
+          signatures
+          calldatas
+          description
+          proposalIdToUpdate
+          title
+          encodedProposalHash
+          matchingProposalIds
+          contentSignatures(orderBy: expirationTimestamp, orderDirection: desc) {
+            id
+            signer {
+              id
+              delegatedVotes
+              nounsRepresented {
+                id
+              }
+            }
+            sig
+            expirationTimestamp
+            reason
+            canceled
+            createdTimestamp
+          }
+        }
       }
       versions(orderBy: createdTimestamp, orderDirection: desc) {
         id
         createdTimestamp
         createdBlock
-        content
+        updateMessage
+        content {
+          id
+          proposer
+          targets
+          values
+          signatures
+          calldatas
+          description
+          proposalIdToUpdate
+          title
+          encodedProposalHash
+        }
       }
     }
   }
@@ -157,6 +203,26 @@ export const PROPOSAL_CANDIDATES_QUERY = gql`
         id
         createdTimestamp
         createdBlock
+        updateMessage
+        content {
+          id
+          title
+          description
+          proposalIdToUpdate
+          contentSignatures(first: 10, orderBy: expirationTimestamp, orderDirection: desc) {
+            id
+            signer {
+              id
+              nounsRepresented {
+                id
+              }
+            }
+            sig
+            expirationTimestamp
+            reason
+            canceled
+          }
+        }
       }
     }
   }

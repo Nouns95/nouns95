@@ -16,6 +16,10 @@ export interface GraphQLNoun {
   };
   owner: {
     id: string;
+    delegate?: {
+      id: string;
+      delegatedVotes: string;
+    };
   };
 }
 
@@ -62,6 +66,10 @@ export async function fetchNounsFromGraphQL(
           }
           owner {
             id
+            delegate {
+              id
+              delegatedVotes
+            }
           }
         }
       }
@@ -120,6 +128,10 @@ export async function fetchNounDetailFromGraphQL(id: string): Promise<GraphQLNou
           }
           owner {
             id
+            delegate {
+              id
+              delegatedVotes
+            }
           }
           votes(first: 100, orderBy: blockNumber, orderDirection: desc) {
             id
@@ -272,6 +284,8 @@ export function convertGraphQLNoun(graphqlNoun: GraphQLNoun) {
     accessory: parseInt(graphqlNoun.seed.accessory),
     head: parseInt(graphqlNoun.seed.head),
     glasses: parseInt(graphqlNoun.seed.glasses),
-    owner_address: graphqlNoun.owner.id.toLowerCase()
+    owner_address: graphqlNoun.owner.id.toLowerCase(),
+    delegate_address: graphqlNoun.owner.delegate?.id?.toLowerCase() || null,
+    delegate_votes: graphqlNoun.owner.delegate?.delegatedVotes || null
   };
 }

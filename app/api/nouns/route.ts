@@ -71,9 +71,14 @@ export async function GET(request: NextRequest) {
               glasses: noun.glasses.toString(),
             },
             owner: {
-              id: noun.owner_address
+              id: noun.owner_address,
+              delegate: noun.delegate_address ? {
+                id: noun.delegate_address,
+                delegatedVotes: noun.delegate_votes || '0'
+              } : undefined
             },
-            __ensName: noun.ens_name, // Include cached ENS data
+            __ensName: noun.ens_name, // Include cached ENS data for owner
+            __delegateEnsName: null, // TODO: Add delegate ENS caching
             __cachedImage: noun.cached_image || null // Include cached SVG data from JOIN
           };
         });
@@ -116,7 +121,11 @@ export async function GET(request: NextRequest) {
               glasses: noun.glasses.toString(),
             },
             owner: {
-              id: noun.owner_address
+              id: noun.owner_address,
+              delegate: noun.delegate_address ? {
+                id: noun.delegate_address,
+                delegatedVotes: noun.delegate_votes || '0'
+              } : undefined
             }
             // Note: ENS data not available in GraphQL conversion
           })),

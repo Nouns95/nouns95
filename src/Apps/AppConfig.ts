@@ -286,7 +286,7 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
 
   governance: {
     type: 'window',
-    title: 'Nouns Governance',
+    title: 'Camp',
     size: {
       defaultSize: {
         width: { value: 80, unit: 'rem' },

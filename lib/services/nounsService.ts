@@ -8,6 +8,8 @@ export interface NounData {
   head: number;
   glasses: number;
   owner_address: string;
+  delegate_address?: string | null;
+  delegate_votes?: string | null;
   ens_name?: string | null;
   cached_image?: string | null; // Add cached image to main interface
   created_at?: string;
@@ -53,7 +55,7 @@ export async function getAllNouns(options: {
   } = options;
 
   // Validate orderBy to prevent SQL injection
-  const validOrderFields = ['id', 'background', 'body', 'accessory', 'head', 'glasses', 'owner_address', 'created_at'];
+  const validOrderFields = ['id', 'background', 'body', 'accessory', 'head', 'glasses', 'owner_address', 'delegate_address', 'created_at'];
   const safeOrderBy = validOrderFields.includes(orderBy) ? orderBy : 'id';
   const safeDirection = orderDirection === 'asc' ? 'ASC' : 'DESC';
 
@@ -94,6 +96,8 @@ export async function getAllNouns(options: {
       n.head,
       n.glasses,
       n.owner_address,
+      n.delegate_address,
+      n.delegate_votes,
       e.ens_name,
       i.svg_data as cached_image,
       n.created_at,
@@ -180,6 +184,8 @@ export async function getNounById(id: number): Promise<NounWithImage | null> {
       n.head,
       n.glasses,
       n.owner_address,
+      n.delegate_address,
+      n.delegate_votes,
       e.ens_name,
       ni.svg_data,
       n.created_at,
@@ -201,8 +207,8 @@ export async function getNounById(id: number): Promise<NounWithImage | null> {
  */
 export async function upsertNoun(nounData: Omit<NounData, 'created_at' | 'updated_at'>): Promise<void> {
   const sql = `
-    INSERT INTO nouns (id, background, body, accessory, head, glasses, owner_address)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    INSERT INTO nouns (id, background, body, accessory, head, glasses, owner_address, delegate_address, delegate_votes)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     ON CONFLICT (id) DO UPDATE SET
       background = EXCLUDED.background,
       body = EXCLUDED.body,
@@ -210,6 +216,8 @@ export async function upsertNoun(nounData: Omit<NounData, 'created_at' | 'update
       head = EXCLUDED.head,
       glasses = EXCLUDED.glasses,
       owner_address = EXCLUDED.owner_address,
+      delegate_address = EXCLUDED.delegate_address,
+      delegate_votes = EXCLUDED.delegate_votes,
       updated_at = NOW()
   `;
 
@@ -220,7 +228,9 @@ export async function upsertNoun(nounData: Omit<NounData, 'created_at' | 'update
     nounData.accessory,
     nounData.head,
     nounData.glasses,
-    nounData.owner_address
+    nounData.owner_address,
+    nounData.delegate_address || null,
+    nounData.delegate_votes || null
   ]);
 }
 
@@ -249,6 +259,8 @@ export async function batchUpsertNouns(nouns: Omit<NounData, 'created_at' | 'upd
               head = EXCLUDED.head,
               glasses = EXCLUDED.glasses,
               owner_address = EXCLUDED.owner_address,
+      delegate_address = EXCLUDED.delegate_address,
+      delegate_votes = EXCLUDED.delegate_votes,
               updated_at = NOW()
           `, [
             noun.id,
@@ -257,7 +269,9 @@ export async function batchUpsertNouns(nouns: Omit<NounData, 'created_at' | 'upd
             noun.accessory,
             noun.head,
             noun.glasses,
-            noun.owner_address
+            noun.owner_address,
+            noun.delegate_address || null,
+            noun.delegate_votes || null
           ]);
           processed++;
         } catch (error) {
@@ -320,7 +334,7 @@ export async function getAllNounsWithCount(options: {
   } = options;
 
   // Validate orderBy to prevent SQL injection
-  const validOrderFields = ['id', 'background', 'body', 'accessory', 'head', 'glasses', 'owner_address', 'created_at'];
+  const validOrderFields = ['id', 'background', 'body', 'accessory', 'head', 'glasses', 'owner_address', 'delegate_address', 'created_at'];
   const safeOrderBy = validOrderFields.includes(orderBy) ? orderBy : 'id';
   const safeDirection = orderDirection === 'asc' ? 'ASC' : 'DESC';
 
@@ -363,6 +377,8 @@ export async function getAllNounsWithCount(options: {
         n.head,
         n.glasses,
         n.owner_address,
+        n.delegate_address,
+        n.delegate_votes,
         e.ens_name,
         i.svg_data as cached_image,
         n.created_at,
@@ -402,7 +418,7 @@ export async function getAllNounsWithCount(options: {
   const nouns = result.rows.map(row => {
     const typedRow = row as {
       id: number; background: number; body: number; accessory: number; head: number; glasses: number;
-      owner_address: string; ens_name: string | null; cached_image: string | null;
+      owner_address: string; delegate_address: string | null; delegate_votes: string | null; ens_name: string | null; cached_image: string | null;
       created_at: string; updated_at: string; total_count: string;
     };
     return {
@@ -413,6 +429,8 @@ export async function getAllNounsWithCount(options: {
       head: typedRow.head,
       glasses: typedRow.glasses,
       owner_address: typedRow.owner_address,
+      delegate_address: typedRow.delegate_address,
+      delegate_votes: typedRow.delegate_votes,
       ens_name: typedRow.ens_name,
       cached_image: typedRow.cached_image,
       created_at: typedRow.created_at,

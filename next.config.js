@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Ensure production builds use webpack (not turbopack) for Vercel compatibility
+  experimental: {
+    turbo: {
+      // Turbo configs if needed
+    }
+  },
   images: {
     remotePatterns: [
       // Allow all HTTPS domains for Nouns proposal images
@@ -58,6 +64,32 @@ const nextConfig = {
     }
 
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
+    
+    // Fix for AppKit dynamic import issues
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@phosphor-icons/webcomponents': '@phosphor-icons/webcomponents/dist',
+    };
+    
+    // Improve chunk splitting for better loading
+    if (config.optimization.splitChunks) {
+      config.optimization.splitChunks.cacheGroups = {
+        ...config.optimization.splitChunks.cacheGroups,
+        appkit: {
+          test: /[\\/]node_modules[\\/]@reown[\\/]/,
+          name: 'appkit',
+          chunks: 'all',
+          priority: 30,
+        },
+        phosphor: {
+          test: /[\\/]node_modules[\\/]@phosphor-icons[\\/]/,
+          name: 'phosphor-icons',
+          chunks: 'all',
+          priority: 25,
+        },
+      };
+    }
+    
     return config;
   },
   async rewrites() {

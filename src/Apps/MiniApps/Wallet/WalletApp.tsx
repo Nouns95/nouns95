@@ -1,18 +1,21 @@
 "use client";
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { useAppKit } from '@reown/appkit/react'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { useAppKitNetwork } from '@reown/appkit/react'
 import { useAppKitState } from '@reown/appkit/react'
+import { useWalletInfo } from '@reown/appkit/react'
 import { useDisconnect } from '@reown/appkit/react'
-import ConnectWallet from './ConnectWallet'
-import { AddressDisplay } from './AddressDisplay';
-import { NetworkDisplay } from './NetworkDisplay';
-import { useEnsResolution } from './useEnsResolution';
-import './WalletApp.styles.css'
+import ConnectWallet from './components/ConnectWallet'
+import { AddressDisplay } from './components/AddressDisplay';
+import { NetworkDisplay } from './components/NetworkDisplay';
+import { useEnsResolution } from './utils/useEnsResolution';
+import styles from './WalletApp.module.css'
 
-type TabType = 'Account' | 'Network' | 'Swap'
+
+type TabType = 'Account' | 'Network' | 'SendSwap'
 
 const getNetworkType = (networkId?: string): 'ethereum' | 'base' | 'solana' | 'bitcoin' => {
   if (!networkId) return 'ethereum';
@@ -27,10 +30,16 @@ export default function WalletApp() {
   const { isConnected, address } = useAppKitAccount()
   const { chainId } = useAppKitNetwork()
   const { selectedNetworkId } = useAppKitState()
+  const { walletInfo } = useWalletInfo()
   const { disconnect } = useDisconnect()
   const { open } = useAppKit()
   const [activeTab, setActiveTab] = useState<TabType>('Account')
   const { ensName, ensAvatar } = useEnsResolution(address)
+
+  // Set up wallet event listeners - using useEffect for proper lifecycle
+  React.useEffect(() => {
+    console.log('Wallet app initialized')
+  }, [isConnected, address, chainId])
 
   if (!isConnected) {
     return <ConnectWallet />
@@ -40,44 +49,60 @@ export default function WalletApp() {
     switch (activeTab) {
       case 'Account':
         return (
-          <div className="tab-content wallet-tab-bg">
-            <div className="wallet-profile">
+          <div className={`${styles.tabContent} ${styles.walletTabBg}`}>
+            <div className={styles.walletProfileInTab}>
               <AddressDisplay 
                 address={address} 
                 network={getNetworkType(selectedNetworkId)}
                 ensName={ensName}
                 ensAvatar={ensAvatar}
               />
-            </div>
-          </div>
-        )
-      case 'Network':
-        return (
-          <div className="tab-content wallet-tab-bg">
-            <div className="wallet-profile">
-              <NetworkDisplay 
-                chainId={chainId} 
-                networkId={selectedNetworkId}
-              />
-              <div className="wallet-actions no-border">
-                <button onClick={() => open({ view: 'Networks' })} className="win95-btn">
-                  Switch Network
+              <div className={`${styles.walletActions} ${styles.noBorder}`}>
+                <button onClick={() => open({ view: 'Account' })} className="win95-btn">
+                  View Details
                 </button>
               </div>
             </div>
           </div>
         )
-      case 'Swap':
+      case 'Network':
         return (
-          <div className="tab-content wallet-tab-bg">
-            <div className="wallet-profile">
-              <div className="wallet-actions no-border">
-                <button onClick={() => open({ view: 'Swap' })} className="win95-btn swap-btn">
-                  Swap Tokens
-                </button>
-                <button onClick={() => open({ view: 'OnRampProviders' })} className="win95-btn buy-btn">
-                  Buy with Fiat
-                </button>
+          <div className={`${styles.tabContent} ${styles.walletTabBg}`}>
+            <div className={styles.walletProfileInTab}>
+              <NetworkDisplay 
+                chainId={typeof chainId === 'number' ? chainId : undefined} 
+                networkId={selectedNetworkId}
+              />
+            </div>
+          </div>
+        )
+      case 'SendSwap':
+        return (
+          <div className={`${styles.tabContent} ${styles.walletTabBg}`}>
+            <div className={styles.walletProfileInTab}>
+              <div className={styles.sendInterface}>
+                <div className={styles.walletInfoDisplay}>
+                  <div className={styles.walletInfoLabel}>Connected Wallet:</div>
+                  <div className={styles.walletInfoValue}>
+                    {walletInfo?.name || 'Unknown Wallet'}
+                  </div>
+                  {walletInfo?.icon && (
+                    <div className={styles.walletIconDisplay}>
+                      <Image src={walletInfo.icon} alt={walletInfo.name} width={48} height={48} />
+                    </div>
+                  )}
+                </div>
+                <div className={`${styles.walletActions} ${styles.noBorder}`}>
+                  <button onClick={() => open({ view: 'WalletSend' })} className="win95-btn">
+                    Send Tokens
+                  </button>
+                  <button onClick={() => open({ view: 'Swap' })} className="win95-btn">
+                    Swap Tokens
+                  </button>
+                  <button onClick={() => open({ view: 'OnRampProviders' })} className={`win95-btn ${styles.fullWidthBtn}`}>
+                    Buy with Fiat
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -86,35 +111,37 @@ export default function WalletApp() {
   }
 
   return (
-    <div className="wallet-app">
-      <div className="wallet-content">
-        <div className="win95-tabs">
-          <div className="tab-buttons">
+    <div className={styles.walletApp}>
+      <div className={styles.walletContent}>
+        <div className={styles.win95Tabs}>
+          <div className={styles.tabButtons}>
             <button 
-              className={`tab-button ${activeTab === 'Account' ? 'active' : ''}`}
+              className={`${styles.tabButton} ${activeTab === 'Account' ? styles.active : ''}`}
               onClick={() => setActiveTab('Account')}
             >
               Account
             </button>
             <button 
-              className={`tab-button ${activeTab === 'Network' ? 'active' : ''}`}
+              className={`${styles.tabButton} ${activeTab === 'Network' ? styles.active : ''}`}
               onClick={() => setActiveTab('Network')}
             >
               Network
             </button>
+          </div>
+          <div className={styles.tabButtonsSecondRow}>
             <button 
-              className={`tab-button ${activeTab === 'Swap' ? 'active' : ''}`}
-              onClick={() => setActiveTab('Swap')}
+              className={`${styles.tabButton} ${styles.tabButtonWide} ${activeTab === 'SendSwap' ? styles.active : ''}`}
+              onClick={() => setActiveTab('SendSwap')}
             >
-              Swap
+              Send / Swap / Buy
             </button>
           </div>
-          <div className="tab-panel">
+          <div className={styles.tabPanel}>
             {renderTabContent()}
           </div>
         </div>
       </div>
-      <div className="wallet-actions">
+      <div className={styles.walletActions}>
         <button onClick={() => disconnect()} className="win95-btn">
           Disconnect
         </button>

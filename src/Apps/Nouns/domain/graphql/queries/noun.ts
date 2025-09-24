@@ -13,6 +13,10 @@ export const NOUN_BY_ID_QUERY = gql`
       }
       owner {
         id
+        delegate {
+          id
+          delegatedVotes
+        }
       }
     }
   }
@@ -31,6 +35,10 @@ export const NOUNDERS_NOUNS_QUERY = gql`
       }
       owner {
         id
+        delegate {
+          id
+          delegatedVotes
+        }
       }
     }
   }
@@ -49,6 +57,10 @@ export const ALL_NOUNS_QUERY = gql`
       }
       owner {
         id
+        delegate {
+          id
+          delegatedVotes
+        }
       }
     }
   }
@@ -67,6 +79,10 @@ export const PROBE_NOUNS_QUERY = gql`
       }
       owner {
         id
+        delegate {
+          id
+          delegatedVotes
+        }
       }
     }
   }
@@ -85,6 +101,10 @@ export const PROBE_NOUNS_INITIAL_QUERY = gql`
       }
       owner {
         id
+        delegate {
+          id
+          delegatedVotes
+        }
       }
     }
   }
@@ -103,6 +123,10 @@ export const NOUN_DETAIL_QUERY = gql`
       }
       owner {
         id
+        delegate {
+          id
+          delegatedVotes
+        }
       }
       votes(first: 100, orderBy: blockNumber, orderDirection: desc) {
         id

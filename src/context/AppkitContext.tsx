@@ -6,6 +6,13 @@ import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiProvider } from 'wagmi'
 
+// Preload phosphor icons to prevent chunk loading errors
+if (typeof window !== 'undefined') {
+  import('@phosphor-icons/webcomponents').catch(() => {
+    // Silently handle import errors - this is just a preload
+  });
+}
+
 // Set up queryClient with retry configuration
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,9 +51,6 @@ export const modal = typeof window === 'undefined'
       debug: true,
       features: {
         analytics: false,
-        email: false,
-        connectMethodsOrder: ['wallet', 'social'],
-        socials: ['farcaster'],
       },
       themeMode: 'light',
       themeVariables: {

@@ -257,4 +257,358 @@
   font-family: "MS Sans Serif", sans-serif;
   font-size: 0.875rem;
   color: #800000;
+}
+
+/* Sponsor Candidate Styles */
+.sponsorSection {
+  width: 100%;
+}
+
+.sponsorButton {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.5rem 1rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.sponsorButton:hover:not(:disabled) {
+  background: #d0d0d0;
+}
+
+.sponsorButton:active:not(:disabled) {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.sponsorButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sponsorForm {
+  width: 100%;
+}
+
+.sponsorReasonInput {
+  width: 100%;
+  padding: 0.5rem;
+  border: 0.125rem solid #808080;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.sponsorReasonInput:focus {
+  outline: none;
+  border-color: #000080;
+}
+
+.sponsorFormButtons {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.sponsorSubmitButton,
+.sponsorCancelButton {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0.5rem;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.sponsorSubmitButton {
+  background: #000080;
+  color: #ffffff;
+}
+
+.sponsorSubmitButton:hover:not(:disabled) {
+  background: #0000a0;
+}
+
+.sponsorSubmitButton:active:not(:disabled) {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.sponsorSubmitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #808080;
+}
+
+.sponsorCancelButton:hover:not(:disabled) {
+  background: #d0d0d0;
+}
+
+.sponsorCancelButton:active:not(:disabled) {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.sponsorCancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sponsorSuccess {
+  background: #d4edda;
+  border: 0.0625rem solid #c3e6cb;
+  color: #155724;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  border-radius: 0;
+}
+
+.sponsorError {
+  background: #f8d7da;
+  border: 0.0625rem solid #f5c6cb;
+  color: #721c24;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  border-radius: 0;
+}
+
+.connectWalletMessage,
+.cannotSponsorMessage {
+  color: #808080;
+  font-size: 0.6875rem;
+  font-family: "MS Sans Serif", sans-serif;
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
+}
+
+/* Dialog Styles */
+.dialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: #c0c0c0;
+  border: 0.125rem solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  width: 90vw;
+  max-width: 32rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.dialogHeader {
+  background: #000080;
+  color: #ffffff;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dialogHeader h3 {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: normal;
+}
+
+.dialogCloseButton {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialogCloseButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dialogContent {
+  padding: 1rem;
+  font-size: 0.6875rem;
+}
+
+.dialogContent p {
+  margin: 0 0 1rem 0;
+}
+
+.signatureList {
+  border: 0.0625rem solid #808080;
+  background: #ffffff;
+  padding: 0.5rem;
+  margin: 1rem 0;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.signatureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  font-size: 0.6875rem;
+}
+
+.signatureItem:hover {
+  background: #f0f0f0;
+}
+
+.signatureItem input[type="checkbox"] {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.votingPowerInfo {
+  background: #f0f0f0;
+  border: 0.0625rem solid #808080;
+  padding: 0.5rem;
+  margin: 1rem 0;
+  font-size: 0.6875rem;
+}
+
+.votingPowerInfo p {
+  margin: 0;
+  font-family: monospace;
+}
+
+.dialogFooter {
+  padding: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  background: #c0c0c0;
+  border-top: 0.0625rem solid #808080;
+}
+
+/* Sponsor Signatures Display */
+.signaturesSection {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  padding: 0.75rem;
+  font-family: "MS Sans Serif", sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.signaturesSummary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.6875rem;
+}
+
+.signatureCount {
+  font-weight: bold;
+  color: #000080;
+}
+
+.votingPower {
+  color: #404040;
+  font-size: 0.625rem;
+}
+
+.signaturesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: visible;
+}
+
+.signatureItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: #f8f8f8;
+  border: 1px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  font-family: "MS Sans Serif", sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.signerInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.signerDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.signerAddress {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 0.6875rem;
+  color: #000080;
+  font-weight: bold;
+}
+
+.nounCount {
+  font-size: 0.625rem;
+  color: #000000;
+  background: #c0c0c0;
+  padding: 2px 6px;
+  border: 1px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.signatureExpiry {
+  font-size: 0.625rem;
+  color: #404040;
+  margin-left: 1.25rem; /* Align with avatar */
+}
+
+.noSignatures {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #808080;
+  font-style: italic;
+  font-size: 0.6875rem;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
 } 

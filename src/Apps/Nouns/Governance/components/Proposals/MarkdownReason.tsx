@@ -198,15 +198,30 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     const uris: Record<string, string> = {};
     let count = 0;
     
+    console.log('📄 FULL CONTENT:', content);
+    
+    // Debug: Look for any base64 images in the content
+    const base64Matches = content.match(/data:image\/[^)]+/g);
+    if (base64Matches) {
+      console.log('🔎 Found base64 images in content:', base64Matches.map(m => m.substring(0, 50) + '...'));
+    }
+    
+    // Debug: Look for image links 
+    const imageLinkMatches = content.match(/\[!\[[^\]]*\]\([^)]+\)\]\([^)]+\)/g);
+    if (imageLinkMatches) {
+      console.log('🔗 Found image links:', imageLinkMatches);
+    }
     
     // Replace data URIs with placeholders (both standalone and linked images)
     let processed = content;
     
     // Handle linked images FIRST: [![alt](data:...)](external-link)
     // This needs to come before standalone images to avoid conflicts
+    // More flexible regex to catch various base64 formats
     processed = processed.replace(
-      /\[!\[(.*?)\]\((data:image\/[^;]+;base64,[A-Za-z0-9+/=]+)\)\]\(([^)]+)\)/g,
+      /\[!\[(.*?)\]\((data:image\/[^;]+;base64,[^)]+)\)\]\(([^)]+)\)/g,
       (match, alt, uri, externalLink) => {
+        console.log('🔍 REGEX MATCHED linked base64:', { match, alt, uri: uri.substring(0, 50) + '...', externalLink });
         const placeholder = `__DATA_URI_${count}__`;
         const linkPlaceholder = `__LINK_${count}__`;
         uris[placeholder] = uri;
@@ -277,6 +292,14 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
                 const actualLink = href in dataUris ? dataUris[href] : href;
                 const base64Src = dataUris[imgSrc];
                 
+                console.log('🎯 RENDERING linked base64 image:', { 
+                  imgSrc, 
+                  imgAlt, 
+                  hasDataUri: imgSrc in dataUris,
+                  base64Preview: base64Src ? base64Src.substring(0, 50) + '...' : 'undefined',
+                  actualLink 
+                });
+                
                 // For base64 images, use regular img tag directly
                 return (
                   <div>
@@ -293,6 +316,13 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
                               height: 'auto',
                               objectFit: 'contain',
                               display: 'block'
+                            }}
+                            onError={(e) => {
+                              console.log('❌ Regular img failed for linked base64:', e);
+                              console.log('Src that failed:', base64Src ? base64Src.substring(0, 100) + '...' : 'undefined');
+                            }}
+                            onLoad={() => {
+                              console.log('✅ Regular img loaded successfully for linked base64');
                             }}
                           />
                         </span>

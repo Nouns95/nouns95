@@ -224,9 +224,15 @@ export function CandidatesList({ onCandidateClick }: CandidatesListProps) {
   // Filter candidates based on search query
   const filteredCandidates = candidatesData?.proposalCandidates?.filter((candidate: ProposalCandidate) => {
     if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const title = candidate.latestVersion?.content?.title?.toLowerCase() || '';
+    const description = candidate.latestVersion?.content?.description?.toLowerCase() || '';
+    
     return candidate.id.includes(searchQuery) || 
            candidate.number.toString().includes(searchQuery) ||
-           candidate.proposer.toLowerCase().includes(searchQuery.toLowerCase());
+           candidate.proposer.toLowerCase().includes(query) ||
+           title.includes(query) ||
+           description.includes(query);
   });
 
   const renderLoadingCandidate = () => (
@@ -355,7 +361,7 @@ export function CandidatesList({ onCandidateClick }: CandidatesListProps) {
           <input
             type="text"
             className={styles.searchInput}
-              placeholder="Search by candidate number..."
+              placeholder="Search candidates by number, title, or proposer..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -373,33 +379,53 @@ export function CandidatesList({ onCandidateClick }: CandidatesListProps) {
               ))
             ) : recentCandidates?.length ? (
               <>
-                {recentCandidates.map((candidate: ProposalCandidate) => (
-              <div
-                key={candidate.id}
-                    className={styles.candidateItem}
-                    onClick={() => onCandidateClick(candidate.id)}
-                    style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.candidateHeader}>
-                      <span className={styles.candidateId}>Candidate #{candidate.number}</span>
-                      <span className={`${styles.status} ${candidate.canceled ? styles.canceled : styles.active}`}>
-                        {candidate.canceled ? 'Canceled' : 'Active'}
-                  </span>
-                </div>
-                <div className={styles.proposerInfo}>
-                  <span>Proposed by </span>
-                  <AddressAvatar address={candidate.proposer} size={16} />
-                </div>
-                <div className={styles.candidateFooter}>
-                      <span className={styles.timestamp}>
-                        {formatTimestamp(candidate.createdTimestamp)}
-                  </span>
-                  <span className={styles.timestamp}>
-                    Last updated {formatTimestamp(candidate.lastUpdatedTimestamp)}
-                  </span>
-                </div>
-                  </div>
-                ))}
+                {recentCandidates.map((candidate: ProposalCandidate) => {
+                  const content = candidate.latestVersion?.content;
+                  const title = content?.title || `Candidate #${candidate.number}`;
+                  const signatureCount = content?.contentSignatures?.filter(sig => !sig.canceled).length || 0;
+                  
+                  return (
+                    <div
+                      key={candidate.id}
+                      className={styles.candidateItem}
+                      onClick={() => onCandidateClick(candidate.id)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className={styles.candidateHeader}>
+                        <span className={styles.candidateId}>Candidate #{candidate.number}</span>
+                        <span className={`${styles.status} ${candidate.canceled ? styles.canceled : styles.active}`}>
+                          {candidate.canceled ? 'Canceled' : 'Active'}
+                        </span>
+                      </div>
+                      
+                      {content?.title && (
+                        <div className={styles.candidateTitle}>
+                          {title}
+                        </div>
+                      )}
+                      
+                      <div className={styles.proposerInfo}>
+                        <span>Proposed by </span>
+                        <AddressAvatar address={candidate.proposer} size={16} />
+                      </div>
+                      
+                      {signatureCount > 0 && (
+                        <div className={styles.signatureCount}>
+                          {signatureCount} sponsor signature{signatureCount !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                      
+                      <div className={styles.candidateFooter}>
+                        <span className={styles.timestamp}>
+                          {formatTimestamp(candidate.createdTimestamp)}
+                        </span>
+                        <span className={styles.timestamp}>
+                          Last updated {formatTimestamp(candidate.lastUpdatedTimestamp)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
                 {isFetchingMoreCandidates && (
                   <div className={styles.loadingMore}>
                     <div className={styles.loadingIndicator}>Loading more candidates...</div>

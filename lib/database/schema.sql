@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS nouns (
   head INTEGER NOT NULL,
   glasses INTEGER NOT NULL,
   owner_address TEXT NOT NULL,
+  delegate_address TEXT,
+  delegate_votes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -21,6 +23,7 @@ CREATE INDEX IF NOT EXISTS idx_nouns_accessory ON nouns(accessory);
 CREATE INDEX IF NOT EXISTS idx_nouns_head ON nouns(head);
 CREATE INDEX IF NOT EXISTS idx_nouns_glasses ON nouns(glasses);
 CREATE INDEX IF NOT EXISTS idx_nouns_owner ON nouns(owner_address);
+CREATE INDEX IF NOT EXISTS idx_nouns_delegate ON nouns(delegate_address);
 CREATE INDEX IF NOT EXISTS idx_nouns_created_at ON nouns(created_at);
 
 -- Optimized indexes for fast pagination (most common queries)
@@ -28,6 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_nouns_id_desc ON nouns(id DESC);
 CREATE INDEX IF NOT EXISTS idx_nouns_background_id ON nouns(background, id);
 CREATE INDEX IF NOT EXISTS idx_nouns_body_id ON nouns(body, id);
 CREATE INDEX IF NOT EXISTS idx_nouns_owner_id ON nouns(owner_address, id);
+CREATE INDEX IF NOT EXISTS idx_nouns_delegate_id ON nouns(delegate_address, id);
 
 -- Pre-generated SVG images cache
 CREATE TABLE IF NOT EXISTS noun_images (
