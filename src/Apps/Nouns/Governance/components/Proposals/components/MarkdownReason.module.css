@@ -158,6 +158,18 @@
   align-items: center;
 }
 
+/* For vote reasons, constrain GIF size to be reasonable */
+.feedbackItem .imageWrapper {
+  max-width: 200px;
+  max-height: 120px;
+}
+
+.feedbackItem .image {
+  max-height: 120px;
+  max-width: 200px;
+  width: auto;
+}
+
 /* Remove the loading text styles */
 .imageWrapper.loading::before {
   content: '';
@@ -236,6 +248,13 @@
   height: auto;
   transition: opacity 0.3s ease;
   display: block;
+}
+
+/* Special styling for GIFs to ensure they animate properly */
+.image[src$=".gif"], .image[src*=".gif?"] {
+  /* Ensure GIFs don't get optimized away and maintain animation */
+  image-rendering: auto;
+  object-fit: contain;
 }
 
 .imageError {

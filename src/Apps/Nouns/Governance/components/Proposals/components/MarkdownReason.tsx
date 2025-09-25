@@ -40,6 +40,31 @@ const isVideoUrl = (url: string): boolean => {
   return Boolean(youtubeId || vimeoId || loomId);
 };
 
+const isImageUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    const pathname = parsedUrl.pathname.toLowerCase();
+    return pathname.endsWith('.gif') || 
+           pathname.endsWith('.jpg') || 
+           pathname.endsWith('.jpeg') || 
+           pathname.endsWith('.png') || 
+           pathname.endsWith('.webp') || 
+           pathname.endsWith('.svg');
+  } catch {
+    return false;
+  }
+};
+
+const isGifUrl = (url: string): boolean => {
+  try {
+    const parsedUrl = new URL(url);
+    const pathname = parsedUrl.pathname.toLowerCase();
+    return pathname.endsWith('.gif');
+  } catch {
+    return false;
+  }
+};
+
 const VideoEmbed = ({ url }: { url: string }) => {
   const youtubeId = getYouTubeVideoId(url);
   const vimeoId = getVimeoVideoId(url);
@@ -193,7 +218,7 @@ const ImageComponent = ({ src, alt }: { src: string, alt?: string }) => {
 
 export function MarkdownReason({ content }: MarkdownReasonProps) {
 
-  // Pre-process content to handle data URIs
+  // Pre-process content to handle data URIs and convert plain image URLs
   const [processedContent, dataUris] = React.useMemo(() => {
     const uris: Record<string, string> = {};
     let count = 0;
@@ -212,8 +237,18 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
       console.log('🔗 Found image links:', imageLinkMatches);
     }
     
-    // Replace data URIs with placeholders (both standalone and linked images)
+    // Start with the original content
     let processed = content;
+    
+    // First, convert plain image URLs (including GIFs) to markdown image syntax
+    // Match URLs that end with image extensions and are not already in markdown syntax
+    const imageUrlRegex = /(?<!\]\()(https?:\/\/[^\s<>\[\]()]+\.(?:gif|jpg|jpeg|png|webp|svg))(?!\))/gi;
+    processed = processed.replace(imageUrlRegex, (match) => {
+      console.log('🖼️ Converting plain image URL to markdown:', match);
+      // Extract filename for alt text
+      const filename = match.split('/').pop()?.split('.')[0] || 'image';
+      return `![${filename}](${match})`;
+    });
     
     // Handle linked images FIRST: [![alt](data:...)](external-link)
     // This needs to come before standalone images to avoid conflicts
@@ -393,14 +428,42 @@ export function MarkdownReason({ content }: MarkdownReasonProps) {
     h4: ({ children }) => <h4 className={styles.heading4}>{children}</h4>,
     
     a: ({ href, children }) => {
-      // Don't render video embeds directly in links - let the paragraph handler deal with it
+      // Handle video embeds and image URLs
+      if (href && isVideoUrl(href)) {
+        return (
+          <a 
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.link}
+            data-video-url={href}
+          >
+            {children}
+          </a>
+        );
+      }
+      
+      // If this is an image URL link, render it normally but mark it
+      if (href && isImageUrl(href)) {
+        return (
+          <a 
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.link}
+            data-image-url={href}
+          >
+            {children}
+          </a>
+        );
+      }
+      
       return (
         <a 
           href={href}
           target="_blank"
           rel="noopener noreferrer"
           className={styles.link}
-          data-video-url={href && isVideoUrl(href) ? href : undefined}
         >
           {children}
         </a>
