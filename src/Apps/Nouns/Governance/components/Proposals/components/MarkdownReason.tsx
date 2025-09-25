@@ -55,16 +55,6 @@ const isImageUrl = (url: string): boolean => {
   }
 };
 
-const isGifUrl = (url: string): boolean => {
-  try {
-    const parsedUrl = new URL(url);
-    const pathname = parsedUrl.pathname.toLowerCase();
-    return pathname.endsWith('.gif');
-  } catch {
-    return false;
-  }
-};
-
 const VideoEmbed = ({ url }: { url: string }) => {
   const youtubeId = getYouTubeVideoId(url);
   const vimeoId = getVimeoVideoId(url);
