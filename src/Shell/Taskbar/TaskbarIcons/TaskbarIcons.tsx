@@ -16,6 +16,7 @@ const TaskbarIcons: React.FC = () => {
   const walletConfig = getAppConfig('wallet');
   const auctionConfig = getAppConfig('auction');
   const chatConfig = getAppConfig('chat');
+  const tabsConfig = getAppConfig('tabs');
 
   useEffect(() => {
     // Subscribe to window state changes
@@ -30,6 +31,9 @@ const TaskbarIcons: React.FC = () => {
           processManager.terminateProcess(closedWindow.processId);
         } else if (closedWindow.miniAppId === 'chat') {
           windowService.closeMiniApp('chat');
+          processManager.terminateProcess(closedWindow.processId);
+        } else if (closedWindow.miniAppId === 'tabs') {
+          windowService.closeMiniApp('tabs');
           processManager.terminateProcess(closedWindow.processId);
         }
       }
@@ -81,6 +85,19 @@ const TaskbarIcons: React.FC = () => {
           appId="chat"
           width={24}
           height={24}
+          className={styles.icon}
+        />
+      </button>
+
+      <button
+        className={styles.iconButton}
+        onClick={() => toggleApp('tabs')}
+        title={tabsConfig.title}
+      >
+        <Icon 
+          appId="tabs-small"
+          width={16}
+          height={16}
           className={styles.icon}
         />
       </button>

@@ -11,6 +11,7 @@ import styles from './Canvas.module.css';
 interface Layer {
   canvas: HTMLCanvasElement | null;
   isVisible: boolean;
+  zIndex: number;
 }
 
 interface CanvasProps {

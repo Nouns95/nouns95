@@ -160,6 +160,12 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
       return;
     }
 
+    // Prevent double submission
+    if (isSponsorPending) {
+      console.log('Sponsorship already in progress, ignoring duplicate submission');
+      return;
+    }
+
     // No need to set local state - the hook handles pending state
     try {
       await sponsorCandidate({
