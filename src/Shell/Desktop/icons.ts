@@ -127,6 +127,11 @@ export const APP_ICONS: AppIcons = {
     alt: '🖼️',
     isComponent: false
   },
+  tabs: {
+    icon: '/icons/apps/tabs/tabs.png',
+    alt: '📑',
+    isComponent: false
+  },
   wallet: {
     icon: '/icons/apps/wallet/wallet.png',
     alt: '💰',

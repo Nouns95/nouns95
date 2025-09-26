@@ -12,7 +12,7 @@ import { getAppIcon } from '@/src/Shell/Desktop/icons';
 interface MenuItem {
   id: string;
   label: string;
-  appId: AppId;
+  appId?: AppId; // Optional for submenu organizers like "Utilities"
   isMiniApp?: boolean;
   onClick?: () => void;
   submenu?: MenuItem[];
@@ -27,7 +27,14 @@ const MENU_ITEMS: MenuItem[] = [
       { id: 'governance', label: 'Camp', appId: 'governance' },
       { id: 'probe', label: 'Probe', appId: 'probe' },
       { id: 'studio', label: 'Studio', appId: 'studio' },
-      { id: 'chat', label: 'Chat', appId: 'chat' }
+      { id: 'chat', label: 'Chat', appId: 'chat' },
+      { 
+        id: 'utilities', 
+        label: 'Utilities',
+        submenu: [
+          { id: 'tabs', label: 'Tabs', appId: 'tabs' }
+        ]
+      }
     ]
   },
   { id: 'fileexplorer', label: 'File Explorer', appId: 'fileexplorer' },
@@ -39,12 +46,14 @@ const MENU_ITEMS: MenuItem[] = [
 const StartMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
+  const [activeNestedSubmenu, setActiveNestedSubmenu] = useState<string | null>(null);
   const windowService = WindowService.getInstance();
   const processManager = ProcessManager.getInstance();
 
   const toggleMenu = useCallback(() => {
     setIsOpen(prev => !prev);
     setActiveSubmenu(null);
+    setActiveNestedSubmenu(null);
   }, []);
 
   useEffect(() => {
@@ -56,6 +65,7 @@ const StartMenu: React.FC = () => {
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
         setActiveSubmenu(null);
+        setActiveNestedSubmenu(null);
       }
     };
 
@@ -67,6 +77,7 @@ const StartMenu: React.FC = () => {
       if (!target.closest(`.${styles.button}`) && !target.closest(`.${styles.submenu}`) && isOpen) {
         setIsOpen(false);
         setActiveSubmenu(null);
+        setActiveNestedSubmenu(null);
       }
     };
     window.addEventListener('click', handleClickOutside);
@@ -94,6 +105,7 @@ const StartMenu: React.FC = () => {
     windowService.focusWindow(windowId);
     setIsOpen(false);
     setActiveSubmenu(null);
+    setActiveNestedSubmenu(null);
   };
 
   const handleMenuItemClick = (item: MenuItem) => {
@@ -108,10 +120,10 @@ const StartMenu: React.FC = () => {
     <div
       key={item.id}
       className={`${styles.menuItem} ${activeSubmenu === item.id ? styles.active : ''}`}
-      onClick={() => !item.submenu && handleMenuItemClick(item)}
+      onClick={() => !item.submenu && item.appId && handleMenuItemClick(item)}
       onMouseEnter={() => item.submenu && setActiveSubmenu(item.id)}
     >
-      <Icon appId={item.appId} width={32} height={32} className={styles.menuItemIcon} />
+      {item.appId && <Icon appId={item.appId} width={32} height={32} className={styles.menuItemIcon} />}
       <span>{item.label}</span>
       {item.submenu && <span className={styles.submenuArrow}>▶</span>}
       {item.submenu && activeSubmenu === item.id && (
@@ -119,20 +131,62 @@ const StartMenu: React.FC = () => {
           {item.submenu.map((subItem) => (
             <div
               key={subItem.id}
-              className={styles.menuItem}
+              className={`${styles.menuItem} ${!subItem.appId ? styles.textOnly : ''} ${activeNestedSubmenu === subItem.id ? styles.active : ''}`}
               data-app-id={subItem.appId}
               onClick={(e) => {
                 e.stopPropagation();
-                handleMenuItemClick(subItem);
+                if (!subItem.submenu && subItem.appId) {
+                  handleMenuItemClick(subItem);
+                }
+              }}
+              onMouseEnter={() => {
+                if (subItem.submenu) {
+                  setActiveNestedSubmenu(subItem.id);
+                } else {
+                  setActiveNestedSubmenu(null);
+                }
+              }}
+              onMouseLeave={() => {
+                // Don't clear nested submenu immediately to allow navigation
               }}
             >
-              <Icon 
-                appId={subItem.appId} 
-                width={32} 
-                height={32} 
-                className={styles.menuItemIcon} 
-              />
+              {subItem.appId && (
+                <Icon 
+                  appId={subItem.appId} 
+                  width={32} 
+                  height={32} 
+                  className={styles.menuItemIcon} 
+                />
+              )}
               <span>{subItem.label}</span>
+              {subItem.submenu && <span className={styles.submenuArrow}>▶</span>}
+              {subItem.submenu && activeNestedSubmenu === subItem.id && (
+                <div className={styles.submenu}>
+                  {subItem.submenu.map((nestedItem) => (
+                    <div
+                      key={nestedItem.id}
+                      className={styles.menuItem}
+                      data-app-id={nestedItem.appId}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (nestedItem.appId) {
+                          handleMenuItemClick(nestedItem);
+                        }
+                      }}
+                    >
+                      {nestedItem.appId && (
+                        <Icon 
+                          appId={nestedItem.appId} 
+                          width={32} 
+                          height={32} 
+                          className={styles.menuItemIcon} 
+                        />
+                      )}
+                      <span>{nestedItem.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

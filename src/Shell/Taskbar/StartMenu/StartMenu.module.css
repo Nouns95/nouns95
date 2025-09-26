@@ -172,3 +172,15 @@
   width: 1rem !important;
   height: 1rem !important;
 }
+
+/* Text-only menu items (submenu organizers like Utilities) */
+.textOnly {
+  min-height: 1.5rem; /* Half the height of regular menu items (2.25rem / 2) */
+  padding: 0.125rem 0.25rem; /* Reduced padding for shorter height */
+  padding-left: 0.25rem; /* Far left alignment instead of icon alignment */
+}
+
+.textOnly span {
+  font-weight: normal;
+  font-size: 0.75rem; /* Slightly smaller text */
+}

@@ -5,6 +5,7 @@ import { Auction } from '@/src/Apps/Nouns/Auction';
 import { Studio } from '@/src/Apps/Nouns/Studio';
 import { Probe } from '@/src/Apps/Nouns/Probe';
 import { Chat } from '@/src/Apps/MiniApps/Chat';
+import Tabs from '@/src/Apps/MiniApps/Tabs';
 import { default as Governance } from '@/src/Apps/Nouns/Governance/Governance';
 
 // App types
@@ -19,6 +20,7 @@ export type AppId =
   | 'settings'
   | 'shutdown'
   | 'studio'
+  | 'tabs'
   | 'wallet';
 
 
@@ -508,6 +510,41 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
       category: 'system'
     },
     component: () => null
+  },
+
+  tabs: {
+    type: 'miniapp',
+    title: 'Tabs',
+    size: {
+      defaultSize: {
+        width: { value: 24, unit: 'rem' },
+        height: { value: 36, unit: 'rem' },
+      },
+      minSize: {
+        width: { value: 20, unit: 'rem' },
+        height: { value: 15, unit: 'rem' },
+      },
+      maxSize: {
+        width: { value: 32, unit: 'rem' },
+        height: { value: 36, unit: 'rem' },
+      },
+    },
+    position: {
+      preferred: 'topRight',
+      margins: DEFAULT_MARGINS,
+    },
+    behavior: {
+      canResize: true,
+      canMinimize: true,
+      canMaximize: false,
+      stackingOffset: { x: 20, y: 20 },
+    },
+    metadata: {
+      icon: 'tabs',
+      description: 'Manage open windows and applications',
+      category: 'utilities'
+    },
+    component: Tabs
   },
 
   wallet: {
