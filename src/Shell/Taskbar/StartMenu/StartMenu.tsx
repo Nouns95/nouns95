@@ -111,7 +111,7 @@ const StartMenu: React.FC = () => {
   const handleMenuItemClick = (item: MenuItem) => {
     if (item.submenu) {
       setActiveSubmenu(activeSubmenu === item.id ? null : item.id);
-    } else {
+    } else if (item.appId) {
       createWindow(item.appId);
     }
   };
