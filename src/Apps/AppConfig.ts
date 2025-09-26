@@ -517,7 +517,7 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
     title: 'Tabs',
     size: {
       defaultSize: {
-        width: { value: 24, unit: 'rem' },
+        width: { value: 32, unit: 'rem' },
         height: { value: 36, unit: 'rem' },
       },
       minSize: {
@@ -534,7 +534,7 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
       margins: DEFAULT_MARGINS,
     },
     behavior: {
-      canResize: true,
+      canResize: false,
       canMinimize: true,
       canMaximize: false,
       stackingOffset: { x: 20, y: 20 },

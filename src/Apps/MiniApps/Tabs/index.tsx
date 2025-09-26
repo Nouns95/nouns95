@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styles from './Tabs.module.css';
 
-type Network = 'mainnet' | 'sepolia' | 'l2';
+type Network = 'mainnet' | 'sepolia' | 'l2' | 'metagov' | 'nouns';
 
 const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Network>('mainnet');
@@ -102,6 +102,129 @@ const Tabs: React.FC = () => {
     }
   ];
 
+  const metagovOrganizations = [
+    {
+      name: "Nouncil",
+      address: "0xcC2688350d29623E2A0844Cc8885F9050F0f6Ed5",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0xcC2688350d29623E2A0844Cc8885F9050F0f6Ed5" },
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0xcC2688350d29623E2A0844Cc8885F9050F0f6Ed5" }
+      ]
+    },
+    {
+      name: "League of Lils",
+      address: "0xDCb4117e3A00632efCaC3C169E0B23959f555E5e",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0xDCb4117e3A00632efCaC3C169E0B23959f555E5e" },
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0xDCb4117e3A00632efCaC3C169E0B23959f555E5e" }
+      ]
+    },
+    {
+      name: "Zero Weight",
+      address: "0x0a049e014999A489b3D7174B8f70D4200b0Ce79B",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x0a049e014999A489b3D7174B8f70D4200b0Ce79B" }
+      ]
+    },
+    {
+      name: "Bonfire Guild",
+      address: "0x43fA3b63A91E5979BFB096ed19Cc2Fe24Bd71cea",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x43fA3b63A91E5979BFB096ed19Cc2Fe24Bd71cea" },
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0x43fA3b63A91E5979BFB096ed19Cc2Fe24Bd71cea" }
+      ]
+    },
+    {
+      name: "Nounders",
+      address: "0x86030dbbCe1c771Ff6622C20455cd3619aa93c05",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x86030dbbCe1c771Ff6622C20455cd3619aa93c05" },
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0x86030dbbCe1c771Ff6622C20455cd3619aa93c05" }
+      ]
+    },
+    {
+      name: "Shark DAO",
+      address: "0x16C88a1f5580d5a6dAE0F7701E0b7C1341B8BFA6",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x16C88a1f5580d5a6dAE0F7701E0b7C1341B8BFA6" },
+        { name: "snapshot", url: "https://snapshot.org/#/sharkdao.eth/" },
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0x16C88a1f5580d5a6dAE0F7701E0b7C1341B8BFA6" }
+      ]
+    },
+    {
+      name: "pNouns",
+      address: "0x75Da258B48596C742750D389fAdEEF7c8d5fac4c",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x75Da258B48596C742750D389fAdEEF7c8d5fac4c" },
+        { name: "snapshot", url: "https://snapshot.org/#/pnounsdao.eth/" }
+      ]
+    },
+    {
+      name: "Goop Governance Pool",
+      address: "0x6b2645b468a828a12fea8c7d644445eb808ec2b1",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x6b2645b468a828a12fea8c7d644445eb808ec2b1" }
+      ]
+    },
+    {
+      name: "Nouns Amigos",
+      address: "0x5CE2a14f80B3578D54346fdE637E2FFBb87BcBa3",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0x5CE2a14f80B3578D54346fdE637E2FFBb87BcBa3" },
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0x5CE2a14f80B3578D54346fdE637E2FFBb87BcBa3" }
+      ]
+    },
+    {
+      name: "Lil Nouncil",
+      address: "0xADa31Add8450CA0422983B9a3103633b78938617",
+      links: [
+        { name: "safe", url: "https://app.safe.global/home?safe=eth:0xADa31Add8450CA0422983B9a3103633b78938617" },
+        { name: "safe/messages", url: "https://app.safe.global/transactions/messages?safe=eth:0xADa31Add8450CA0422983B9a3103633b78938617" }
+      ]
+    },
+    {
+      name: "Wave Protocol",
+      address: "0xa25499f89f435b183334709a8dd0b6bc3a611ec0",
+      links: [
+        { name: "camp", url: "https://www.nouns.camp/voters/0xa25499f89f435b183334709a8dd0b6bc3a611ec0" }
+      ]
+    }
+  ];
+
+  const nounsTokens = [
+    {
+      name: "NFT Backed ERC-20 Factory",
+      address: "0x12C90168d42EF56980f6479046754063d939eb6e",
+      links: [
+        { name: "etherscan", url: "https://etherscan.io/address/0x12C90168d42EF56980f6479046754063d939eb6e" }
+      ]
+    },
+    {
+      name: "NFT Backed ERC-20 Factory [Sepolia]",
+      address: "0x3Ee7C7eaa83aBDf28F0aFca4a19fEf4613825B3C",
+      links: [
+        { name: "etherscan sepolia", url: "https://sepolia.etherscan.io/address/0x3Ee7C7eaa83aBDf28F0aFca4a19fEf4613825B3C" }
+      ]
+    },
+    {
+      name: "$NOUNS [Mainnet]",
+      address: "0x5c1760c98be951A4067DF234695c8014D8e7619C",
+      links: [
+        { name: "etherscan", url: "https://etherscan.io/address/0x5c1760c98be951A4067DF234695c8014D8e7619C" },
+        { name: "camp", url: "https://nouns.camp/" }
+      ]
+    },
+    {
+      name: "$NOUNS [Base]",
+      address: "0x0a93a7BE7e7e426fC046e204C44d6b03A302b631",
+      links: [
+        { name: "basescan", url: "https://basescan.org/address/0x0a93a7BE7e7e426fC046e204C44d6b03A302b631" },
+        { name: "uniswap", url: "https://app.uniswap.org/" },
+        { name: "dexscreener", url: "https://dexscreener.com/" }
+      ]
+    }
+  ];
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'mainnet':
@@ -180,6 +303,66 @@ const Tabs: React.FC = () => {
             ))}
           </div>
         );
+      case 'metagov':
+        return (
+          <div className={styles.contractsList}>
+            {metagovOrganizations.map((org, index) => (
+              <div key={index} className={styles.contractItem}>
+                <div className={styles.contractHeader}>
+                  <span className={styles.contractName}>{org.name}:</span>
+                  <div className={styles.chainLinks}>
+                    {org.links.map((link, linkIndex) => (
+                      <span key={linkIndex}>
+                        <a 
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.etherscanLink}
+                        >
+                          {link.name} ↗
+                        </a>
+                        {linkIndex < org.links.length - 1 && ', '}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.contractAddress}>
+                  ↳ {org.address}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'nouns':
+        return (
+          <div className={styles.contractsList}>
+            {nounsTokens.map((token, index) => (
+              <div key={index} className={styles.contractItem}>
+                <div className={styles.contractHeader}>
+                  <span className={styles.contractName}>{token.name}:</span>
+                  <div className={styles.chainLinks}>
+                    {token.links.map((link, linkIndex) => (
+                      <span key={linkIndex}>
+                        <a 
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.etherscanLink}
+                        >
+                          {link.name} ↗
+                        </a>
+                        {linkIndex < token.links.length - 1 && ', '}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.contractAddress}>
+                  ↳ {token.address}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
       default:
         return null;
     }
@@ -191,13 +374,13 @@ const Tabs: React.FC = () => {
         <div className={styles.content}>
           <div className={styles.tabsArea}>
             <div className={styles.tabs}>
-              {(['mainnet', 'sepolia', 'l2'] as Network[]).map((tab) => (
+              {(['mainnet', 'sepolia', 'l2', 'metagov', 'nouns'] as Network[]).map((tab) => (
                 <button
                   key={tab}
                   className={`${styles.tab} ${activeTab === tab ? styles.active : ''}`}
                   onClick={() => setActiveTab(tab)}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === 'nouns' ? '$nouns' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
