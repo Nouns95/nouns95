@@ -350,15 +350,15 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
 
   studio: {
     type: 'window',
-    title: 'Studio',
+    title: 'Noundry',
     size: {
       defaultSize: {
         width: { value: 65, unit: 'rem' },
-        height: { value: 40, unit: 'rem' }
+        height: { value: 45, unit: 'rem' }
       },
       minSize: {
         width: { value: 65, unit: 'rem' },
-        height: { value: 40, unit: 'rem' }
+        height: { value: 45, unit: 'rem' }
       },
     },
     position: {

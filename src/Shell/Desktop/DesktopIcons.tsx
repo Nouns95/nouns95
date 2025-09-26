@@ -17,7 +17,7 @@ const DESKTOP_ICONS: DesktopIcon[] = [
   { id: 'probe', label: 'Probe' },
   { id: 'chat', label: 'Chat' },
   { id: 'fileexplorer', label: 'File Explorer' },
-  { id: 'studio', label: 'Studio' }
+  { id: 'studio', label: 'Noundry' }
 ];
 
 export function DesktopIcons() {

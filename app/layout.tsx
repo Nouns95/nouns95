@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
-import AppkitContext from "../src/context/AppkitContext";
+import AppkitContext from "../src/lib/wrappers/AppkitContext";
 import { Analytics } from '@vercel/analytics/next';
 import { ApolloWrapper } from "../src/lib/wrappers/ApolloWrapper";
 

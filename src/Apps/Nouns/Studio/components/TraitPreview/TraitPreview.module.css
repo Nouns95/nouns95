@@ -1,0 +1,16 @@
+/* TraitPreview Styles */
+.traitPreview {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  border: 1px solid var(--win95-gray-dark, #808080);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.placeholder {
+  background: var(--win95-gray, #c0c0c0);
+  border: 1px solid var(--win95-gray-dark, #808080);
+  flex-shrink: 0;
+}

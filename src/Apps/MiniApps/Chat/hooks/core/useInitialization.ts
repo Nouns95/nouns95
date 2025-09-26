@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { ProgressHookType } from '@pushprotocol/restapi';
-import { usePushProtocol } from '../../../../../context/PushProtocolContext';
+import { usePushProtocol } from '../../../../../lib/wrappers/PushProtocolContext';
 import { StreamService } from '../../services/streamService';
 
 interface InitializationState {

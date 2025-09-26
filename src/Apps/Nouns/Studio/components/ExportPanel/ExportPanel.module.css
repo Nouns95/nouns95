@@ -1,0 +1,79 @@
+/* Export Panel Styles */
+.exportPanel {
+  background: var(--win95-gray, #c0c0c0);
+  position: relative;
+  padding: 1rem 0.5rem 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.exportPanel::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: var(--win95-border-width, 0.125rem) solid;
+  border-color: var(--win95-gray-dark, #808080) var(--win95-gray-light, #ffffff) var(--win95-gray-light, #ffffff) var(--win95-gray-dark, #808080);
+  pointer-events: none;
+}
+
+.exportTitle {
+  position: absolute;
+  top: 0;
+  left: 0.5rem;
+  background: var(--win95-gray, #c0c0c0);
+  padding: 0 0.25rem;
+  font-weight: bold;
+  font-size: 0.75rem;
+  z-index: 1;
+}
+
+.exportControls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.sizeSelect {
+  width: 100%;
+  font-size: 11px;
+  position: relative;
+  z-index: 3;
+}
+
+.exportButton {
+  padding: 4px 8px;
+  border: 2px outset #808080;
+  background: #c0c0c0;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: normal;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+.exportButton:hover:not(:disabled) {
+  background: #d4d0c8;
+}
+
+.exportButton:active:not(:disabled) {
+  border: 2px inset #808080;
+  background: #a0a0a0;
+}
+
+.exportButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #808080;
+}
+
+.toolIcon {
+  font-size: 11px;
+}

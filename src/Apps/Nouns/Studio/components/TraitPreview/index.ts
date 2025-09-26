@@ -1,0 +1,1 @@
+export { TraitPreview } from './TraitPreview';

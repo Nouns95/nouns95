@@ -2,7 +2,7 @@
 
 import React, { type ReactNode, useEffect, useState } from 'react'
 import { createAppKit } from '@reown/appkit/react'
-import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks } from '../lib/config/appkit'
+import { bitcoinAdapter, wagmiAdapter, solanaWeb3JsAdapter, projectId, networks } from '../config/appkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiProvider } from 'wagmi'
 
