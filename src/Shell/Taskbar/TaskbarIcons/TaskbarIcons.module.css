@@ -73,4 +73,15 @@
 .auctionIcon > * {
   width: 16px !important;
   height: 16px !important;
+}
+
+/* Special case for tabs icon which should remain 16x16 */
+.tabsIcon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.tabsIcon > * {
+  width: 16px !important;
+  height: 16px !important;
 } 

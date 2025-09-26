@@ -94,12 +94,13 @@ const TaskbarIcons: React.FC = () => {
         onClick={() => toggleApp('tabs')}
         title={tabsConfig.title}
       >
-        <Icon 
-          appId="tabs-small"
-          width={16}
-          height={16}
-          className={styles.icon}
-        />
+        <div className={`${styles.icon} ${styles.tabsIcon}`}>
+          <Icon 
+            appId="tabs"
+            width={16}
+            height={16}
+          />
+        </div>
       </button>
 
       <button
