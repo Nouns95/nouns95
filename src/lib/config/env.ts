@@ -21,7 +21,6 @@ export const publicConfig = {
   reownProjectId: process.env.NEXT_PUBLIC_REOWN_PROJECT_ID,
   // Persona KYC configuration
   personaTemplateId: process.env.NEXT_PUBLIC_PERSONA_TEMPLATE_ID,
-  personaEnvironmentId: process.env.NEXT_PUBLIC_PERSONA_ENVIRONMENT_ID,
 } as const;
 
 // Server-side configurations (only available in API routes and server components)

@@ -8,8 +8,8 @@ interface PersonaKYCProps {
   onError?: (error: unknown) => void;
   disabled?: boolean;
   templateId?: string;
-  environmentId?: string;
-  referenceId?: string;
+  walletAddress?: string;
+  proposalTitle?: string;
 }
 
 export function PersonaKYC({
@@ -18,8 +18,8 @@ export function PersonaKYC({
   onError,
   disabled = false,
   templateId = process.env.NEXT_PUBLIC_PERSONA_TEMPLATE_ID,
-  environmentId = process.env.NEXT_PUBLIC_PERSONA_ENVIRONMENT_ID,
-  referenceId
+  walletAddress,
+  proposalTitle
 }: PersonaKYCProps) {
   const [isKYCOpen, setIsKYCOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,35 @@ export function PersonaKYC({
   useEffect(() => {
     console.log('Persona SDK imported successfully');
   }, []);
+
+  // Generate comprehensive reference ID
+  const generateReferenceId = (): string => {
+    const CLIENT_ID = '11'; // Nouns95 client ID
+    const timestamp = Math.floor(Date.now() / 1000);
+    
+    // Create a safe slug from proposal title
+    const titleSlug = proposalTitle 
+      ? proposalTitle
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+          .replace(/\s+/g, '-') // Replace spaces with hyphens
+          .replace(/-+/g, '-') // Replace multiple hyphens with single
+          .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+          .substring(0, 30) // Limit length
+      : 'untitled';
+    
+    // Create components for reference ID
+    const components = [
+      'nouns95',
+      CLIENT_ID,
+      walletAddress ? walletAddress.toLowerCase() : 'no-wallet',
+      titleSlug,
+      timestamp.toString()
+    ];
+    
+    return components.join('-');
+  };
 
   const initializePersonaClient = () => {
     if (typeof window === 'undefined') {
@@ -45,18 +74,13 @@ export function PersonaKYC({
       return null;
     }
 
-    if (!environmentId) {
-      setErrorMessage('Persona environment ID not configured');
-      setKycStatus('error');
-      return null;
-    }
-
     try {
+      const referenceId = generateReferenceId();
+      console.log('Generated reference ID:', referenceId);
       
       const client = new Persona.Client({
         templateId,
-        environmentId,
-        referenceId: referenceId || `nouns95-${Date.now()}`,
+        referenceId,
         onReady: () => {
           console.log('Persona client ready');
           setIsLoading(false);
@@ -113,7 +137,8 @@ export function PersonaKYC({
     // Debug logging
     console.log('KYC Button clicked');
     console.log('Template ID:', templateId);
-    console.log('Environment ID:', environmentId);
+    console.log('Wallet Address:', walletAddress);
+    console.log('Proposal Title:', proposalTitle);
     console.log('Persona SDK imported:', !!Persona);
     
     setErrorMessage(null);

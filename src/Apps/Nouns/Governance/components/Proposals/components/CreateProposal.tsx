@@ -654,7 +654,8 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
             onCancel={handleKYCCancel}
             onError={handleKYCError}
             disabled={isCreating}
-            referenceId={address ? `nouns95-${address}` : undefined}
+            walletAddress={address}
+            proposalTitle={title}
           />
         )}
 
