@@ -35,7 +35,6 @@ export function PersonaKYC({
   // Generate comprehensive reference ID
   const generateReferenceId = (): string => {
     const CLIENT_ID = '11'; // Nouns95 client ID
-    const timestamp = Math.floor(Date.now() / 1000);
     
     // Create a safe slug from proposal title
     const titleSlug = proposalTitle 
@@ -54,8 +53,7 @@ export function PersonaKYC({
       'nouns95',
       CLIENT_ID,
       walletAddress ? walletAddress.toLowerCase() : 'no-wallet',
-      titleSlug,
-      timestamp.toString()
+      titleSlug
     ];
     
     return components.join('-');
