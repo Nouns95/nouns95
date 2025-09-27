@@ -11,6 +11,7 @@ import CandidatesProxyABI from '../../../../domain/abis/CandidatesProxy';
 import { NOUNS_CONTRACTS } from '../../../../domain/constants/contracts';
 import { SmartActionEditor } from './SmartActionEditor';
 import { MarkdownEditor } from './MarkdownEditor';
+import { PersonaKYC } from './PersonaKYC';
 import styles from './CreateProposal.module.css';
 
 interface ProposalAction {
@@ -27,6 +28,7 @@ interface CreateProposalProps {
 type ProposalState = 'idle' | 'confirming' | 'pending' | 'error' | 'success';
 type CandidateState = 'idle' | 'confirming' | 'pending' | 'error' | 'success';
 type TimelockV1State = 'idle' | 'confirming' | 'pending' | 'error' | 'success';
+type KYCState = 'idle' | 'verified' | 'error';
 
 const CLIENT_ID = 11; // Our client ID
 
@@ -39,6 +41,7 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
   const [proposalState, setProposalState] = useState<ProposalState>('idle');
   const [candidateState, setCandidateState] = useState<CandidateState>('idle');
   const [timelockV1State, setTimelockV1State] = useState<TimelockV1State>('idle');
+  const [kycState, setKycState] = useState<KYCState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { address, isConnected } = useAccount();
@@ -332,6 +335,24 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
     updateAction(index, field as keyof ProposalAction, value);
   };
 
+  // KYC handlers
+  const handleKYCComplete = (data: { inquiryId: string; status: string; fields: Record<string, unknown> }) => {
+    console.log('KYC completed:', data);
+    setKycState('verified');
+    setErrorMessage(null);
+  };
+
+  const handleKYCError = (error: unknown) => {
+    console.error('KYC error:', error);
+    setKycState('error');
+    setErrorMessage('KYC verification failed. Please try again.');
+  };
+
+  const handleKYCCancel = () => {
+    console.log('KYC cancelled');
+    setKycState('idle');
+  };
+
   // Generate a unique slug based on title and proposer address
   const generateSlug = (title: string, proposerAddress: string): string => {
     if (!title.trim() || !proposerAddress) return '';
@@ -352,7 +373,7 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
     return `${baseSlug}-${shortAddress}-${timestamp}`;
   };
 
-  const validateForm = () => {
+  const validateForm = (requireKYC: boolean = true) => {
     if (!title.trim()) {
       setErrorMessage('Title is required');
       return false;
@@ -360,6 +381,12 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
     
     if (!description.trim()) {
       setErrorMessage('Description is required');
+      return false;
+    }
+
+    // Check KYC verification requirement
+    if (requireKYC && kycState !== 'verified') {
+      setErrorMessage('Please complete identity verification (KYC) before creating a proposal');
       return false;
     }
 
@@ -438,7 +465,7 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
   };
 
   const handleCandidateSubmit = async () => {
-    if (!validateForm()) {
+    if (!validateForm(false)) { // KYC not required for candidates
       return;
     }
 
@@ -621,6 +648,16 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
           />
         </div>
 
+        {isConnected && (
+          <PersonaKYC
+            onComplete={handleKYCComplete}
+            onCancel={handleKYCCancel}
+            onError={handleKYCError}
+            disabled={isCreating}
+            referenceId={address ? `nouns95-${address}` : undefined}
+          />
+        )}
+
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <label className={styles.label}>Actions</label>
@@ -671,14 +708,16 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
           <button
             className={styles.submitButton}
             onClick={handleTimelockV1Submit}
-            disabled={isCreating || !canCreateProposal()}
+            disabled={isCreating || !canCreateProposal() || kycState !== 'verified'}
+            title={kycState !== 'verified' ? 'Please complete KYC verification first' : ''}
           >
             {isCreatingTimelockV1 ? 'Creating Timelock V1...' : 'Propose on Timelock V1'}
           </button>
           <button
             className={styles.submitButton}
             onClick={handleSubmit}
-            disabled={isCreating || !canCreateProposal()}
+            disabled={isCreating || !canCreateProposal() || kycState !== 'verified'}
+            title={kycState !== 'verified' ? 'Please complete KYC verification first' : ''}
           >
             {isCreatingProposal ? 'Creating Proposal...' : 'Create Proposal'}
           </button>
