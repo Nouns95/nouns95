@@ -1,0 +1,385 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #c0c0c0;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #000;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+}
+
+.backButton {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #000;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.backButton:hover {
+  background: #d0d0d0;
+}
+
+.backButton:active {
+  border: 2px inset #c0c0c0;
+}
+
+.mainContent {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.leftColumn {
+  flex: 2;
+  padding: 16px;
+  overflow-y: auto;
+  background: #c0c0c0;
+}
+
+.rightColumn {
+  flex: 1;
+  padding: 16px;
+  background: #c0c0c0;
+  border-left: 1px solid #808080;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Identity Section */
+.identitySection {
+  margin-bottom: 20px;
+}
+
+.ensName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ensInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ensText {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+}
+
+.etherscanLink {
+  font-size: 11px;
+  color: #0000ff;
+  text-decoration: underline;
+  font-family: "Consolas", "Monaco", monospace;
+}
+
+.etherscanLink:hover {
+  color: #ff0000;
+}
+
+.etherscanLink:visited {
+  color: #800080;
+}
+
+/* Nouns Section */
+.nounsSection {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #808080;
+  padding-bottom: 4px;
+}
+
+.nounsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+  background: #ffffff;
+  border: 2px inset #c0c0c0;
+}
+
+.nounItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid #808080;
+  background: #c0c0c0;
+}
+
+.nounImage {
+  border: 1px solid #000;
+  image-rendering: pixelated;
+}
+
+.nounId {
+  font-size: 10px;
+  font-weight: bold;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* Proposals Section */
+.proposalsSection {
+  margin-bottom: 20px;
+}
+
+.proposalsList {
+  background: #ffffff;
+  border: 2px inset #c0c0c0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.proposalItem {
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.proposalItem:last-child {
+  border-bottom: none;
+}
+
+.proposalHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.proposalId {
+  font-size: 10px;
+  font-weight: bold;
+  color: #000;
+}
+
+.status {
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 9px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status.executed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.defeated {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status.active {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.proposalDate {
+  font-size: 9px;
+  color: #666;
+  margin-left: auto;
+}
+
+.proposalTitle {
+  font-size: 11px;
+  color: #000;
+  line-height: 1.3;
+}
+
+/* Right Column - Voting Stats */
+.votingStats {
+  background: #ffffff;
+  border: 2px inset #c0c0c0;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.statItem:last-child {
+  border-bottom: none;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #000;
+  font-weight: bold;
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* Votes Section */
+.votesSection {
+  background: #ffffff;
+  border: 2px inset #c0c0c0;
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.votesList {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  background: #ffffff;
+  border: 1px inset #c0c0c0;
+  min-height: 0;
+}
+
+.voteItem {
+  padding: 8px 6px;
+  border-bottom: 1px solid #c0c0c0;
+  margin-bottom: 2px;
+}
+
+.voteItem:hover {
+  background-color: #e0e0e0;
+}
+
+.voteItem:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.voteHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.voteSupport {
+  font-weight: bold;
+  padding: 2px 6px;
+  border: 1px outset #c0c0c0;
+  background: #c0c0c0;
+  font-size: 10px;
+  text-transform: uppercase;
+  min-width: 60px;
+  text-align: center;
+}
+
+.voteSupport.for {
+  background: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.voteSupport.against {
+  background: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+.voteSupport.abstain {
+  background: #fff3cd;
+  color: #856404;
+  border-color: #ffeaa7;
+}
+
+.voteId {
+  font-weight: bold;
+  color: #000080;
+  font-family: "Consolas", "Monaco", monospace;
+  font-size: 10px;
+}
+
+.voteTime {
+  color: #808080;
+  margin-left: auto;
+  font-size: 10px;
+  font-style: italic;
+}
+
+.voteProposal {
+  font-size: 11px;
+  color: #000;
+  margin-bottom: 6px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.voteReason {
+  font-size: 10px;
+  color: #404040;
+  line-height: 1.3;
+  padding: 4px 6px;
+  background: #f0f0f0;
+  border: 1px inset #c0c0c0;
+  margin-top: 4px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Scrollbar styling - matching governance components */
+.nounsGrid::-webkit-scrollbar,
+.proposalsList::-webkit-scrollbar,
+.votesList::-webkit-scrollbar,
+.leftColumn::-webkit-scrollbar,
+.rightColumn::-webkit-scrollbar {
+  width: 16px;
+  background: #c0c0c0;
+  border-left: 1px solid #808080;
+}
+
+.nounsGrid::-webkit-scrollbar-thumb,
+.proposalsList::-webkit-scrollbar-thumb,
+.votesList::-webkit-scrollbar-thumb,
+.leftColumn::-webkit-scrollbar-thumb,
+.rightColumn::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  width: 16px;
+}
+
+.nounsGrid::-webkit-scrollbar-button,
+.proposalsList::-webkit-scrollbar-button,
+.votesList::-webkit-scrollbar-button,
+.leftColumn::-webkit-scrollbar-button,
+.rightColumn::-webkit-scrollbar-button {
+  display: none !important;
+}

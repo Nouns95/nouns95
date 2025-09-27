@@ -13,13 +13,16 @@ import { EditProposal } from './components/Proposals/components/EditProposal';
 import { CreateCandidate } from './components/Proposals/components/CreateCandidate';
 import CandidateDetails from './components/Candidates/[id]';
 import { CandidatesList } from './components/Candidates/CandidatesList';
+import { VotersList } from './components/Voters/VotersList';
+import { VoterDetails } from './components/Voters/components/VoterDetails';
 import styles from './Governance.module.css';
 
-type Tab = 'proposals' | 'candidates' | 'topics';
+type Tab = 'proposals' | 'candidates' | 'voters';
 
 export default function Governance() {
   const [activeTab, setActiveTab] = useState<Tab>('proposals');
   const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null);
+  const [selectedVoterId, setSelectedVoterId] = useState<string | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showCreateProposal, setShowCreateProposal] = useState(false);
   const [showCreateCandidate, setShowCreateCandidate] = useState(false);
@@ -40,9 +43,14 @@ export default function Governance() {
     setSelectedProposalId(proposalId);
   };
 
+  const handleVoterClick = (voterId: string) => {
+    setSelectedVoterId(voterId);
+  };
+
   const handleBackToProposals = () => {
     setActiveTab('proposals');
     setSelectedProposalId(null);
+    setSelectedVoterId(null);
     setShowCreateProposal(false);
     setShowCreateCandidate(false);
     setEditProposalId(null);
@@ -57,6 +65,10 @@ export default function Governance() {
   const handleBackToCandidatesList = () => {
     setSelectedProposalId(null);
     setShowCreateCandidate(false);
+  };
+
+  const handleBackToVotersList = () => {
+    setSelectedVoterId(null);
   };
 
   const handleCreateProposal = () => {
@@ -183,8 +195,20 @@ export default function Governance() {
             onCandidateClick={handleProposalClick}
           />
         );
-      case 'topics':
-        return <div>Topics content coming soon...</div>;
+      case 'voters':
+        if (selectedVoterId) {
+          return (
+            <VoterDetails 
+              id={selectedVoterId}
+              onBackToList={handleBackToVotersList}
+            />
+          );
+        }
+        return (
+          <VotersList 
+            onVoterClick={handleVoterClick}
+          />
+        );
       default:
         return null;
     }
@@ -209,7 +233,7 @@ export default function Governance() {
         </div>
         <div className={`${styles.proposalsSection} ${isSidebarCollapsed ? styles.expanded : ''}`}>
           <div className={styles.tabs}>
-            {(['proposals', 'candidates', 'topics'] as Tab[]).map((tab) => (
+            {(['proposals', 'candidates', 'voters'] as Tab[]).map((tab) => (
               <button
                 key={tab}
                 className={`${styles.tab} ${activeTab === tab ? styles.active : ''}`}

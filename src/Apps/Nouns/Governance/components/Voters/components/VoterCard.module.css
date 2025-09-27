@@ -1,0 +1,151 @@
+.delegateCard {
+  background: #c0c0c0;
+  border: 2px outset #c0c0c0;
+  padding: 12px;
+  cursor: pointer;
+  transition: border 0.1s;
+  height: fit-content;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #000;
+}
+
+.delegateCard:hover {
+  background: #d0d0d0;
+}
+
+.delegateCard:active {
+  border: 2px inset #c0c0c0;
+}
+
+.delegateHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.delegateInfo {
+  flex: 1;
+  min-width: 0;
+  /* Now empty, just maintains spacing */
+}
+
+.delegateAddress {
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  color: #000;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.votingPower {
+  font-size: 10px;
+  color: #000;
+  font-weight: normal;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.etherscanLink {
+  font-size: 9px;
+  color: #0000ff;
+  text-decoration: underline;
+  font-family: "MS Sans Serif", sans-serif;
+  margin-left: auto;
+}
+
+.etherscanLink:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+
+.etherscanLink:visited {
+  color: #800080;
+}
+
+.delegateStats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+  padding: 6px 0;
+  border-top: 1px inset #c0c0c0;
+  border-bottom: 1px inset #c0c0c0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 9px;
+  color: #000;
+  text-transform: uppercase;
+  font-weight: normal;
+  margin-bottom: 2px;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.statValue {
+  font-size: 11px;
+  font-weight: bold;
+  color: #000;
+  font-family: "MS Sans Serif", sans-serif;
+}
+
+.recentActivity {
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: #ffffff;
+  border: 1px inset #c0c0c0;
+  border-radius: 0;
+}
+
+.activityLabel {
+  font-size: 8px;
+  color: #000;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 3px;
+  font-family: "MS Sans Serif", sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.lastVote {
+  font-size: 10px;
+  color: #000;
+  line-height: 1.4;
+  font-family: "MS Sans Serif", sans-serif;
+  font-weight: 500;
+}
+
+.proposalInfo {
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  background: #f0f0f0;
+  border: 1px inset #c0c0c0;
+  border-radius: 0;
+}
+
+.proposalLabel {
+  font-size: 8px;
+  color: #800080;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 3px;
+  font-family: "MS Sans Serif", sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.proposalTitle {
+  font-size: 10px;
+  color: #000;
+  line-height: 1.4;
+  font-style: italic;
+  font-family: "MS Sans Serif", sans-serif;
+  font-weight: 500;
+}

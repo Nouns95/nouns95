@@ -535,7 +535,7 @@ export const APP_CONFIGS: Record<AppId, AppWindowConfig> = {
     },
     behavior: {
       canResize: false,
-      canMinimize: true,
+      canMinimize: false,
       canMaximize: false,
       stackingOffset: { x: 20, y: 20 },
     },
