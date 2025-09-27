@@ -50,10 +50,10 @@ export function PersonaKYC({
     
     // Create components for reference ID
     const components = [
-      'nouns95',
-      CLIENT_ID,
+      titleSlug,
       walletAddress ? walletAddress.toLowerCase() : 'no-wallet',
-      titleSlug
+      'nouns95',
+      CLIENT_ID
     ];
     
     return components.join('-');
