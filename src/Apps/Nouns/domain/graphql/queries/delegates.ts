@@ -61,7 +61,7 @@ export const DELEGATE_DETAIL_QUERY = gql`
         tokenBalance
         tokenBalanceRaw
       }
-      nounsRepresented(first: 100, orderBy: id, orderDirection: desc) {
+      nounsRepresented(first: 1000, orderBy: id, orderDirection: desc) {
         id
         owner {
           id

@@ -17,18 +17,11 @@ export function VoterDetails({ id, onBackToList }: VoterDetailsProps) {
 
   const { loading, error, data } = useQuery(DELEGATE_DETAIL_QUERY, {
     variables: { id },
-    pollInterval: 30000,
+    fetchPolicy: 'cache-first',
+    nextFetchPolicy: 'cache-only',
+    notifyOnNetworkStatusChange: false,
   });
 
-  const formatVoteCount = (votes: string) => {
-    const num = parseInt(votes);
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    }
-    return num.toString();
-  };
 
   const getSupportText = (supportDetailed: number) => {
     switch (supportDetailed) {
@@ -128,7 +121,7 @@ export function VoterDetails({ id, onBackToList }: VoterDetailsProps) {
           <div className={styles.identitySection}>
             <div className={styles.ensName}>
               <div className={styles.ensInfo}>
-                <AddressAvatar address={delegate.id} size={24} />
+                <AddressAvatar address={delegate.id} size={32} />
               </div>
               <a
                 href={`https://etherscan.io/address/${delegate.id}`}
@@ -144,7 +137,7 @@ export function VoterDetails({ id, onBackToList }: VoterDetailsProps) {
           {/* Nouns Represented Section */}
           <div className={styles.nounsSection}>
             <h3 className={styles.sectionTitle}>
-              {delegate.nounsRepresented.length} nouns represented (~{formatVoteCount(delegate.delegatedVotes)} of quorum)
+              {delegate.nounsRepresented.length} nouns represented
             </h3>
             <div className={styles.nounsGrid}>
               {[...delegate.nounsRepresented]
