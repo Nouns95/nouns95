@@ -29,7 +29,7 @@ export function PersonaKYC({
 
   // No need to dynamically load SDK since we're importing it
   useEffect(() => {
-    console.log('Persona SDK imported successfully');
+    // SDK imported via npm package
   }, []);
 
   // Generate comprehensive reference ID
@@ -74,24 +74,20 @@ export function PersonaKYC({
 
     try {
       const referenceId = generateReferenceId();
-      console.log('Generated reference ID:', referenceId);
       
       const client = new Persona.Client({
         templateId,
         referenceId,
         onReady: () => {
-          console.log('Persona client ready');
           setIsLoading(false);
           client.open();
         },
         onComplete: (data: { inquiryId: string; status: string; fields: Record<string, unknown> }) => {
-          console.log('KYC completed:', data);
           setKycStatus('completed');
           setIsKYCOpen(false);
           onComplete(data);
         },
-        onCancel: (data: { inquiryId?: string; sessionToken?: string }) => {
-          console.log('KYC cancelled:', data);
+        onCancel: () => {
           setKycStatus('idle');
           setIsKYCOpen(false);
           onCancel?.();
@@ -106,15 +102,13 @@ export function PersonaKYC({
           setIsKYCOpen(false);
           onError?.(error);
         },
-        onEvent: (name: string, meta?: Record<string, unknown>) => {
-          console.log(`Persona event: ${name}`, meta);
+        onEvent: (name: string) => {
           switch (name) {
             case 'start':
-              console.log(`KYC started with inquiry ID: ${meta?.inquiryId}`);
               setKycStatus('loading');
               break;
             default:
-              console.log(`Received event: ${name} with meta:`, meta);
+              // Handle other events if needed
           }
         }
       });
@@ -131,13 +125,6 @@ export function PersonaKYC({
 
   const handleStartKYC = () => {
     if (disabled) return;
-    
-    // Debug logging
-    console.log('KYC Button clicked');
-    console.log('Template ID:', templateId);
-    console.log('Wallet Address:', walletAddress);
-    console.log('Proposal Title:', proposalTitle);
-    console.log('Persona SDK imported:', !!Persona);
     
     setErrorMessage(null);
     setIsLoading(true);
@@ -159,8 +146,8 @@ export function PersonaKYC({
     if (clientRef.current) {
       try {
         (clientRef.current as { cancel: (force?: boolean) => void }).cancel(true);
-      } catch (error) {
-        console.error('Error cancelling KYC:', error);
+      } catch {
+        // Silently handle cancellation errors
       }
     }
     setIsKYCOpen(false);

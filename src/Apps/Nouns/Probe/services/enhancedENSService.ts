@@ -97,7 +97,7 @@ class EnhancedENSService {
       }
     });
     
-    console.log(`📋 Preloaded ENS data for ${nouns.filter(n => n.__ensName).length} addresses`);
+    // Debug log removed
   }
 
   /**

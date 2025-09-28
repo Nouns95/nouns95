@@ -52,7 +52,7 @@ const Probe: React.FC = () => {
 
   const handleAnalyze = () => {
     // Could implement analysis features in the future
-    console.log('Analysis functionality - TODO');
+    // Debug log removed
   };
 
   const handleRefresh = () => {

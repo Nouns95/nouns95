@@ -59,8 +59,8 @@ export function GovernanceOverview() {
         const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL);
         const block = await provider.getBlockNumber();
         setCurrentBlock(block);
-      } catch (error) {
-        console.error('Error fetching current block:', error);
+      } catch {
+        // Error fetching current block
       }
     };
 

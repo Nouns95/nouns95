@@ -162,7 +162,7 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
 
     // Prevent double submission
     if (isSponsorPending) {
-      console.log('Sponsorship already in progress, ignoring duplicate submission');
+      // Sponsorship already in progress
       return;
     }
 
@@ -180,8 +180,8 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
         reason: sponsorReason,
       });
       
-    } catch (error) {
-      console.error('Error sponsoring candidate:', error);
+    } catch {
+      // Error sponsoring candidate
       // Error is handled by the hook
     }
   };
@@ -222,8 +222,8 @@ export default function CandidateDetails({ id, onBackToList }: CandidateDetailsP
       // Reset state on success
       setShowPromoteDialog(false);
       setSelectedSignatures([]);
-    } catch (error) {
-      console.error('Error promoting candidate:', error);
+    } catch {
+      // Error promoting candidate
     }
   };
 

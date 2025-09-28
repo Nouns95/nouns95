@@ -98,7 +98,7 @@ export function VoteForm({ proposalId, startBlock, endBlock }: VoteFormProps) {
         setReason('');
       },
       onError: (error: Error | BaseError) => {
-        console.error('Vote error:', error);
+        // Vote error handled
         setVoteState('error');
         
         // Handle user rejection
@@ -191,8 +191,8 @@ export function VoteForm({ proposalId, startBlock, endBlock }: VoteFormProps) {
           const blockNumber = parseInt(data.result, 16);
           setCurrentBlock(blockNumber);
         }
-      } catch (error) {
-        console.warn('Error fetching current block:', error);
+      } catch {
+        // Error fetching current block
       }
     };
 
@@ -224,7 +224,7 @@ export function VoteForm({ proposalId, startBlock, endBlock }: VoteFormProps) {
     // If this is a comment-only vote (outside voting period), just log the reason
     if (isCommentOnly) {
       // In a real implementation, you would save this to a database or other storage
-      console.log(`Comment on proposal ${proposalId}: Vote ${selectedVote}, Reason: ${reason}`);
+      // Submit vote with reason
       
       // For demo purposes, we'll just show a success message
       setErrorMessage('Your comment has been recorded. Note that this is not an on-chain vote.');
@@ -258,7 +258,7 @@ export function VoteForm({ proposalId, startBlock, endBlock }: VoteFormProps) {
       
       setVoteState('pending');
     } catch (err: unknown) {
-      console.error('Error submitting vote:', err);
+      // Error submitting vote
       setVoteState('error');
       
       // More detailed error handling

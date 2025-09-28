@@ -195,12 +195,6 @@ export const useChat = (
       limit?: number;
     }
   ) => {
-    console.log('📚 Loading chat history:', {
-      target,
-      options,
-      previousSelectedChat: selectedChat
-    });
-    
     // Store the selected chat and mark as read
     setSelectedChat(target);
     markChatAsRead();
@@ -231,31 +225,25 @@ export const useChat = (
     try {
       // Get chat info first to ensure the chat exists
       const chatInfo = await chatService.getChatInfo(target);
-      console.log('Chat info details:', {
-        target,
-        info: chatInfo.data,
-        meta: chatInfo.data?.meta,
-        recipient: chatInfo.data?.recipient
-      });
-
+// Debug comment removed
       if (!chatInfo.success || !chatInfo.data) {
         throw new Error('Failed to get chat info');
       }
 
       // Use the recipient from chat info if available, and strip eip155: prefix
       const targetAddress = (chatInfo.data.recipient || target).replace('eip155:', '');
-      console.log('Using target address:', targetAddress);
+      // Comment removed
 
       // Get conversation hash first
-      const { threadHash } = await getConversationHash(targetAddress);
-      console.log('Conversation hash:', threadHash);
+      await getConversationHash(targetAddress);
+      // Comment removed
 
       // Get chat history
       const result = await chatService.getHistory(targetAddress, {
         ...options,
         limit: options?.limit || 30
       });
-      console.log('Chat history result:', result);
+      // Comment removed
       
       if (!result.success) {
         throw result.error || new Error('Failed to load chat history');
@@ -278,10 +266,7 @@ export const useChat = (
       } as PushMessage)) || [];
 
       setState(prev => {
-        console.log('📝 Updating messages state:', {
-          oldMessageCount: prev.messages.length,
-          newMessageCount: messages.length
-        });
+        // Update messages state
         return {
         ...prev,
           messages,
@@ -296,7 +281,7 @@ export const useChat = (
         chatHistoryLoading: false
       }));
     }
-  }, [chatService, isStreamConnected, getConversationHash, markChatAsRead, selectedChat]);
+  }, [chatService, isStreamConnected, getConversationHash, markChatAsRead]);
 
   /**
    * Load all chats
@@ -314,9 +299,9 @@ export const useChat = (
     setState(prev => ({ ...prev, chatListLoading: true, chatListError: null }));
 
     try {
-      console.log('Fetching chats...');
+      // Comment removed
       const result = await chatService.checkChatExists('');
-      console.log('Raw chat result:', result);
+      // Comment removed
 
       if (!result?.success) {
         throw result?.error || new Error('Failed to load chats');
@@ -338,13 +323,7 @@ export const useChat = (
           return isValid;
         })
         .map(chat => {
-          console.log('Processing chat:', {
-            did: chat.did,
-            name: chat.name,
-            msg: chat.msg,
-            profilePicture: chat.profilePicture
-          });
-
+// Debug comment removed
           // Extract message fields from the nested msg object
           const msg = chat.msg || {};
           const timestamp = msg.timestamp || Date.now();
@@ -380,11 +359,11 @@ export const useChat = (
             }
           }));
 
-          console.log('Converted to PushMessage:', pushMessage);
+          // Comment removed
           return pushMessage;
         }) || [];
 
-      console.log('Final chat list:', chats);
+      // Comment removed
 
       setState(prev => ({
         ...prev,
@@ -536,13 +515,7 @@ export const useChat = (
       messageTo === currentChat
     );
 
-    console.log('Message relevance check:', {
-      messageFrom,
-      messageTo,
-      currentChat,
-      isRelevantMessage
-    });
-
+// Debug comment removed
     // Only add message to state if it's from someone else
     // This prevents duplicate messages when we send them
     if (isRelevantMessage && !chatService) {
@@ -566,7 +539,7 @@ export const useChat = (
           const scrollContainer = document.querySelector('.win95-scrollable-content');
           if (scrollContainer) {
             scrollContainer.scrollTop = scrollContainer.scrollHeight;
-            console.log('📜 Scrolled to bottom');
+            // Comment removed
           }
         }, 100);
       }
@@ -578,34 +551,20 @@ export const useChat = (
    */
   const handleNewMessage = useCallback(async (data: unknown) => {
     if (!chatService || !isChatEventData(data)) {
-      console.log('❌ Invalid chat event data or chat service not initialized:', data);
+      // Comment removed
       return;
     }
 
     try {
       // Check if message is from us before processing
       const userAccount = await chatService.getUserInfo();
-      console.log('🔍 Message received - User info:', {
-        currentUser: userAccount?.data?.did,
-        messageFrom: data.from,
-        messageTo: data.to,
-        selectedChat
-      });
-
+// Debug comment removed
       const isFromUs = userAccount?.success && data.from === userAccount.data?.did;
 
-      console.log('🔵 Chat message received:', {
-        from: data.from,
-        to: data.to,
-        content: data.message.content,
-        timestamp: new Date(parseInt(data.timestamp)).toISOString(),
-        isFromUs,
-        selectedChat
-      });
-
+// Debug comment removed
       // Skip processing if message is from us since we already added it in sendMessage
       if (isFromUs) {
-        console.log('Skipping message from self');
+        // Comment removed
         return;
       }
 
@@ -633,12 +592,7 @@ export const useChat = (
       const messageFromDID = data.from.replace('eip155:', '');
       const currentSelectedChat = selectedChat?.replace('eip155:', '');
       
-      console.log('📱 Notification check:', {
-        messageFromDID,
-        currentSelectedChat,
-        shouldNotify: messageFromDID !== currentSelectedChat
-      });
-
+// Debug comment removed
       // Always increment unread count if the message is not from the currently selected chat
       if (messageFromDID !== currentSelectedChat) {
         setRealTimeState(prev => {
@@ -663,14 +617,7 @@ export const useChat = (
             }
           };
           
-          console.log('💬 Updating unread state:', {
-            oldState: prev,
-            newState,
-            messageFromDID,
-            currentUnreadCount: currentUserState.unreadCount,
-            newUnreadCount: (currentUserState.unreadCount || 0) + 1
-          });
-          
+// Comment removed          
           return newState;
         });
       }
@@ -685,16 +632,9 @@ export const useChat = (
         });
 
         // Get current unread count for this chat from realTimeState
-        const currentUnreadCount = realTimeState.onlineUsers[messageFromDID]?.unreadCount || 0;
+        // Get current unread count
 
-        console.log('🔄 Updating chat list:', {
-          existingChatIndex,
-          messageFrom: data.from,
-          currentChats: prev.chats.length,
-          hasUnread: messageFromDID !== currentSelectedChat,
-          unreadCount: currentUnreadCount
-        });
-
+// Debug comment removed
         // Create new chat entry
         const newChatEntry = {
           ...message,
@@ -710,12 +650,7 @@ export const useChat = (
           // Move updated chat to top
           updatedChats.unshift(...updatedChats.splice(existingChatIndex, 1));
           
-          console.log('📝 Updated existing chat:', {
-            chatIndex: existingChatIndex,
-            newMessage: newChatEntry.messageContent,
-            unreadCount: currentUnreadCount
-          });
-          
+// Comment removed          
           return {
         ...prev,
             chats: updatedChats
@@ -723,12 +658,7 @@ export const useChat = (
         }
 
         // If new chat, add to top
-        console.log('➕ Adding new chat:', {
-          from: newChatEntry.fromDID,
-          message: newChatEntry.messageContent,
-          unreadCount: currentUnreadCount
-        });
-
+// Debug comment removed
         return {
           ...prev,
           chats: [newChatEntry, ...prev.chats]
@@ -737,7 +667,7 @@ export const useChat = (
     } catch (error) {
       console.error('❌ Error processing chat message:', error);
     }
-  }, [chatService, handleDecryptedMessage, selectedChat, realTimeState.onlineUsers]);
+  }, [chatService, handleDecryptedMessage, selectedChat]);
 
   /**
    * Handle presence update from stream
@@ -829,14 +759,14 @@ export const useChat = (
     stream.on(CONSTANTS.STREAM.CHAT_OPS, handleReadReceipt as (data: MessageEvent | NotificationEvent | GroupEventBase | SpaceMemberEventBase | VideoEventType) => void);
 
     // Debug log for stream connection
-    console.log('🔌 Chat stream connected and handlers registered');
+    // Comment removed
 
     // Cleanup listeners on unmount or disconnect
     return () => {
       stream.off(CONSTANTS.STREAM.CHAT, handleNewMessage as (data: MessageEvent | NotificationEvent | GroupEventBase | SpaceMemberEventBase | VideoEventType) => void);
       stream.off(CONSTANTS.STREAM.CHAT_OPS, handlePresence as (data: MessageEvent | NotificationEvent | GroupEventBase | SpaceMemberEventBase | VideoEventType) => void);
       stream.off(CONSTANTS.STREAM.CHAT_OPS, handleReadReceipt as (data: MessageEvent | NotificationEvent | GroupEventBase | SpaceMemberEventBase | VideoEventType) => void);
-      console.log('🔌 Chat stream handlers cleaned up');
+      // Comment removed
     };
   }, [stream, isStreamConnected, handleNewMessage, handlePresence, handleReadReceipt]);
 

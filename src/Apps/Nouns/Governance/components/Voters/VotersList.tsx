@@ -81,8 +81,8 @@ export function VotersList({ onVoterClick }: VotersListProps) {
           };
         }
       });
-    } catch (error) {
-      console.error('Error fetching more delegates:', error);
+    } catch {
+      // Error fetching more delegates
       setHasMoreDelegates(false);
     } finally {
       setIsFetchingMoreDelegates(false);

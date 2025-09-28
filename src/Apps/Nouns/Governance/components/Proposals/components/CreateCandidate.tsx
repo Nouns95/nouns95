@@ -80,10 +80,10 @@ export function CreateCandidate({ onBack }: CreateCandidateProps) {
   } = useWriteContract({
     mutation: {
       onSuccess: () => {
-        console.log('Candidate creation transaction sent successfully');
+        // Candidate creation transaction successful
       },
       onError: (err: unknown) => {
-        console.error('Error in candidate creation transaction:', err);
+        // Error in candidate creation transaction
         setCandidateState('error');
         
         if (err instanceof Error) {
@@ -196,7 +196,7 @@ export function CreateCandidate({ onBack }: CreateCandidateProps) {
       
       setCandidateState('pending');
     } catch (err: unknown) {
-      console.error('Error creating candidate:', err);
+      // Error creating candidate
       setCandidateState('error');
       
       if (err instanceof Error) {

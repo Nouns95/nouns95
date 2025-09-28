@@ -139,8 +139,8 @@ export default function ProposalDetails({ id, onBackToList, onEditProposal }: Pr
             if (name) {
               resolvedNames[target.toLowerCase()] = name;
             }
-          } catch (error) {
-            console.warn('Error resolving ENS name:', error);
+          } catch {
+            // Error resolving ENS name
           }
         })
       );
@@ -193,8 +193,8 @@ export default function ProposalDetails({ id, onBackToList, onEditProposal }: Pr
         }, {});
 
         setDecodedCalls(newDecodedCalls);
-      } catch (err) {
-        console.error('Error decoding function calls:', err);
+      } catch {
+        // Error decoding function calls
         // Set error state for all calls
         const errorState = data.proposal.signatures.reduce((acc: Record<string, DecodedCall>, _: string, index: number) => {
           acc[`${index}`] = { loading: false, error: 'Failed to decode calls' };

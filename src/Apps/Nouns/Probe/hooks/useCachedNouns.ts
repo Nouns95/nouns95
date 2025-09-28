@@ -74,7 +74,7 @@ export function useCachedNouns({
   const fetchAllData = useCallback(async () => {
     // Prevent concurrent loading operations
     if (loadingRef.current) {
-      console.log('⚠️ Loading already in progress, skipping...');
+      // Loading already in progress, skip
       return;
     }
     
@@ -83,7 +83,7 @@ export function useCachedNouns({
     setError(null);
 
     try {
-      console.log('🚀 Starting fast batch loading of all Nouns...');
+      // Start fast batch loading
       
       // First, get the initial batch to know total count
       const initialResult = await fetchCachedNouns({
@@ -99,11 +99,11 @@ export function useCachedNouns({
       if (!isMountedRef.current) return;
 
       const totalCount = initialResult.meta.total || 0;
-      console.log(`📊 Total Nouns to load: ${totalCount}`);
+      // Total nouns to load
 
       // Show initial batch immediately
       const initialNouns = convertCachedNounsToGraphQL(initialResult.data);
-      console.log(`📦 Initial load: ${initialNouns.length} Nouns (IDs: ${initialNouns.slice(0, 3).map(n => n.id).join(', ')}...)`);
+      // Initial load complete
       setNouns(initialNouns);
       setTotalCount(totalCount);
       setLoadingProgress(initialResult.data.length);
@@ -124,7 +124,7 @@ export function useCachedNouns({
       const remainingCount = totalCount - initialResult.data.length;
       const numberOfBatches = Math.ceil(remainingCount / BATCH_SIZE);
       
-      console.log(`⚡ Loading ${remainingCount} more Nouns in ${numberOfBatches} batches...`);
+      // Load remaining nouns in batches
 
       // Load remaining batches sequentially (no parallel requests)
       // let totalLoadedCount = INITIAL_LOAD_SIZE;
@@ -138,7 +138,7 @@ export function useCachedNouns({
         const offset = INITIAL_LOAD_SIZE + (batchIndex * BATCH_SIZE);
         
         try {
-          console.log(`📡 Loading batch ${batchIndex + 1}/${numberOfBatches} at offset ${offset}...`);
+          // Load batch
           
           const batchResult = await fetchCachedNouns({
             limit: BATCH_SIZE,
@@ -164,10 +164,10 @@ export function useCachedNouns({
               setNouns([...allLoadedNouns]);
               setLoadingProgress(allLoadedNouns.length);
               
-              console.log(`📦 Loaded batch ${batchIndex + 1}: ${uniqueNouns.length} nouns (Total: ${allLoadedNouns.length})`);
+              // Batch loaded successfully
             }
           } else {
-            console.log(`📦 Batch ${batchIndex + 1} returned no data, stopping...`);
+            // Batch returned no data, stop
             break;
           }
           
@@ -182,7 +182,7 @@ export function useCachedNouns({
 
 
       setIsLoadingComplete(true);
-      console.log(`✅ Loaded all ${totalCount} Nouns successfully!`);
+      // All nouns loaded successfully
 
     } catch (err) {
       if (!isMountedRef.current) return;
@@ -208,17 +208,11 @@ export function useCachedNouns({
   useEffect(() => {
     // Prevent multiple simultaneous effect runs
     if (loadingRef.current) {
-      console.log('⚠️ Effect skipped - loading already in progress');
+      // Effect skipped - loading in progress
       return;
     }
     
-    console.log('🔄 Dependencies changed, resetting and loading...', {
-      searchQuery,
-      orderBy, 
-      orderDirection,
-      traitFilters: stableTraitFilters,
-      refreshKey
-    });
+    // Dependencies changed, reset and load
     
     // Reset state immediately
     setNouns([]);

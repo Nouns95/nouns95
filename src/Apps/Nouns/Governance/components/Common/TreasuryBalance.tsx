@@ -133,8 +133,8 @@ export function TreasuryBalance() {
           RETH: data[COINGECKO_IDS.RETH]?.usd || 0,
           METH: data[COINGECKO_IDS.METH]?.usd || data[COINGECKO_IDS.ETH]?.usd || 0 // Fallback to ETH price if METH price not available
         });
-      } catch (error) {
-        console.error('Error fetching prices:', error);
+      } catch {
+        // Error fetching prices
         setPriceError('Failed to fetch token prices');
       } finally {
         setIsLoadingPrices(false);

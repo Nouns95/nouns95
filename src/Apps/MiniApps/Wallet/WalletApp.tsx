@@ -38,7 +38,7 @@ export default function WalletApp() {
 
   // Set up wallet event listeners - using useEffect for proper lifecycle
   React.useEffect(() => {
-    console.log('Wallet app initialized')
+    // Wallet app initialized
   }, [isConnected, address, chainId])
 
   if (!isConnected) {

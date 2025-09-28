@@ -231,8 +231,8 @@ export function ProposalsList({ onProposalClick, onEditProposal }: ProposalsList
         const provider = getProvider();
         const block = await provider.getBlockNumber();
         setCurrentBlock(block);
-      } catch (error) {
-        console.warn('Error fetching current block:', error);
+      } catch {
+        // Error fetching current block
         // Don't update currentBlock if there's an error
         // The existing value will be used
       }
@@ -422,8 +422,8 @@ export function ProposalsList({ onProposalClick, onEditProposal }: ProposalsList
           };
         }
       });
-    } catch (error) {
-      console.error('Error fetching more votes:', error);
+    } catch {
+      // Error fetching more votes
       setHasMoreVotes(false);
     } finally {
       setIsFetchingMoreVotes(false);
@@ -460,8 +460,8 @@ export function ProposalsList({ onProposalClick, onEditProposal }: ProposalsList
           };
         }
       });
-    } catch (error) {
-      console.error('Error fetching more proposals:', error);
+    } catch {
+      // Error fetching more proposals
       setHasMoreProposals(false);
     } finally {
       setIsFetchingMoreProposals(false);

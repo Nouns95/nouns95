@@ -37,27 +37,22 @@ export function useInitialization(progressHook?: (progress: ProgressHookType) =>
   // Initialize stream function
   const initializeStream = useCallback(async () => {
     if (!user || state.isStreamConnecting || state.isStreamConnected) {
-      console.log('Stream initialization skipped:', {
-        hasUser: !!user,
-        isConnecting: state.isStreamConnecting,
-        isConnected: state.isStreamConnected,
-        state
-      });
+      // Skip stream initialization
       return;
     }
 
-    console.log('Starting stream initialization...');
+    // Start stream initialization
     setState(prev => ({ ...prev, isStreamConnecting: true, error: null }));
     reportProgress('stream-init', 'Stream Initialization', 'Starting stream service setup...');
 
     try {
       // Create and initialize stream service
-      console.log('Creating stream service...');
+      // Create stream service
       reportProgress('stream-create', 'Stream Service', 'Creating stream service instance...');
       const stream = new StreamService(user);
       
       // Initialize and connect stream
-      console.log('Initializing stream...');
+      // Initialize stream
       reportProgress('stream-setup', 'Stream Setup', 'Initializing stream connection...');
       const initResult = await stream.initStream();
       if (!initResult.success) {
@@ -65,7 +60,7 @@ export function useInitialization(progressHook?: (progress: ProgressHookType) =>
         throw initResult.error;
       }
 
-      console.log('Connecting stream...');
+      // Connect stream
       reportProgress('stream-connect', 'Stream Connection', 'Establishing connection...');
       const connectResult = await stream.connect();
       if (!connectResult.success) {
@@ -73,7 +68,7 @@ export function useInitialization(progressHook?: (progress: ProgressHookType) =>
         throw connectResult.error;
       }
 
-      console.log('Stream connected successfully');
+      // Stream connected successfully
       reportProgress('stream-ready', 'Stream Ready', 'Connection established successfully');
       setStreamService(stream);
       setState(prev => ({
@@ -103,21 +98,14 @@ export function useInitialization(progressHook?: (progress: ProgressHookType) =>
 
   // Debug logging
   useEffect(() => {
-    console.log('State Update:', {
-      hasUser: !!user,
-      isUserInitializing,
-      userError,
-      userAddress: user?.account,
-      state,
-      isFullyInitialized: !!user && state.isInitialized && state.isStreamConnected
-    });
+    // Monitor state updates
   }, [user, isUserInitializing, userError, state]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (streamService) {
-        console.log('Cleaning up stream service...');
+        // Clean up stream service
         reportProgress('cleanup', 'Cleanup', 'Cleaning up stream service...');
         streamService.reset().catch(console.error);
       }

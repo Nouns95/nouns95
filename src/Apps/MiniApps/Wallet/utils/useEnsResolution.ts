@@ -27,23 +27,23 @@ export function useEnsResolution(address?: string): EnsData {
     async function resolveEns() {
       if (!address) return;
       
-      console.log('Resolving ENS for address:', address);
+      // Debug log removed
       
       try {
         // Resolve ENS name
         const name = await mainnetClient.getEnsName({
           address: address as `0x${string}`
         });
-        console.log('Resolved ENS name:', name);
+        // Debug log removed
         
         let avatar = null;
         // If we have a name, get the avatar
         if (name) {
-          console.log('Fetching avatar for:', name);
+          // Debug log removed
           avatar = await mainnetClient.getEnsAvatar({
             name
           });
-          console.log('Resolved avatar:', avatar);
+          // Debug log removed
         }
 
         setEnsData({

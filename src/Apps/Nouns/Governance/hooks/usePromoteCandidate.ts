@@ -122,7 +122,7 @@ export function usePromoteCandidate() {
         error: null,
       });
 
-      console.log('Promoting candidate with params:', params);
+      // Promote candidate with parameters
 
       // Prepare the proposer signatures array
       const proposerSignatures = params.proposerSignatures.map(sig => ({
@@ -157,7 +157,7 @@ export function usePromoteCandidate() {
       });
 
     } catch (error) {
-      console.error('Error promoting candidate:', error);
+      // Error promoting candidate
       setPromoteState({
         isSuccess: false,
         isError: true,

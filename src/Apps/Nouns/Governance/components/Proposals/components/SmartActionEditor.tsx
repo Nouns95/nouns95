@@ -90,12 +90,8 @@ export function SmartActionEditor({
     
     try {
       // Fetch main contract ABI
-      console.log('Fetching main contract ABI for address:', address);
       const response = await fetch(`/api/ethereum/etherscan?moduleType=contract&action=getabi&address=${address}`);
-      console.log('Main ABI HTTP response status:', response.status, response.statusText);
       const data = await response.json();
-      console.log('Main ABI response:', data);
-      console.log('Main ABI response status:', data.status, 'message:', data.message, 'result length:', data.result?.length);
       
       if (data.error) {
         throw new Error(data.error);
@@ -106,25 +102,17 @@ export function SmartActionEditor({
       }
       
       const mainAbi = JSON.parse(data.result);
-      console.log('Parsed main ABI items:', mainAbi.length, 'First few items:', mainAbi.slice(0, 3));
+      // Parse main ABI items
       
       // Check if this is a proxy contract
       const proxyInfo = await detectProxyImplementation(address, mainAbi);
-      console.log('Proxy detection result:', proxyInfo);
+      // Proxy detection completed
       
       let allFunctions = mainAbi.filter((item: ABIItem) => item.type === 'function');
       let contractName = '';
       
-      console.log(`Proxy contract has ${allFunctions.length} functions:`, allFunctions.map((f: ABIItem) => {
-        const inputs = f.inputs && Array.isArray(f.inputs) 
-          ? f.inputs.map((i: ABIInput) => i.type || '').join(',') 
-          : '';
-        return `${f.name}(${inputs})`;
-      }));
-      console.log('All proxy ABI items by type:', mainAbi.reduce((acc: Record<string, number>, item: ABIItem) => {
-        acc[item.type] = (acc[item.type] || 0) + 1;
-        return acc;
-      }, {}));
+      // Process proxy contract functions
+      // Analyze ABI items
       
       // Get contract name (with rate limiting delay)
       try {
@@ -134,35 +122,30 @@ export function SmartActionEditor({
         if (nameData.status === '1' && nameData.result?.[0]?.ContractName) {
           contractName = nameData.result[0].ContractName;
         }
-      } catch (error) {
-        console.warn('Could not fetch contract name:', error);
+      } catch {
+        // Could not fetch contract name
       }
 
       // If it's a proxy, also fetch implementation ABI (critical for minimal proxies with no functions)
       if (proxyInfo.isProxy && proxyInfo.implementationAddress) {
         try {
-          console.log(`Detected ${proxyInfo.proxyType} - fetching implementation ABI from:`, proxyInfo.implementationAddress);
-          console.log('Implementation ABI request URL:', `/api/ethereum/etherscan?moduleType=contract&action=getabi&address=${proxyInfo.implementationAddress}`);
+          // Fetch implementation ABI
+          // Request implementation ABI
           
           // Add delay to avoid rate limiting  
           await new Promise(resolve => setTimeout(resolve, 1500));
           const implResponse = await fetch(`/api/ethereum/etherscan?moduleType=contract&action=getabi&address=${proxyInfo.implementationAddress}`);
-          console.log('Implementation ABI HTTP response status:', implResponse.status, implResponse.statusText);
+          // Process implementation response
           
           const implData = await implResponse.json();
-          console.log('Implementation ABI response:', implData);
-          console.log('Implementation ABI response status:', implData.status, 'message:', implData.message, 'result length:', implData.result?.length);
+          // Parse implementation data
+          // Check implementation response status
           
           if (implData.status === '1') {
             const implAbi = JSON.parse(implData.result);
             const implFunctions = implAbi.filter((item: ABIItem) => item.type === 'function');
             
-            console.log(`Implementation contract has ${implFunctions.length} functions:`, implFunctions.map((f: ABIItem) => {
-              const inputs = f.inputs && Array.isArray(f.inputs) 
-                ? f.inputs.map((i: ABIInput) => i.type || '').join(',') 
-                : '';
-              return `${f.name}(${inputs})`;
-            }));
+            // Process implementation functions
             
             // Combine functions from both contracts, avoiding duplicates
             // Create a more sophisticated deduplication based on function signature
@@ -185,13 +168,8 @@ export function SmartActionEditor({
             
             allFunctions = [...allFunctions, ...newFunctions];
             
-            console.log(`Added ${newFunctions.length} functions from implementation contract`);
-            console.log('Combined functions list:', allFunctions.map((f: ABIItem) => {
-              const inputs = f.inputs && Array.isArray(f.inputs) 
-                ? f.inputs.map((i: ABIInput) => i.type || '').join(',') 
-                : '';
-              return `${f.name}(${inputs})`;
-            }));
+            // Add implementation functions
+            // Combine function lists
             
             // Try to get implementation contract name
             try {
@@ -203,24 +181,24 @@ export function SmartActionEditor({
                   `${contractName} (Proxy → ${implNameData.result[0].ContractName})` : 
                   `Proxy → ${implNameData.result[0].ContractName}`;
               }
-            } catch (error) {
-              console.warn('Could not fetch implementation contract name:', error);
+            } catch {
+              // Could not fetch implementation contract name
             }
           } else if (implData.message === 'NOTOK' && implData.result?.includes('rate limit')) {
-            console.warn('Rate limited when fetching implementation ABI - will retry');
+            // Rate limited when fetching implementation ABI
             // For minimal proxies, we should still indicate it's a proxy even if rate limited
             contractName = contractName ? 
               `${contractName} (Minimal Proxy → Rate Limited)` : 
               `Minimal Proxy → Rate Limited`;
           } else {
-            console.warn(`Implementation contract (${proxyInfo.implementationAddress}) is not verified on Etherscan:`, implData.message || implData.result);
+            // Implementation contract not verified
             // Update contract name to indicate implementation is not verified
             contractName = contractName ? 
               `${contractName} (Proxy → Unverified Implementation)` : 
               `Proxy → Unverified Implementation`;
           }
-        } catch (error) {
-          console.error('Error fetching implementation ABI:', error);
+        } catch {
+          // Error fetching implementation ABI
           // Update contract name to indicate there was an error
           contractName = contractName ? 
             `${contractName} (Proxy → Implementation Error)` : 
@@ -228,19 +206,14 @@ export function SmartActionEditor({
         }
       }
       
-      console.log('All functions found:', allFunctions.length, allFunctions.map((f: ABIItem) => {
-        const inputs = f.inputs && Array.isArray(f.inputs) 
-          ? f.inputs.map((i: ABIInput) => i.type || '').join(',') 
-          : '';
-        return `${f.name}(${inputs})`;
-      }));
+      // Process all found functions
       
       // Filter for state-changing functions (including functions without explicit stateMutability)
       const functions = allFunctions
         .filter((item: ABIItem) => {
           // First filter out invalid function objects
           if (!item || typeof item !== 'object' || !item.name || item.type !== 'function') {
-            console.warn('Invalid function object:', item);
+            // Invalid function object
             return false;
           }
           
@@ -261,12 +234,7 @@ export function SmartActionEditor({
           };
         });
       
-      console.log('State-changing functions:', functions.length, functions.map((f: ABIItem) => {
-        const inputs = f.inputs && Array.isArray(f.inputs) 
-          ? f.inputs.map((i: ABIInput) => i.type || '').join(',') 
-          : '';
-        return `${f.name}(${inputs})`;
-      }));
+      // Filter state-changing functions
       
       setContractABI({ 
         contractName, 
@@ -275,13 +243,13 @@ export function SmartActionEditor({
         implementationAddress: proxyInfo.implementationAddress,
         proxyType: proxyInfo.proxyType
       });
-    } catch (error) {
-      console.error('Error fetching ABI:', error);
+    } catch {
+      // Error fetching ABI
       
       // Try fallback to known contract ABIs
       const knownContract = getKnownContractABI(address);
       if (knownContract) {
-        console.log('Using known contract ABI for:', knownContract.name);
+        // Using known contract ABI
         
         const functions = knownContract.abi.filter((item: ABIItem) => {
           if (item.type !== 'function' || !item.name) return false;
@@ -306,7 +274,7 @@ export function SmartActionEditor({
           proxyType: undefined
         });
       } else {
-        setAbiError(error instanceof Error ? error.message : 'Failed to fetch contract ABI');
+        setAbiError('Failed to fetch contract ABI');
       }
     } finally {
       setIsLoadingABI(false);
@@ -358,8 +326,8 @@ export function SmartActionEditor({
       try {
         const encodedCalldata = encodeCalldata(selectedFunction, functionInputs);
         onUpdate('calldata', encodedCalldata);
-      } catch (error) {
-        console.warn('Error encoding calldata:', error);
+      } catch {
+        // Error encoding calldata
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps  
@@ -398,11 +366,11 @@ export function SmartActionEditor({
         });
 
         const result = await response.json();
-        console.log('implementation() call result:', result);
+        // Check implementation call result
         if (result.result && result.result !== '0x') {
           // Extract address from the result (last 40 characters)
           const implementationAddress = '0x' + result.result.slice(-40);
-          console.log('Extracted implementation address from function call:', implementationAddress);
+          // Extract implementation address
           if (implementationAddress !== '0x0000000000000000000000000000000000000000') {
             return {
               isProxy: true,
@@ -433,10 +401,10 @@ export function SmartActionEditor({
         });
 
         const result = await response.json();
-        console.log('EIP-1967 storage slot result:', result);
+        // Check EIP-1967 storage slot
         if (result.result && result.result !== '0x0000000000000000000000000000000000000000000000000000000000000000') {
           const implementationAddress = '0x' + result.result.slice(-40);
-          console.log('Extracted implementation address from EIP-1967 slot:', implementationAddress);
+          // Extract address from EIP-1967 slot
           if (implementationAddress !== '0x0000000000000000000000000000000000000000') {
             return {
               isProxy: true,
@@ -445,8 +413,8 @@ export function SmartActionEditor({
             };
           }
         }
-      } catch (error) {
-        console.warn('Could not check EIP-1967 slot:', error);
+      } catch {
+        // Could not check EIP-1967 slot
       }
 
       // Check for common proxy patterns by looking at the ABI
@@ -512,14 +480,14 @@ export function SmartActionEditor({
               };
             }
           }
-        } catch (error) {
-          console.warn('Could not check EIP-1967 slot for minimal proxy:', error);
+        } catch {
+          // Could not check EIP-1967 slot for minimal proxy
         }
       }
 
       return { isProxy: false };
-    } catch (error) {
-      console.warn('Error detecting proxy:', error);
+    } catch {
+      // Error detecting proxy
       return { isProxy: false };
     }
   };
@@ -536,7 +504,7 @@ export function SmartActionEditor({
   const encodeCalldata = (func: ContractFunction, inputs: { [key: string]: string }): string => {
     try {
       if (!func || !func.inputs || !Array.isArray(func.inputs)) {
-        console.error('Invalid function or inputs structure:', func);
+        // Invalid function or inputs structure
         return '0x';
       }
 
@@ -544,7 +512,7 @@ export function SmartActionEditor({
       const types = func.inputs.map(input => input.type);
       const values = func.inputs.map(input => {
         if (!input || !input.name || !input.type) {
-          console.warn('Invalid input parameter:', input);
+          // Invalid input parameter
           return '';
         }
         const value = inputs[input.name] || '';
@@ -559,8 +527,8 @@ export function SmartActionEditor({
       const encoded = ethers.utils.defaultAbiCoder.encode(types, values);
       // Remove the '0x' prefix for the final calldata
       return encoded.slice(2);
-    } catch (error) {
-      console.error('Error encoding calldata:', error);
+    } catch {
+      // Error encoding calldata
       return '0x';
     }
   };
@@ -582,8 +550,8 @@ export function SmartActionEditor({
         return JSON.parse(value);
       }
       return value;
-    } catch (error) {
-      console.warn(`Error parsing ${type} value "${value}":`, error);
+    } catch {
+      // Error parsing value
       return getDefaultValueForType(type);
     }
   };
@@ -629,7 +597,7 @@ export function SmartActionEditor({
 
   const renderParameterInput = (input: { name: string; type: string }) => {
     if (!input || !input.name || !input.type) {
-      console.warn('Invalid input parameter for rendering:', input);
+      // Invalid input parameter for rendering
       return null;
     }
     
@@ -754,7 +722,7 @@ export function SmartActionEditor({
                 <option value="">Select function...</option>
                 {contractABI.functions.map((func) => {
                   if (!func || !func.name) {
-                    console.warn('Invalid function in ABI:', func);
+                    // Invalid function in ABI
                     return null;
                   }
                   

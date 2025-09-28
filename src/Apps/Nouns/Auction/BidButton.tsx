@@ -61,28 +61,17 @@ const BidButton = () => {
   }) as ContractReadResult;
 
   useEffect(() => {
-    console.log('Contract read state:', {
-      auctionData,
-      isError,
-      isPending,
-      isFetching,
-      lastValidAuctionData
-    });
+    // Monitor contract read state
     
     if (auctionData && !isPending && !isFetching && !isError) {
-      console.log('Setting lastValidAuctionData:', auctionData);
+      // Set last valid auction data
       setLastValidAuctionData(auctionData);
     }
   }, [auctionData, isPending, isFetching, isError, lastValidAuctionData]);
 
   useEffect(() => {
     if (!lastValidAuctionData || isPending || isFetching || isError) {
-      console.log('Skipping auction status check:', {
-        hasLastValidData: !!lastValidAuctionData,
-        isPending,
-        isFetching,
-        isError
-      });
+      // Skip auction status check
       return;
     }
 
@@ -113,7 +102,7 @@ const BidButton = () => {
   } = useWriteContract({
     mutation: {
       onError: (error: Error | BaseError) => {
-        console.error('Bid error:', error);
+        // Bid error handled
         setBidState('error');
         
         // Handle user rejection
@@ -201,8 +190,8 @@ const BidButton = () => {
 
   const { writeContract: settleAuction } = useWriteContract({
     mutation: {
-      onError: (error: Error | BaseError) => {
-        console.error('Settlement error:', error);
+      onError: () => {
+        // Settlement error handled
       }
     }
   });
@@ -247,9 +236,9 @@ const BidButton = () => {
       });
 
       setBidState('pending');
-    } catch (err) {
+    } catch {
       // The error will be handled by onError callback
-      console.error('Unexpected error:', err);
+      // Unexpected error handled
     }
   };
 
@@ -275,14 +264,14 @@ const BidButton = () => {
   const handleSettleAuction = async () => {
     if (!settleAuction) return;
     try {
-      const result = await settleAuction({
+      await settleAuction({
         address: AUCTION_HOUSE_ADDRESS,
         abi: NounsAuctionHouseABI,
         functionName: 'settleCurrentAndCreateNewAuction',
       });
-      console.log('Auction settled successfully', result);
-    } catch (error) {
-      console.error('Error settling auction:', error);
+      // Auction settled successfully
+    } catch {
+      // Error settling auction
     }
   };
 

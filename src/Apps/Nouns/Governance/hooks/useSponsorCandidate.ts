@@ -131,8 +131,7 @@ export function useSponsorCandidate() {
         proposalIdToUpdate: BigInt(params.proposalIdToUpdate || 0),
       } as const;
 
-      console.log('Signing EIP-712 message:', message);
-      console.log('Domain:', domain);
+      // Sign EIP-712 message
 
       // Sign the typed data using EIP-712
       const signature = await signTypedDataAsync({
@@ -143,8 +142,8 @@ export function useSponsorCandidate() {
       });
 
       return signature;
-    } catch (error) {
-      console.error('Error signing typed data:', error);
+    } catch {
+      // Error signing typed data
       throw new Error('Failed to sign sponsorship data');
     }
   };
@@ -161,7 +160,7 @@ export function useSponsorCandidate() {
 
     // Prevent multiple simultaneous calls
     if (isPending || isWritePending) {
-      console.log('Transaction already in progress, ignoring duplicate call');
+      // Transaction already in progress
       return;
     }
 
@@ -202,7 +201,7 @@ export function useSponsorCandidate() {
       });
 
     } catch (error) {
-      console.error('Error sponsoring candidate:', error);
+      // Error sponsoring candidate
       setIsPending(false); // Reset pending state on error
       setSponsorState({
         isSuccess: false,

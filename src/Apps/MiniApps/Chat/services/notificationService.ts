@@ -138,7 +138,7 @@ export class NotificationService {
     try {
       await this.pushUser.notification.subscribe(channelAddress, {
         onSuccess: () => {
-          console.log('Successfully subscribed to channel:', channelAddress);
+          // Debug log removed
           options?.onSuccess?.();
         },
         onError: (error: Error) => {
@@ -167,7 +167,7 @@ export class NotificationService {
     try {
       await this.pushUser.notification.unsubscribe(channelAddress, {
         onSuccess: () => {
-          console.log('Successfully unsubscribed from channel:', channelAddress);
+          // Debug log removed
           options?.onSuccess?.();
         },
         onError: (error: Error) => {

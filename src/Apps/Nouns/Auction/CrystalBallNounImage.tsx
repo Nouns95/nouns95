@@ -31,14 +31,7 @@ function getPseudorandomPart(pseudorandomness: string, partCount: number, shiftA
   
   // Debug logging for body trait
   if (shiftAmount === 48) { // This is the body trait
-    console.log('Body Part Calculation:', {
-      pseudorandomness: pseudorandomness.slice(0, 10) + '...',
-      shiftAmount,
-      partCount,
-      shifted: shifted.toString(),
-      masked: masked.toString(),
-      result
-    });
+    // Calculate body part index
   }
   
   return result;
@@ -53,12 +46,7 @@ function getNounSeedFromBlockHash(nounId: string, blockHash: string) {
   );
   const pseudorandomness = keccak256(encodedData);
 
-  // Debug logging for seed generation
-  console.log('Seed Generation:', {
-    blockHash: blockHash.slice(0, 10) + '...',
-    nounId,
-    pseudorandomness: pseudorandomness.slice(0, 10) + '...'
-  });
+  // Generate seed from block hash and noun ID
 
   return {
     background: getPseudorandomPart(pseudorandomness, ImageData.bgcolors.length, 0),
@@ -85,7 +73,7 @@ export function CrystalBallNounImage({ nounId, width = 320, height = 320, classN
       onBlock: async (block) => {
         const fullBlock = await publicClient.getBlock({ blockHash: block.hash });
         setBlockHash(fullBlock.hash);
-        console.log('New block received:', fullBlock.hash);
+        // New block received
       },
     });
 
@@ -102,14 +90,7 @@ export function CrystalBallNounImage({ nounId, width = 320, height = 320, classN
       // Generate seed from block hash
       const seed = getNounSeedFromBlockHash(nounId, blockHash);
       
-      // Debug logging for body trait
-      console.log('CrystalBall Body Debug:', {
-        blockHash,
-        nounId,
-        bodyIndex: seed.body,
-        totalBodies: ImageData.images.bodies.length,
-        bodyData: ImageData.images.bodies[seed.body]
-      });
+      // Generate crystal ball body trait
       
       // Get the encoded part data for each component in the correct order:
       // Background color is passed separately to buildSVG
@@ -121,14 +102,7 @@ export function CrystalBallNounImage({ nounId, width = 320, height = 320, classN
         { data: ImageData.images.glasses[seed.glasses].data }
       ];
       
-      // Log the selected indices for debugging
-      console.log('Selected parts:', {
-        background: seed.background,
-        body: seed.body,
-        accessory: seed.accessory,
-        head: seed.head,
-        glasses: seed.glasses
-      });
+      // Generate noun parts from seed
       
       const svgData = buildSVG(
         encodedParts,

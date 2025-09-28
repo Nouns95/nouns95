@@ -350,7 +350,7 @@ export function useRequests(
     if (!stream || !isStreamConnected) return;
 
     const requestHandler = (data: unknown) => {
-      console.log('🔔 Request event received:', data);
+      // Debug log removed
       
       if (data && typeof data === 'object') {
         // Check for new request events
@@ -367,7 +367,7 @@ export function useRequests(
           data.event === 'CHAT_REQUEST' ||
           data.event === 'REQUEST.CHAT'
         )) {
-          console.log('📨 Chat request event detected:', data);
+          // Debug log removed
           handleNewRequest({
             type: 'chat',
             requestId: (data as { reference?: string }).reference || Date.now().toString(),
@@ -383,7 +383,7 @@ export function useRequests(
           data.event === 'SPACE_REQUEST' ||
           data.event === 'REQUEST.SPACE'
         )) {
-          console.log('🌐 Space request event detected:', data);
+          // Debug log removed
           handleNewRequest({
             type: 'space',
             requestId: (data as { reference?: string }).reference || Date.now().toString(),
@@ -403,12 +403,7 @@ export function useRequests(
     stream.on(CONSTANTS.STREAM.SPACE_OPS, requestHandler);
 
     // Debug logging
-    console.log('🔌 Request stream handlers registered for events:', {
-      chat: CONSTANTS.STREAM.CHAT,
-      chatOps: CONSTANTS.STREAM.CHAT_OPS,
-      space: CONSTANTS.STREAM.SPACE,
-      spaceOps: CONSTANTS.STREAM.SPACE_OPS
-    });
+    // Request stream handlers registered
 
     // Load initial requests
     loadAllRequests();
@@ -419,7 +414,7 @@ export function useRequests(
       stream.off(CONSTANTS.STREAM.CHAT_OPS, requestHandler);
       stream.off(CONSTANTS.STREAM.SPACE, requestHandler);
       stream.off(CONSTANTS.STREAM.SPACE_OPS, requestHandler);
-      console.log('🔌 Request stream handlers cleaned up');
+      // Debug log removed
     };
   }, [stream, isStreamConnected, handleNewRequest, handleRequestUpdate, loadChatRequests, loadSpaceRequests, loadAllRequests]);
 

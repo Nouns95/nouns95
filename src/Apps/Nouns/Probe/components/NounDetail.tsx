@@ -55,7 +55,7 @@ export function NounDetail({ nounId, onBack }: NounDetailProps) {
   const resolvedAddressRef = useRef<string | null>(null);
   const resolvedDelegateRef = useRef<string | null>(null);
   
-  console.log('NounDetail rendering with nounId:', nounId);
+  // Debug log removed
 
   const { loading, error, data } = useQuery<NounDetailData>(NOUN_DETAIL_QUERY, {
     variables: { id: nounId },

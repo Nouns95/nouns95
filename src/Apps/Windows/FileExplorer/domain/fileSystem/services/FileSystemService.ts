@@ -64,7 +64,7 @@ export class FileSystemService {
       // Remove any double slashes and trailing slashes
       const cleanPath = normalizedPath.replace(/\/+/g, '/').replace(/\/$/, '');
       
-      console.log('Reading directory:', cleanPath); // Debug log
+      // Debug log removed // Debug log
       
       const response = await fetch(`/api/files?path=${encodeURIComponent(cleanPath)}`, {
         headers: {
@@ -78,7 +78,7 @@ export class FileSystemService {
       }
       
       const contents = await response.json();
-      console.log('Directory contents:', contents); // Debug log
+      // Debug log removed // Debug log
       return contents;
     } catch (error) {
       console.error('Error reading directory:', error);
@@ -127,7 +127,7 @@ export class FileSystemService {
         ? dirPath
         : `/files${dirPath === '/' ? '' : dirPath}`;
 
-      console.log('Loading directory contents for:', apiPath); // Debug log
+      // Debug log removed // Debug log
       
       const contents = await this.readDirectoryContents(apiPath);
       if (!contents) {
@@ -189,7 +189,7 @@ export class FileSystemService {
         this.state.nodes[parentId] = parentNode;
       }
 
-      console.log('Created nodes:', childIds.length); // Debug log
+      // Debug log removed // Debug log
       return childIds;
     } catch (error) {
       console.error('Error loading directory contents:', error);

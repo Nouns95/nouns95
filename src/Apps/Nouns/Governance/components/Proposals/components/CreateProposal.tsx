@@ -105,7 +105,6 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
         setActions([{ target: '', value: '0', signature: '', calldata: '0x' }]);
       },
       onError: (error: Error | BaseError) => {
-        console.error('Proposal creation error:', error);
         setProposalState('error');
         
         // Handle user rejection
@@ -169,7 +168,6 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
         setActions([{ target: '', value: '0', signature: '', calldata: '0x' }]);
       },
       onError: (error: Error | BaseError) => {
-        console.error('Candidate creation error:', error);
         setCandidateState('error');
         
         // Handle user rejection
@@ -229,7 +227,6 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
         setActions([{ target: '', value: '0', signature: '', calldata: '0x' }]);
       },
       onError: (error: Error | BaseError) => {
-        console.error('Timelock V1 proposal creation error:', error);
         setTimelockV1State('error');
         
         // Handle user rejection
@@ -336,20 +333,17 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
   };
 
   // KYC handlers
-  const handleKYCComplete = (data: { inquiryId: string; status: string; fields: Record<string, unknown> }) => {
-    console.log('KYC completed:', data);
+  const handleKYCComplete = () => {
     setKycState('verified');
     setErrorMessage(null);
   };
 
-  const handleKYCError = (error: unknown) => {
-    console.error('KYC error:', error);
+  const handleKYCError = () => {
     setKycState('error');
     setErrorMessage('KYC verification failed. Please try again.');
   };
 
   const handleKYCCancel = () => {
-    console.log('KYC cancelled');
     setKycState('idle');
   };
 
@@ -447,7 +441,6 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
       
       setProposalState('pending');
     } catch (err: unknown) {
-      console.error('Error creating proposal:', err);
       setProposalState('error');
       
       if (err instanceof Error) {
@@ -522,7 +515,6 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
       
       setCandidateState('pending');
     } catch (err: unknown) {
-      console.error('Error creating candidate:', err);
       setCandidateState('error');
       
       if (err instanceof Error) {
@@ -576,7 +568,6 @@ export function CreateProposal({ onBack }: CreateProposalProps) {
       
       setTimelockV1State('pending');
     } catch (err: unknown) {
-      console.error('Error creating timelock V1 proposal:', err);
       setTimelockV1State('error');
       
       if (err instanceof Error) {

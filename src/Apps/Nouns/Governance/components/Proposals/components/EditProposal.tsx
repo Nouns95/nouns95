@@ -229,7 +229,7 @@ export function EditProposal({ proposalId, onBack }: EditProposalProps) {
       
       setProposalState('pending');
     } catch (err: unknown) {
-      console.error('Error updating proposal:', err);
+      // Error updating proposal
       setProposalState('error');
       
       if (err instanceof Error) {

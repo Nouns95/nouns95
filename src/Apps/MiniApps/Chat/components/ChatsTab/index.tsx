@@ -82,7 +82,7 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
   useEffect(() => {
     if (lastNotification) {
       // You could show a toast/alert here
-      console.log('New notification:', lastNotification);
+      // Debug log removed
     }
   }, [lastNotification]);
 
@@ -181,13 +181,7 @@ export const ChatsTab: React.FC<ChatsTabProps> = ({
                     const unreadCount = onlineUsers[chatDID]?.unreadCount || 0;
                     const hasUnread = !isActive && unreadCount > 0;
                     
-                    console.log('🎯 Rendering chat item:', {
-                      chatId: chat.fromDID,
-                      isActive,
-                      hasUnread,
-                      unreadCount,
-                      message: chat.messageContent
-                    });
+                    // Render chat item
                     
                     return (
                       <div 

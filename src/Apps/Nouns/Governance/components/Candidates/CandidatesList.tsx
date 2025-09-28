@@ -117,8 +117,8 @@ export function CandidatesList({ onCandidateClick }: CandidatesListProps) {
           };
         }
       });
-    } catch (error) {
-      console.error('Error fetching more feedback:', error);
+    } catch {
+      // Error fetching more feedback
       setHasMoreFeedback(false);
     } finally {
       setIsFetchingMoreFeedback(false); // Always reset loading state
@@ -152,8 +152,8 @@ export function CandidatesList({ onCandidateClick }: CandidatesListProps) {
           };
         }
       });
-    } catch (error) {
-      console.error('Error fetching more candidates:', error);
+    } catch {
+      // Error fetching more candidates
       setHasMoreCandidates(false);
     } finally {
       setIsFetchingMoreCandidates(false); // Always reset loading state
