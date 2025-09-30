@@ -75,9 +75,23 @@ export function PersonaKYC({
     try {
       const referenceId = generateReferenceId();
       
+      // Prepare fields for prefilling
+      const fields: Record<string, string> = {};
+      
+      // Add proposal title as project_name if available
+      if (proposalTitle) {
+        fields.project_name = proposalTitle;
+      }
+      
+      // Add wallet address as crypto_wallet_address if available
+      if (walletAddress) {
+        fields.crypto_wallet_address = walletAddress;
+      }
+
       const client = new Persona.Client({
         templateId,
         referenceId,
+        fields,
         onReady: () => {
           setIsLoading(false);
           client.open();
