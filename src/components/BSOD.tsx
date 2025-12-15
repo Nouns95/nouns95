@@ -49,7 +49,7 @@ export default function BSOD() {
         <div className={styles.content}>
           <p className={styles.errorText}>
             A fatal exception 0E has occurred at 002B:C002AD13 in N0UNS95(01) + 
-            0000A3D7. The current application will be terminated.
+            0000A3D7. <br />The current application will be terminated.<br />
           </p>
 
           <ul className={styles.instructions}>
