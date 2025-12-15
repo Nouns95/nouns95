@@ -5,7 +5,7 @@ import { Auction } from '@/src/Apps/Nouns/Auction';
 import { Studio } from '@/src/Apps/Nouns/Studio';
 import { Probe } from '@/src/Apps/Nouns/Probe';
 import { Chat } from '@/src/Apps/MiniApps/Chat';
-import Tabs from '@/src/Apps/MiniApps/Tabs';
+import Tabs from '@/src/Apps/Nouns/Tabs';
 import { default as Governance } from '@/src/Apps/Nouns/Governance/Governance';
 
 // App types

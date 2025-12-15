@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import AppkitContext from "../src/lib/wrappers/AppkitContext";
 import { Analytics } from '@vercel/analytics/next';
 import { ApolloWrapper } from "../src/lib/wrappers/ApolloWrapper";
+import NeynarWrapper from "../src/lib/wrappers/NeynarContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,15 +16,15 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Nouns 95",
-  description: "Nouns 95",
+  title: "Nouns 95 - Service Unavailable",
+  description: "Nouns 95 has been deprecated. Please visit BerryOS for the latest experience.",
   applicationName: "Nouns 95",
   authors: [{ name: "Macrohard" }],
-  keywords: ["Nouns", "DAO", "95"],
+  keywords: ["Nouns", "DAO", "95", "BerryOS"],
   metadataBase: new URL("https://nouns95.wtf"),
   openGraph: {
-    title: "Nouns 95",
-    description: "Nouns 95 - Start me up.",
+    title: "Nouns 95 - Service Unavailable",
+    description: "Nouns 95 has been deprecated. Visit BerryOS.wtf for the latest experience.",
     url: "https://nouns95.wtf",
     siteName: "Nouns 95",
     images: [
@@ -39,8 +40,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nouns 95",
-    description: "Nouns 95",
+    title: "Nouns 95 - Service Unavailable",
+    description: "Nouns 95 has been deprecated. Visit BerryOS.wtf",
     images: ["/icons/shell/TaskBar/StartMenu/StartMenu.png"],
   },
   icons: {
@@ -65,7 +66,9 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <AppkitContext>
           <ApolloWrapper>
-            {children}
+            <NeynarWrapper>
+              {children}
+            </NeynarWrapper>
           </ApolloWrapper>
         </AppkitContext>
         <Analytics />

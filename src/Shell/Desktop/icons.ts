@@ -32,6 +32,11 @@ export const APP_ICONS: AppIcons = {
     alt: '💬',
     isComponent: false
   },
+  farcaster: {
+    icon: '/icons/apps/farcaster/farcaster.png',
+    alt: '🟣',
+    isComponent: false
+  },
   fileexplorer: {
     icon: '/icons/apps/fileexplorer/folders/folder.png',
     alt: '📂',

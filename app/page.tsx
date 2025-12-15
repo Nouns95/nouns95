@@ -1,5 +1,5 @@
-import { Shell } from '@/src/Shell/Shell';
+import BSOD from '@/src/components/BSOD';
 
 export default function Home() {
-  return <Shell />;
+  return <BSOD />;
 }
