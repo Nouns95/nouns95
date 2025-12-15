@@ -71,6 +71,18 @@ export default function BSOD() {
           <p className={styles.continueText}>
             Press any key to continue
           </p>
+
+          <p className={styles.footer}>
+            Source code available at{' '}
+            <a 
+              href="https://github.com/Nouns95/nouns95" 
+              className={styles.repoLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              github.com/Nouns95/nouns95
+            </a>
+          </p>
         </div>
       </div>
     </div>
